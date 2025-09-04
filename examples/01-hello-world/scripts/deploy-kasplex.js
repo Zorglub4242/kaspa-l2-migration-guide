@@ -39,8 +39,11 @@ async function main() {
   console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(configuredGasPrice)), "KAS");
   console.log("");
   
-  // Deploy the contract
-  const hello = await HelloWorld.deploy();
+  // Deploy the contract with explicit gas configuration
+  const hello = await HelloWorld.deploy({
+    gasPrice: configuredGasPrice,
+    gasLimit: gasEstimate
+  });
   console.log("⏳ Waiting for deployment confirmation...");
   
   await hello.waitForDeployment();

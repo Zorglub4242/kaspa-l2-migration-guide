@@ -58,11 +58,15 @@ async function main() {
   console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(configuredGasPrice)), "KAS");
   console.log("");
   
-  // Deploy the token
+  // Deploy the token with explicit gas configuration
   const token = await MyToken.deploy(
     TOKEN_CONFIG.name,
     TOKEN_CONFIG.symbol,
-    TOKEN_CONFIG.initialSupply
+    TOKEN_CONFIG.initialSupply,
+    {
+      gasPrice: configuredGasPrice,
+      gasLimit: gasEstimate
+    }
   );
   
   console.log("⏳ Waiting for deployment confirmation...");
