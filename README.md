@@ -71,16 +71,9 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 
 ## 🏗️ Examples
 
-### Beginner Examples
 - **[Hello World](examples/01-hello-world/)** - Simple storage contract
 - **[ERC20 Token](examples/02-erc20-standard/)** - Standard OpenZeppelin token
 - **[NFT Collection](examples/03-erc721-nft/)** - Standard ERC721 with metadata
-
-### Advanced Examples  
-- **[MultiSig Wallet](examples/04-multisig-wallet/)** - Gnosis Safe style wallet
-- **[Uniswap V2 Fork](examples/05-uniswap-v2-fork/)** - Complete AMM protocol
-- **[Lending Protocol](examples/06-compound-fork/)** - Compound-style lending
-- **[DAO Governance](examples/07-governance-dao/)** - OpenZeppelin Governor
 
 ## 🛠️ Framework Support
 
