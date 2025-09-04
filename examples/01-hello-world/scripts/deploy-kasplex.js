@@ -46,11 +46,16 @@ async function main() {
     // Try manual deployment transaction instead of ethers deploy() wrapper
     const deployTx = await HelloWorld.getDeployTransaction();
     deployTx.gasPrice = configuredGasPrice;
-    deployTx.gasLimit = gasEstimate;
+    // Use a more conservative gas limit (add 20% buffer but cap it)
+    const gasLimit = gasEstimate.mul(120).div(100); // Add 20% buffer
+    const maxGasLimit = ethers.utils.parseUnits("500000", "wei"); // Cap at 500k gas
+    deployTx.gasLimit = gasLimit.gt(maxGasLimit) ? maxGasLimit : gasLimit;
     
-    // Explicitly set nonce to avoid any nonce issues
-    const nonce = await deployer.getTransactionCount("pending");
+    // Use "latest" nonce instead of "pending" to avoid orphan transactions
+    const nonce = await deployer.getTransactionCount("latest");
     deployTx.nonce = nonce;
+    
+    console.log("🔄 Using nonce from 'latest' block state instead of 'pending'");
     
     console.log("🔍 Transaction details:");
     console.log("   - To:", deployTx.to || "Contract Creation");
