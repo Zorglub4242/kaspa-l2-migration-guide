@@ -13,14 +13,24 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
    npm install
    ```
 
-2. **Add your private key**:
+2. **Setup test wallet** (SECURITY CRITICAL):
    ```bash
    # Copy the example file
    cp .env.example .env
-   
-   # Edit .env and add your MetaMask private key
-   echo "PRIVATE_KEY=your_private_key_here" > .env
    ```
+   
+   ⚠️ **SECURITY WARNING**: Only use a TEST wallet with NO real funds!
+   
+   **Option A: Create New Test Wallet (Recommended)**
+   - Create new MetaMask account: Settings → Add Account → Create Account
+   - Name it "Kasplex Test" or similar
+   - Export private key: Account Details → Export Private Key
+   - Add to .env: `PRIVATE_KEY=your_test_key_here`
+   
+   **Option B: Use Existing Test Wallet**
+   - Switch to existing test-only wallet
+   - Ensure it has ZERO real funds
+   - Export private key and add to .env
 
 3. **Get free testnet KAS** (choose either faucet):
    - **Zealous Swap**: https://faucet.zealousswap.com/
@@ -116,7 +126,8 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 ## 🚀 Getting Started Checklist
 
 - [ ] **Clone repository**: `git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git`
-- [ ] **Add your private key**: Copy `.env.example` to `.env` and add your MetaMask key
+- [ ] **Create test wallet**: New MetaMask account with NO real funds (security critical!)
+- [ ] **Add test private key**: Copy `.env.example` to `.env` and add your TEST wallet key
 - [ ] **Get testnet KAS**: [Zealous Swap](https://faucet.zealousswap.com/) or [Kaspa Finance](https://app.kaspafinance.io/faucets)
 - [ ] **Deploy first contract**: `npm run deploy:kasplex` (works immediately!)
 - [ ] **Add Kasplex network** to MetaMask (network details below)
@@ -132,13 +143,46 @@ Need help? Check our **[Setup Guide](SETUP.md)** for step-by-step instructions!
 - **Twitter**: [@kasplex](https://twitter.com/kasplex)
 - **GitHub**: Issues and contributions welcome
 
-## 📈 Success Stories
+## 🧠 Technical Compatibility Guide
 
-> "Deployed my entire DeFi protocol to Kasplex in 15 minutes. Zero code changes needed!" - DeFi Builder
+### ✅ What Works (Zero Changes Needed)
+- **Solidity Versions**: 0.8.0 - 0.8.26 (latest)
+- **Development Tools**: Hardhat, Foundry, Remix IDE
+- **Libraries**: OpenZeppelin (all versions), Chainlink, Uniswap
+- **Frontend**: ethers.js, wagmi, viem, web3.js
+- **Wallets**: MetaMask, WalletConnect, Coinbase Wallet
+- **Contract Patterns**: Proxy upgrades, factory patterns, governance
+- **Standards**: ERC20, ERC721, ERC1155, EIP-2612 (Permit)
 
-> "Gas costs dropped from $50 per transaction to $0.05. Same functionality, better UX." - dApp Developer
+### ⚙️ Version Requirements
+- **ethers.js**: v5.x recommended (v6.x works but may have RPC quirks)
+- **Hardhat**: Latest version (2.19+)
+- **OpenZeppelin**: v5.x recommended for latest features
+- **Node.js**: 18+ recommended
 
-> "Kasplex feels exactly like Ethereum, but actually usable for small transactions." - NFT Creator
+### 🔧 Configuration Requirements
+```javascript
+// hardhat.config.js - Only network config needed
+networks: {
+  kasplex: {
+    url: "https://rpc.kasplextest.xyz",
+    chainId: 167012,
+    gasPrice: 20000000000, // 20 Gwei
+  }
+}
+```
+
+### ⚠️ Known Limitations
+- **EIP-4844 (Blob transactions)**: Not yet supported
+- **Some precompiles**: Limited to basic set (ecrecover, sha256, etc.)
+- **Gas reporting**: Some tools may not recognize Kasplex gas costs
+- **Block times**: ~10 seconds vs Ethereum's ~12 seconds
+
+### 🚀 Performance Differences
+- **Gas costs**: 100x lower than Ethereum mainnet
+- **Finality**: 10 seconds vs 12+ minutes on Ethereum
+- **Throughput**: 1000+ TPS vs Ethereum's 15 TPS
+- **State growth**: More sustainable due to DAG architecture
 
 ---
 
