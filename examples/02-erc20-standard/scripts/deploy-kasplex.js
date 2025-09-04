@@ -207,7 +207,9 @@ async function main() {
       console.log(`💸 Sending ${recipient.amount.toLocaleString()} ${TOKEN_CONFIG.symbol} to ${recipient.label}...`);
       
       try {
-        const transferTx = await token.transfer(recipient.address, ethers.utils.parseUnits(recipient.amount.toString(), 18));
+        const transferTx = await token.transfer(recipient.address, ethers.utils.parseUnits(recipient.amount.toString(), 18), {
+          gasPrice: configuredGasPrice
+        });
         await transferTx.wait();
         
         const recipientBalance = await token.balanceOf(recipient.address);
@@ -234,7 +236,9 @@ async function main() {
   // Test minting (only owner can do this)
   console.log("🔄 Testing mint function...");
   const mintAmount = ethers.utils.parseUnits("10000", 18); // 10,000 tokens
-  const mintTx = await token.mint(deployerAddress, mintAmount);
+  const mintTx = await token.mint(deployerAddress, mintAmount, {
+    gasPrice: configuredGasPrice
+  });
   await mintTx.wait();
   
   const newBalance = await token.balanceOf(deployerAddress);
@@ -245,7 +249,9 @@ async function main() {
   // Test burning
   console.log("🔄 Testing burn function...");
   const burnAmount = ethers.utils.parseUnits("5000", 18); // 5,000 tokens
-  const burnTx = await token.burn(burnAmount);
+  const burnTx = await token.burn(burnAmount, {
+    gasPrice: configuredGasPrice
+  });
   await burnTx.wait();
   
   const finalBalance = await token.balanceOf(deployerAddress);
