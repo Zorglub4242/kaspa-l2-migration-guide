@@ -51,17 +51,18 @@ async function main() {
     const maxGasLimit = ethers.utils.parseUnits("500000", "wei"); // Cap at 500k gas
     deployTx.gasLimit = gasLimit.gt(maxGasLimit) ? maxGasLimit : gasLimit;
     
-    // Use "latest" nonce instead of "pending" to avoid orphan transactions
-    const nonce = await deployer.getTransactionCount("latest");
-    deployTx.nonce = nonce;
+    // Let ethers handle nonce automatically to avoid conflicts
+    console.log("🔄 Letting ethers handle nonce automatically");
+    console.log("💡 This avoids manual nonce conflicts with Kasplex RPC");
     
-    console.log("🔄 Using nonce from 'latest' block state instead of 'pending'");
+    // Remove nonce from transaction object - let ethers calculate it
+    delete deployTx.nonce;
     
     console.log("🔍 Transaction details:");
     console.log("   - To:", deployTx.to || "Contract Creation");
     console.log("   - Gas Limit:", deployTx.gasLimit.toString());
     console.log("   - Gas Price:", ethers.utils.formatUnits(deployTx.gasPrice, "gwei"), "Gwei");
-    console.log("   - Nonce:", deployTx.nonce);
+    console.log("   - Nonce: Auto-calculated by ethers");
     console.log("   - Data Length:", deployTx.data?.length || 0, "bytes");
     
     console.log("📤 Sending raw deployment transaction...");
