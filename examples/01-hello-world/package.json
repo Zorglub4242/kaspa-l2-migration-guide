@@ -27,11 +27,15 @@
   "author": "Kasplex Developer Hub",
   "license": "MIT",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "hardhat": "^2.19.0"
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "hardhat": "^2.19.0",
+    "ethereum-waffle": "^4.0.10",
+    "chai": "^4.3.10"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "ethers": "^5.7.2"
   },
   "repository": {
     "type": "git",

@@ -43,9 +43,11 @@ accounts: ["your_private_key_here"]  // No 0x prefix needed
 
 ```bash
 cd examples/01-hello-world
-npm install
+npm install --legacy-peer-deps
 npm run deploy:kasplex
 ```
+
+**Note**: The `--legacy-peer-deps` flag ensures ethers v5 compatibility for optimal Kasplex performance.
 
 Done! 🎉
 

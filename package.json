@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Complete guide for deploying Ethereum contracts to Kasplex L2 with zero code changes",
   "scripts": {
-    "setup": "echo 'Setting up examples...' && cd examples/01-hello-world && npm install && cd ../02-erc20-standard && npm install",
+    "setup": "echo 'Setting up examples with ethers v5 compatibility...' && cd examples/01-hello-world && npm install --legacy-peer-deps && cd ../02-erc20-standard && npm install --legacy-peer-deps",
     "deploy:hello-world": "cd examples/01-hello-world && npm run deploy:kasplex",
-    "deploy:erc20": "cd examples/02-erc20-standard && npm run deploy:kasplex"
+    "deploy:erc20": "cd examples/02-erc20-standard && npm run deploy:kasplex",
+    "clean": "cd examples/01-hello-world && npm run clean && cd ../02-erc20-standard && npm run clean"
   },
   "repository": {
     "type": "git",
