@@ -10,10 +10,10 @@ async function main() {
   const balance = await deployer.provider.getBalance(deployerAddress);
   
   console.log("👤 Deploying from account:", deployerAddress);
-  console.log("💰 Account balance:", ethers.formatEther(balance), "KAS");
+  console.log("💰 Account balance:", ethers.utils.formatEther(balance), "KAS");
   
   // Check minimum balance (Kasplex is so cheap, 0.01 KAS is plenty!)
-  const minBalance = ethers.parseEther("0.001"); // 0.001 KAS minimum
+  const minBalance = ethers.utils.parseEther("0.001"); // 0.001 KAS minimum
   if (balance < minBalance) {
     console.log("❌ Insufficient balance!");
     console.log("💡 Get free KAS from faucet: https://faucet.zealousswap.com/ or https://app.kaspafinance.io/faucets");
@@ -33,8 +33,8 @@ async function main() {
   const gasPrice = await deployer.provider.getFeeData();
   
   console.log("⛽ Estimated gas:", gasEstimate.toString());
-  console.log("💸 Gas price:", ethers.formatUnits(gasPrice.gasPrice, "gwei"), "Gwei");
-  console.log("💰 Estimated cost:", ethers.formatEther(gasEstimate * gasPrice.gasPrice), "KAS");
+  console.log("💸 Gas price:", ethers.utils.formatUnits(gasPrice.gasPrice, "gwei"), "Gwei");
+  console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(gasPrice.gasPrice)), "KAS");
   console.log("");
   
   // Deploy the contract

@@ -10,10 +10,10 @@ async function main() {
   const balance = await deployer.provider.getBalance(deployerAddress);
   
   console.log("👤 Deploying from account:", deployerAddress);
-  console.log("💰 Account balance:", ethers.formatEther(balance), "KAS");
+  console.log("💰 Account balance:", ethers.utils.formatEther(balance), "KAS");
   
   // Check minimum balance
-  const minBalance = ethers.parseEther("0.01"); // 0.01 KAS minimum
+  const minBalance = ethers.utils.parseEther("0.01"); // 0.01 KAS minimum
   if (balance < minBalance) {
     console.log("❌ Insufficient balance!");
     console.log("💡 Get free KAS from faucet: https://faucet.zealousswap.com/ or https://app.kaspafinance.io/faucets");
@@ -52,8 +52,8 @@ async function main() {
   const gasPrice = await deployer.provider.getFeeData();
   
   console.log("⛽ Estimated gas:", gasEstimate.toString());
-  console.log("💸 Gas price:", ethers.formatUnits(gasPrice.gasPrice, "gwei"), "Gwei");
-  console.log("💰 Estimated cost:", ethers.formatEther(gasEstimate * gasPrice.gasPrice), "KAS");
+  console.log("💸 Gas price:", ethers.utils.formatUnits(gasPrice.gasPrice, "gwei"), "Gwei");
+  console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(gasPrice.gasPrice)), "KAS");
   console.log("");
   
   // Deploy the token
@@ -82,9 +82,9 @@ async function main() {
   console.log("✅ Token Name:", tokenInfo.name_);
   console.log("✅ Token Symbol:", tokenInfo.symbol_);
   console.log("✅ Decimals:", tokenInfo.decimals_.toString());
-  console.log("✅ Total Supply:", ethers.formatUnits(tokenInfo.totalSupply_, 18), tokenInfo.symbol_);
-  console.log("✅ Max Supply:", ethers.formatUnits(tokenInfo.maxSupply_, 18), tokenInfo.symbol_);
-  console.log("✅ Deployer Balance:", ethers.formatUnits(deployerBalance, 18), tokenInfo.symbol_);
+  console.log("✅ Total Supply:", ethers.utils.formatUnits(tokenInfo.totalSupply_, 18), tokenInfo.symbol_);
+  console.log("✅ Max Supply:", ethers.utils.formatUnits(tokenInfo.maxSupply_, 18), tokenInfo.symbol_);
+  console.log("✅ Deployer Balance:", ethers.utils.formatUnits(deployerBalance, 18), tokenInfo.symbol_);
   console.log("✅ Owner Address:", await token.owner());
   console.log("");
   
@@ -93,26 +93,26 @@ async function main() {
   
   // Test minting (only owner can do this)
   console.log("🔄 Testing mint function...");
-  const mintAmount = ethers.parseUnits("10000", 18); // 10,000 tokens
+  const mintAmount = ethers.utils.parseUnits("10000", 18); // 10,000 tokens
   const mintTx = await token.mint(deployerAddress, mintAmount);
   await mintTx.wait();
   
   const newBalance = await token.balanceOf(deployerAddress);
   console.log("✅ Minted 10,000 tokens successfully!");
-  console.log("✅ New balance:", ethers.formatUnits(newBalance, 18), tokenInfo.symbol_);
+  console.log("✅ New balance:", ethers.utils.formatUnits(newBalance, 18), tokenInfo.symbol_);
   console.log("");
   
   // Test burning
   console.log("🔄 Testing burn function...");
-  const burnAmount = ethers.parseUnits("5000", 18); // 5,000 tokens
+  const burnAmount = ethers.utils.parseUnits("5000", 18); // 5,000 tokens
   const burnTx = await token.burn(burnAmount);
   await burnTx.wait();
   
   const finalBalance = await token.balanceOf(deployerAddress);
   const finalTotalSupply = await token.totalSupply();
   console.log("✅ Burned 5,000 tokens successfully!");
-  console.log("✅ Final balance:", ethers.formatUnits(finalBalance, 18), tokenInfo.symbol_);
-  console.log("✅ Final total supply:", ethers.formatUnits(finalTotalSupply, 18), tokenInfo.symbol_);
+  console.log("✅ Final balance:", ethers.utils.formatUnits(finalBalance, 18), tokenInfo.symbol_);
+  console.log("✅ Final total supply:", ethers.utils.formatUnits(finalTotalSupply, 18), tokenInfo.symbol_);
   console.log("");
   
   console.log("🎊 TOKEN DEPLOYMENT & TESTING COMPLETE!");
@@ -136,7 +136,7 @@ async function main() {
   console.log("");
   
   console.log("💰 COST COMPARISON:");
-  const costInEth = ethers.formatEther(gasEstimate * gasPrice.gasPrice);
+  const costInEth = ethers.utils.formatEther(gasEstimate.mul(gasPrice.gasPrice));
   const costInUsd = parseFloat(costInEth) * 0.01; // Rough KAS price
   console.log("- Deployment cost: ~$" + costInUsd.toFixed(4));
   console.log("- Transfer cost: ~$0.0001");
@@ -152,7 +152,7 @@ async function main() {
     tokenName: tokenInfo.name_,
     tokenSymbol: tokenInfo.symbol_,
     decimals: tokenInfo.decimals_.toString(),
-    totalSupply: ethers.formatUnits(finalTotalSupply, 18),
+    totalSupply: ethers.utils.formatUnits(finalTotalSupply, 18),
     deployer: deployerAddress,
     deploymentHash: token.deploymentTransaction().hash,
     gasUsed: gasEstimate.toString(),
