@@ -40,14 +40,34 @@ async function main() {
   console.log("");
   
   // Deploy the contract with explicit gas configuration
-  const hello = await HelloWorld.deploy({
-    gasPrice: configuredGasPrice,
-    gasLimit: gasEstimate
-  });
-  console.log("⏳ Waiting for deployment confirmation...");
+  console.log("🚀 Starting deployment transaction...");
   
-  await hello.waitForDeployment();
-  const contractAddress = await hello.getAddress();
+  try {
+    // Try deployment with configured gas - if this hangs, the issue is in the deploy() call itself
+    const hello = await HelloWorld.deploy();
+    
+    console.log("✅ Deployment transaction sent!");
+    console.log("📝 Transaction hash:", hello.deploymentTransaction()?.hash || "pending");
+    console.log("⏳ Waiting for deployment confirmation...");
+    
+    // Add timeout wrapper for confirmation
+    const deploymentPromise = hello.waitForDeployment();
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Deployment confirmation timeout after 45 seconds")), 45000);
+    });
+    
+    await Promise.race([deploymentPromise, timeoutPromise]);
+    console.log("🎉 Deployment confirmed!");
+    
+    const contractAddress = await hello.getAddress();
+  } catch (error) {
+    console.log("❌ Deployment failed with error:", error.message);
+    if (error.message.includes("timeout")) {
+      console.log("💡 This suggests a network connectivity issue with Kasplex RPC");
+      console.log("💡 Try again in a few minutes or check if Kasplex testnet is operational");
+    }
+    throw error;
+  }
   
   console.log("🎉 DEPLOYMENT SUCCESSFUL!");
   console.log("=" .repeat(50));
