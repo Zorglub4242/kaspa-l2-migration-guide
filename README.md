@@ -9,8 +9,13 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 1. **Clone and setup**:
    ```bash
    git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git
-   cd ethereum-to-kasplex-guide/examples/01-hello-world
-   npm install
+   cd ethereum-to-kasplex-guide
+   
+   # Option A: Setup all examples at once
+   npm run setup
+   
+   # Option B: Setup specific example
+   cd examples/01-hello-world && npm install
    ```
 
 2. **Setup test wallet** (SECURITY CRITICAL):
@@ -39,6 +44,10 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 
 4. **Deploy** (works immediately!):
    ```bash
+   # If you used Option A (npm run setup):
+   npm run deploy:hello-world
+   
+   # If you used Option B (cd examples/01-hello-world):
    npm run deploy:kasplex
    ```
 

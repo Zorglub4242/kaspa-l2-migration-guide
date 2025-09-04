@@ -1,0 +1,33 @@
+{
+  "name": "ethereum-to-kasplex-guide",
+  "version": "1.0.0",
+  "description": "Complete guide for deploying Ethereum contracts to Kasplex L2 with zero code changes",
+  "scripts": {
+    "setup": "echo 'Setting up examples...' && cd examples/01-hello-world && npm install && cd ../02-erc20-standard && npm install",
+    "deploy:hello-world": "cd examples/01-hello-world && npm run deploy:kasplex",
+    "deploy:erc20": "cd examples/02-erc20-standard && npm run deploy:kasplex"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git"
+  },
+  "keywords": [
+    "ethereum",
+    "kasplex",
+    "l2",
+    "rollup",
+    "solidity",
+    "hardhat",
+    "evm",
+    "kaspa"
+  ],
+  "author": "Kasplex Community",
+  "license": "MIT",
+  "devDependencies": {},
+  "workspaces": [
+    "examples/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
