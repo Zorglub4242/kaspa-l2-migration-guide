@@ -31,8 +31,8 @@ async function main() {
   const deployTx = await HelloWorld.getDeployTransaction();
   const gasEstimate = await deployer.estimateGas(deployTx);
   
-  // Use configured gas price (20 Gwei) instead of querying network
-  const configuredGasPrice = ethers.utils.parseUnits("20", "gwei");
+  // Use configured gas price (2000 Gwei) to match kaspa-dao working config
+  const configuredGasPrice = ethers.utils.parseUnits("2000", "gwei");
   
   console.log("⛽ Estimated gas:", gasEstimate.toString());
   console.log("💸 Gas price:", ethers.utils.formatUnits(configuredGasPrice, "gwei"), "Gwei (configured)");

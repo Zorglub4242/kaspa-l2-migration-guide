@@ -37,13 +37,15 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 
-    // Kasplex L2 Testnet - Direct RPC (may timeout occasionally)
+    // Kasplex L2 Testnet (matching kaspa-dao working configuration)
     kasplex: {
       url: "https://rpc.kasplextest.xyz",
       chainId: 167012,
-      gasPrice: 20000000000, // 20 Gwei - same as Ethereum, but KAS is much cheaper!
-      gas: 4000000, // Gas limit
-      timeout: 60000, // 60 second timeout to prevent hanging
+      gasPrice: 2000000000000, // 2000 Gwei - matches kaspa-dao working config
+      gas: 10000000, // 10M gas limit - matches kaspa-dao 
+      timeout: 600000, // 10 minutes - matches kaspa-dao
+      pollingInterval: 5000, // 5 second polling - matches kaspa-dao
+      allowUnlimitedContractSize: true, // Matches kaspa-dao
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 
