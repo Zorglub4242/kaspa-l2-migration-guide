@@ -149,7 +149,7 @@ Need help? Check our **[Setup Guide](SETUP.md)** for step-by-step instructions!
 ## 🤝 Community & Support
 
 - **Documentation**: [docs-kasplex.gitbook.io](https://docs-kasplex.gitbook.io/l2-network)
-- **Discord**: [Kasplex Community](https://discord.gg/kasplex)
+- **Community**: Check official Kasplex channels
 - **Twitter**: [@kasplex](https://twitter.com/kasplex)
 - **GitHub**: Issues and contributions welcome
 

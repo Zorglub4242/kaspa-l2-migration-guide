@@ -191,6 +191,6 @@ main()
     console.log("2. Check your private key is set in hardhat.config.js");
     console.log("3. Verify network config: RPC https://rpc.kasplextest.xyz");
     console.log("4. Try: npx hardhat compile (ensure contract compiles)");
-    console.log("5. Join Discord for help: https://discord.gg/kasplex");
+    console.log("5. Check Kasplex documentation for network status");
     process.exit(1);
   });

@@ -83,6 +83,10 @@ async function main() {
     // Create contract instance from deployed address
     const hello = HelloWorld.attach(receipt.contractAddress);
     const contractAddress = receipt.contractAddress;
+    
+    console.log("🎉 DEPLOYMENT SUCCESSFUL!");
+    console.log("=" .repeat(50));
+    console.log("📍 Contract Address:", contractAddress);
   } catch (error) {
     console.log("❌ Deployment failed with error:", error.message);
     if (error.message.includes("timeout")) {
@@ -174,6 +178,6 @@ main()
     console.log("1. Check your private key is set in hardhat.config.js");
     console.log("2. Ensure you have KAS: https://faucet.zealousswap.com/ or https://app.kaspafinance.io/faucets");
     console.log("3. Verify network config: RPC https://rpc.kasplextest.xyz");
-    console.log("4. Join Discord for help: https://discord.gg/kasplex");
+    console.log("4. Check Kasplex documentation for network status");
     process.exit(1);
   });
