@@ -6,27 +6,33 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 
 ## ⚡ Quick Start (2 minutes)
 
-1. **Clone any example**:
+1. **Clone and setup**:
    ```bash
-   cd examples/02-erc20-standard
+   git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git
+   cd ethereum-to-kasplex-guide/examples/01-hello-world
    npm install
    ```
 
-2. **Add Kasplex network** to your `hardhat.config.js`:
-   ```javascript
-   kasplex: {
-     url: "https://rpc.kasplextest.xyz",
-     chainId: 167012,
-     gasPrice: 20000000000, // 20 Gwei - same as Ethereum!
-   }
-   ```
-
-3. **Deploy** (same command, different network):
+2. **Add your private key**:
    ```bash
-   npx hardhat run scripts/deploy.js --network kasplex
+   # Copy the example file
+   cp .env.example .env
+   
+   # Edit .env and add your MetaMask private key
+   echo "PRIVATE_KEY=your_private_key_here" > .env
    ```
 
-4. **Done!** 🎉 Your contract is live on Kasplex.
+3. **Get free testnet KAS**:
+   - Visit: https://kasplextest.xyz/faucet
+   - Paste your wallet address
+   - Claim 50 KAS (enough for thousands of transactions!)
+
+4. **Deploy** (works immediately!):
+   ```bash
+   npm run deploy:kasplex
+   ```
+
+5. **Done!** 🎉 Your contract is live on Kasplex with 99% cost savings!
 
 ## 📊 Network Comparison
 
@@ -109,11 +115,15 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 
 ## 🚀 Getting Started Checklist
 
-- [ ] **Add Kasplex network** to MetaMask
-- [ ] **Get testnet KAS** from [faucet](https://kasplextest.xyz/faucet)
-- [ ] **Clone an example** project
-- [ ] **Deploy your first contract** (`npx hardhat run scripts/deploy.js --network kasplex`)
-- [ ] **Verify on explorer** at [frontend.kasplextest.xyz](https://frontend.kasplextest.xyz)
+- [ ] **Clone repository**: `git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git`
+- [ ] **Add your private key**: Copy `.env.example` to `.env` and add your MetaMask key
+- [ ] **Get testnet KAS**: Visit [faucet](https://kasplextest.xyz/faucet) (50 KAS daily)
+- [ ] **Deploy first contract**: `npm run deploy:kasplex` (works immediately!)
+- [ ] **Add Kasplex network** to MetaMask (network details below)
+- [ ] **View on explorer**: [frontend.kasplextest.xyz](https://frontend.kasplextest.xyz)
+
+### 📋 Detailed Setup
+Need help? Check our **[Setup Guide](SETUP.md)** for step-by-step instructions!
 
 ## 🤝 Community & Support
 

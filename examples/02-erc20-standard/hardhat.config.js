@@ -36,7 +36,7 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 
-    // Kasplex L2 Testnet (ultra cheap, same EVM compatibility!)
+    // 🎯 KASPLEX L2 TESTNET - ADD THIS NETWORK!
     kasplex: {
       url: "https://rpc.kasplextest.xyz",
       chainId: 167012,
@@ -97,7 +97,7 @@ module.exports = {
    npm install
 
 2. Add your private key:
-   - Copy your MetaMask private key
+   - Copy your MetaMask private key (Account Details > Export Private Key)
    - Uncomment the accounts line for the network you want to use
    - Replace "your-private-key" with your actual key (without 0x prefix)
 
@@ -107,7 +107,7 @@ module.exports = {
    - PolygonScan: https://polygonscan.com/apis
 
 4. Get testnet funds:
-   - Kasplex: https://kasplextest.xyz/faucet (50 KAS daily)
+   - Kasplex: https://kasplextest.xyz/faucet (50 KAS daily - FREE!)
    - Sepolia: https://sepoliafaucet.com/
    - Polygon Mumbai: https://faucet.polygon.technology/
 
@@ -118,4 +118,10 @@ module.exports = {
 ⚠️  SECURITY NOTE:
 Never commit your private key to git! Use environment variables in production:
 accounts: [process.env.PRIVATE_KEY]
+
+🎯 KASPLEX ADVANTAGE:
+Same exact configuration as Ethereum, just:
+- Different RPC URL
+- Different Chain ID  
+- 99% lower costs!
 */

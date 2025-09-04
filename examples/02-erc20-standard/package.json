@@ -1,7 +1,7 @@
 {
-  "name": "hello-world-kasplex",
+  "name": "erc20-kasplex-example",
   "version": "1.0.0",
-  "description": "Simple Hello World contract for Ethereum and Kasplex comparison",
+  "description": "Standard ERC20 token example for Ethereum and Kasplex comparison",
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
@@ -9,20 +9,29 @@
     "deploy:ethereum": "npx hardhat run scripts/deploy-ethereum.js --network ethereum",
     "deploy:sepolia": "npx hardhat run scripts/deploy-ethereum.js --network sepolia", 
     "deploy:kasplex": "npx hardhat run scripts/deploy-kasplex.js --network kasplex",
+    "deploy:polygon": "npx hardhat run scripts/deploy-kasplex.js --network polygon",
     "deploy:local": "npx hardhat run scripts/deploy-kasplex.js --network localhost",
+    "interact:kasplex": "npx hardhat run scripts/interact-token.js --network kasplex",
+    "interact:ethereum": "npx hardhat run scripts/interact-token.js --network ethereum",
     "console:kasplex": "npx hardhat console --network kasplex",
     "console:ethereum": "npx hardhat console --network ethereum",
+    "add-to-metamask": "npx hardhat run scripts/add-to-metamask.js --network kasplex",
     "node": "npx hardhat node",
-    "clean": "npx hardhat clean"
+    "clean": "npx hardhat clean",
+    "coverage": "npx hardhat coverage"
   },
   "keywords": [
     "ethereum",
     "kasplex",
+    "erc20",
+    "token",
+    "openzeppelin",
     "solidity",
     "smart-contracts",
     "layer2",
     "evm",
-    "hardhat"
+    "hardhat",
+    "defi"
   ],
   "author": "Kasplex Developer Hub",
   "license": "MIT",
@@ -31,13 +40,15 @@
     "hardhat": "^2.19.0"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
     "dotenv": "^16.3.1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kasplex/ethereum-to-kasplex-guide"
+    "url": "https://github.com/kasplex/ethereum-to-kasplex-guide",
+    "directory": "examples/02-erc20-standard"
   },
-  "homepage": "https://github.com/kasplex/ethereum-to-kasplex-guide#readme",
+  "homepage": "https://github.com/kasplex/ethereum-to-kasplex-guide/tree/main/examples/02-erc20-standard#readme",
   "engines": {
     "node": ">=16.0.0"
   }
