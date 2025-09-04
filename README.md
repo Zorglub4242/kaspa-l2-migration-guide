@@ -195,6 +195,121 @@ networks: {
 - **Throughput**: 1000+ TPS vs Ethereum's 15 TPS
 - **State growth**: More sustainable due to DAG architecture
 
+## 🛠️ Developer Tips & Troubleshooting
+
+### 💡 Critical Success Factors
+
+**Gas Price Requirements**
+```javascript
+// ✅ WORKS - Use 2000 Gwei for reliable transaction inclusion
+gasPrice: ethers.utils.parseUnits("2000", "gwei")
+
+// ❌ FAILS - Low gas prices (20-100 Gwei) cause timeouts
+gasPrice: ethers.utils.parseUnits("20", "gwei")  // Hangs indefinitely
+```
+
+**Why 2000 Gwei Works:**
+- Kasplex network requires higher gas prices for transaction inclusion
+- Even at 2000 Gwei, costs are still 100x cheaper than Ethereum
+- Proven configuration used by successful projects
+
+**Nonce Management**
+```javascript
+// ✅ WORKS - Let ethers handle nonce automatically  
+delete deployTx.nonce;
+const txResponse = await deployer.sendTransaction(deployTx);
+
+// ❌ FAILS - Manual nonce can cause "orphan transaction" errors
+deployTx.nonce = await deployer.getTransactionCount("latest");
+```
+
+### 🚨 Common Issues & Solutions
+
+**Problem: Deployment hangs indefinitely**
+```
+📤 Sending raw deployment transaction...
+[hangs here forever]
+```
+
+**Root Cause:** Gas price too low (20-100 Gwei)  
+**Solution:** Use 2000 Gwei gas price
+
+**Problem: "Orphan transaction" error**
+```
+Error: transaction is an orphan where orphan is disallowed
+```
+
+**Root Cause:** Manual nonce management conflicts  
+**Solution:** Let ethers calculate nonce automatically
+
+**Problem: Variable scope errors**
+```
+ReferenceError: contractAddress is not defined
+```
+
+**Root Cause:** Variables declared inside try block  
+**Solution:** Declare variables before try block
+```javascript
+let contractAddress;
+let hello;
+let txResponse;
+
+try {
+  // Use assignments, not const declarations
+  contractAddress = receipt.contractAddress;
+}
+```
+
+### 📋 Debugging Checklist
+
+When deployments fail, check these in order:
+
+1. **✅ Gas Price**: Must be 2000 Gwei
+2. **✅ Balance**: At least 1 KAS for deployment
+3. **✅ Private Key**: Correctly set in .env file (no 0x prefix)
+4. **✅ Network**: Using `https://rpc.kasplextest.xyz`
+5. **✅ Nonce**: Let ethers handle automatically
+6. **✅ Ethers Version**: Use v5.x for best compatibility
+
+### 🎯 Proven Working Configuration
+
+```javascript
+// hardhat.config.js
+networks: {
+  kasplex: {
+    url: "https://rpc.kasplextest.xyz",
+    chainId: 167012,
+    gasPrice: 2000000000000, // 2000 Gwei - CRITICAL!
+    gas: 10000000, // 10M gas limit
+    timeout: 600000, // 10 minutes
+    pollingInterval: 5000, // 5 second polling
+    allowUnlimitedContractSize: true,
+    accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+  }
+}
+```
+
+```javascript
+// deploy script
+const configuredGasPrice = ethers.utils.parseUnits("2000", "gwei");
+const hello = await HelloWorld.deploy({
+  gasPrice: configuredGasPrice,
+  gasLimit: gasEstimate
+});
+```
+
+### 🔍 Network Status Check
+
+If you suspect network issues:
+```bash
+# Check if RPC is responding
+curl -X POST https://rpc.kasplextest.xyz \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+
+# Should return current block number like {"jsonrpc":"2.0","id":1,"result":"0x465354"}
+```
+
 ---
 
 **Ready to build?** Pick an example and deploy in 2 minutes! 🚀
