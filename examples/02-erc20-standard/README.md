@@ -161,20 +161,67 @@ Sample test output:
 ✅ Events emitted correctly
 ```
 
-## 🦊 Add Token to MetaMask
+## 🦊 Add Your Token to MetaMask
 
-After deployment, add your token to MetaMask:
+After successful deployment, you'll want to add your token to MetaMask to see your balance and transfer tokens.
 
+### 📱 Step-by-Step Instructions
+
+1. **Ensure Kasplex Network is Added**:
+   ```
+   Network Name: Kasplex Network Testnet
+   RPC URL: https://rpc.kasplextest.xyz
+   Chain ID: 167012
+   Currency Symbol: KAS
+   Explorer: https://frontend.kasplextest.xyz
+   ```
+
+2. **Switch to Kasplex Network** in MetaMask (top dropdown)
+
+3. **Import Your Token**:
+   - Click "Import tokens" at the bottom of your token list
+   - **Token contract address**: Copy from deployment output (e.g., `0x4Ccff78F9C819CF0E09CD30c5BB62aa66DbCa73e`)
+   - **Token symbol**: Should auto-fill (e.g., "KET")
+   - **Token decimals**: Should auto-fill (18)
+   - Click "Add Custom Token"
+   - Click "Import Tokens" to confirm
+
+4. **Verify**: Your token balance should now appear in MetaMask! 🎉
+
+### 🤖 Automated Helper (Coming Soon)
 ```bash
 npm run add-to-metamask
 ```
 
-Or manually:
-1. Open MetaMask
-2. Click "Import tokens"
-3. Enter your contract address
-4. Token symbol and decimals auto-fill
-5. Click "Add Custom Token"
+### 📋 Token Information Reference
+
+After deployment, you'll see output like this:
+```
+📍 Contract Address: 0x4Ccff78F9C819CF0E09CD30c5BB62aa66DbCa73e
+🎯 Token Name: Kasplex Example Token  
+🔖 Symbol: KET
+🔢 Decimals: 18
+🌍 Network: Kasplex L2 Testnet (167012)
+```
+
+### 🔍 View on Explorer
+
+You can also view your token on the Kasplex explorer:
+- Visit: `https://frontend.kasplextest.xyz/address/YOUR_CONTRACT_ADDRESS`
+- See all transactions, holders, and token details
+- Verify your deployment publicly
+
+### ❓ Troubleshooting
+
+**Token not showing up?**
+- ✅ Confirm you're on Kasplex Network (not Ethereum mainnet)
+- ✅ Double-check the contract address (copy exactly from deployment)
+- ✅ Try refreshing MetaMask or switching networks back and forth
+
+**Wrong balance?**
+- ✅ Make sure you're viewing the correct account
+- ✅ Check if tokens were distributed to multiple recipients during deployment
+- ✅ Verify on the explorer link provided
 
 ## 💻 Interactive Examples
 

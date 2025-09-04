@@ -259,20 +259,42 @@ async function main() {
   console.log("=" .repeat(60));
   console.log("");
   
-  console.log("🦊 ADD TO METAMASK:");
-  console.log("1. Open MetaMask");
-  console.log("2. Click 'Import tokens'");
-  console.log("3. Paste contract address:", tokenAddress);
-  console.log("4. Symbol and decimals will auto-fill");
-  console.log("5. Click 'Add Custom Token'");
+  console.log("🦊 ADD YOUR TOKEN TO METAMASK:");
+  console.log("=" .repeat(50));
+  console.log("");
+  console.log("📋 STEP-BY-STEP INSTRUCTIONS:");
+  console.log("1. 🌐 Switch to Kasplex Network in MetaMask (top dropdown)");
+  console.log("   • Network Name: Kasplex Network Testnet");
+  console.log("   • Chain ID: 167012");
+  console.log("   • RPC URL: https://rpc.kasplextest.xyz");
+  console.log("");
+  console.log("2. 📥 Import Your Token:");
+  console.log("   • Click 'Import tokens' (bottom of token list)");
+  console.log("   • Paste contract address: " + tokenAddress);
+  console.log("   • Symbol will auto-fill: " + TOKEN_CONFIG.symbol);
+  console.log("   • Decimals will auto-fill: 18");
+  console.log("   • Click 'Add Custom Token' → 'Import Tokens'");
+  console.log("");
+  console.log("3. ✅ Verify: Your " + TOKEN_CONFIG.symbol + " balance should appear!");
+  console.log("");
+  console.log("📱 QUICK COPY-PASTE:");
+  console.log("Contract Address: " + tokenAddress);
+  console.log("Token Symbol: " + TOKEN_CONFIG.symbol);
+  console.log("Decimals: 18");
+  console.log("");
+  
+  console.log("❓ TROUBLESHOOTING:");
+  console.log("• Token not showing? Check you're on Kasplex Network (Chain ID: 167012)");
+  console.log("• Wrong balance? Verify you're using the correct MetaMask account");
+  console.log("• Need help? Check the README or Kasplex documentation");
   console.log("");
   
   console.log("🎯 NEXT STEPS:");
   console.log("1. 🔍 View your token: https://frontend.kasplextest.xyz/address/" + tokenAddress);
   console.log("2. 💻 Interact via console: npx hardhat console --network kasplex");
   console.log("3. 🧪 Run tests: npx hardhat test");
-  console.log("4. 🦊 Add to MetaMask using address above");
-  console.log("5. 💸 Send tokens to friends (ultra-cheap transfers!)");
+  console.log("4. 💸 Send tokens to friends (ultra-cheap transfers!)");
+  console.log("5. 🌟 Try next example: cd ../03-erc721-nft");
   console.log("");
   
   console.log("💰 COST COMPARISON:");
