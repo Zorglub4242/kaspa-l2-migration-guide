@@ -1,4 +1,18 @@
 const { ethers } = require("hardhat");
+const readline = require("readline");
+
+// Helper function to get user input
+function askQuestion(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise(resolve => rl.question(query, ans => {
+    rl.close();
+    resolve(ans);
+  }));
+}
 
 async function main() {
   console.log("🪙 DEPLOYING ERC20 TOKEN TO KASPLEX L2");
@@ -24,18 +38,107 @@ async function main() {
   console.log("✅ Sufficient balance for deployment");
   console.log("");
   
-  // Token configuration (customize these!)
+  // Interactive token configuration (or use defaults if AUTO_MODE is set)
+  console.log("🎯 TOKEN CONFIGURATION");
+  
+  let tokenName, tokenSymbol, initialSupply;
+  
+  if (process.env.AUTO_MODE === 'true') {
+    // Use defaults for automated deployment
+    tokenName = "Kasplex Example Token";
+    tokenSymbol = "KET";
+    initialSupply = 1000000;
+    console.log("🤖 Using default configuration (AUTO_MODE=true):");
+    console.log(`   Name: ${tokenName}`);
+    console.log(`   Symbol: ${tokenSymbol}`);  
+    console.log(`   Supply: ${initialSupply.toLocaleString()}`);
+  } else {
+    console.log("Please provide your token details:");
+    console.log("");
+    
+    const tokenNameInput = await askQuestion("💎 Token name (e.g., 'My Awesome Token'): ");
+    const tokenSymbolInput = await askQuestion("🔖 Token symbol (e.g., 'MAT'): ");
+    const initialSupplyStr = await askQuestion("📊 Initial supply (e.g., '1000000'): ");
+    
+    tokenName = tokenNameInput || "Kasplex Example Token";
+    tokenSymbol = tokenSymbolInput || "KET"; 
+    initialSupply = parseInt(initialSupplyStr) || 1000000;
+  }
+  
+  console.log("");
+  console.log("👥 TOKEN DISTRIBUTION");
+  console.log("Who should receive tokens at deployment?");
+  console.log("");
+  
+  const recipients = [];
+  let totalAllocated = 0;
+  
+  // Always add deployer as first recipient
+  recipients.push({
+    address: deployerAddress,
+    amount: initialSupply,
+    label: "Deployer (you)"
+  });
+  totalAllocated = initialSupply;
+  
+  console.log(`✅ ${deployerAddress} (Deployer): ${initialSupply.toLocaleString()} tokens`);
+  
+  if (process.env.AUTO_MODE !== 'true') {
+    const addRecipient = await askQuestion("\n🤝 Add additional recipients? (y/n): ");
+    if (addRecipient.toLowerCase() === 'y' || addRecipient.toLowerCase() === 'yes') {
+    addMore = true;
+    
+    while (addMore) {
+      const recipientAddress = await askQuestion("📍 Recipient address (0x...): ");
+      const amountStr = await askQuestion("💰 Amount to send: ");
+      const amount = parseInt(amountStr) || 0;
+      const label = await askQuestion("🏷️  Label (optional): ") || "Custom recipient";
+      
+      if (ethers.utils.isAddress(recipientAddress) && amount > 0) {
+        recipients.push({
+          address: recipientAddress,
+          amount: amount,
+          label: label
+        });
+        totalAllocated += amount;
+        console.log(`✅ ${recipientAddress} (${label}): ${amount.toLocaleString()} tokens`);
+      } else {
+        console.log("❌ Invalid address or amount, skipping...");
+      }
+      
+      const continueAdding = await askQuestion("\n➕ Add another recipient? (y/n): ");
+      addMore = continueAdding.toLowerCase() === 'y' || continueAdding.toLowerCase() === 'yes';
+    }
+    
+    // Update initial supply for deployer
+    if (recipients.length > 1) {
+      const additionalTokens = totalAllocated - initialSupply;
+      recipients[0].amount = initialSupply; // Deployer keeps original amount
+      console.log("");
+      console.log("📋 FINAL DISTRIBUTION:");
+      recipients.forEach(r => {
+        console.log(`   ${r.address} (${r.label}): ${r.amount.toLocaleString()} ${tokenSymbol}`);
+      });
+      console.log(`   Total tokens needed: ${totalAllocated.toLocaleString()} ${tokenSymbol}`);
+    }
+    }
+  } else {
+    console.log("🤖 Auto mode: Only deployer will receive tokens");
+  }
+  
   const TOKEN_CONFIG = {
-    name: "Kasplex Example Token",
-    symbol: "KET",
-    initialSupply: 1000000, // 1 million tokens
+    name: tokenName || "Kasplex Example Token",
+    symbol: tokenSymbol || "KET", 
+    initialSupply: initialSupply,
+    recipients: recipients
   };
   
-  console.log("🎯 TOKEN CONFIGURATION:");
+  console.log("");
+  console.log("🎯 FINAL TOKEN CONFIGURATION:");
   console.log(`   Name: ${TOKEN_CONFIG.name}`);
   console.log(`   Symbol: ${TOKEN_CONFIG.symbol}`);
-  console.log(`   Initial Supply: ${TOKEN_CONFIG.initialSupply.toLocaleString()} tokens`);
-  console.log(`   Deployer gets: ${TOKEN_CONFIG.initialSupply.toLocaleString()} ${TOKEN_CONFIG.symbol}`);
+  console.log(`   Total Supply: ${TOKEN_CONFIG.initialSupply.toLocaleString()} tokens`);
+  console.log(`   Recipients: ${TOKEN_CONFIG.recipients.length}`);
   console.log("");
   
   // Deploy MyToken contract
@@ -50,8 +153,8 @@ async function main() {
   );
   const gasEstimate = await deployer.estimateGas(deployTx);
   
-  // Use configured gas price (20 Gwei) instead of querying network
-  const configuredGasPrice = ethers.utils.parseUnits("20", "gwei");
+  // Use configured gas price (2000 Gwei) to match working configuration
+  const configuredGasPrice = ethers.utils.parseUnits("2000", "gwei");
   
   console.log("⛽ Estimated gas:", gasEstimate.toString());
   console.log("💸 Gas price:", ethers.utils.formatUnits(configuredGasPrice, "gwei"), "Gwei (configured)");
@@ -70,14 +173,14 @@ async function main() {
   );
   
   console.log("⏳ Waiting for deployment confirmation...");
-  await token.waitForDeployment();
-  const tokenAddress = await token.getAddress();
+  await token.deployed();
+  const tokenAddress = token.address;
   
   console.log("🎉 TOKEN DEPLOYMENT SUCCESSFUL!");
   console.log("=" .repeat(60));
   console.log("📍 Contract Address:", tokenAddress);
   console.log("🔍 Explorer URL:", `https://frontend.kasplextest.xyz/address/${tokenAddress}`);
-  console.log("📝 Transaction Hash:", token.deploymentTransaction().hash);
+  console.log("📝 Transaction Hash:", token.deployTransaction.hash);
   console.log("");
   
   // Get token information
@@ -93,6 +196,37 @@ async function main() {
   console.log("✅ Deployer Balance:", ethers.utils.formatUnits(deployerBalance, 18), tokenInfo.symbol_);
   console.log("✅ Owner Address:", await token.owner());
   console.log("");
+  
+  // Distribute tokens to additional recipients
+  if (TOKEN_CONFIG.recipients.length > 1) {
+    console.log("🚀 DISTRIBUTING TOKENS:");
+    console.log("");
+    
+    for (let i = 1; i < TOKEN_CONFIG.recipients.length; i++) { // Skip deployer (index 0)
+      const recipient = TOKEN_CONFIG.recipients[i];
+      console.log(`💸 Sending ${recipient.amount.toLocaleString()} ${TOKEN_CONFIG.symbol} to ${recipient.label}...`);
+      
+      try {
+        const transferTx = await token.transfer(recipient.address, ethers.utils.parseUnits(recipient.amount.toString(), 18));
+        await transferTx.wait();
+        
+        const recipientBalance = await token.balanceOf(recipient.address);
+        console.log(`   ✅ Success! Balance: ${ethers.utils.formatUnits(recipientBalance, 18)} ${TOKEN_CONFIG.symbol}`);
+        console.log(`   📝 Transaction: ${transferTx.hash}`);
+      } catch (error) {
+        console.log(`   ❌ Failed to send to ${recipient.address}: ${error.message}`);
+      }
+    }
+    
+    // Show final balances
+    console.log("");
+    console.log("📊 FINAL TOKEN BALANCES:");
+    for (const recipient of TOKEN_CONFIG.recipients) {
+      const balance = await token.balanceOf(recipient.address);
+      console.log(`   ${recipient.label}: ${ethers.utils.formatUnits(balance, 18)} ${TOKEN_CONFIG.symbol}`);
+    }
+    console.log("");
+  }
   
   // Test basic token functionality
   console.log("🧪 TESTING TOKEN FUNCTIONALITY:");
@@ -160,10 +294,11 @@ async function main() {
     decimals: tokenInfo.decimals_.toString(),
     totalSupply: ethers.utils.formatUnits(finalTotalSupply, 18),
     deployer: deployerAddress,
-    deploymentHash: token.deploymentTransaction().hash,
+    deploymentHash: token.deployTransaction.hash,
     gasUsed: gasEstimate.toString(),
     timestamp: new Date().toISOString(),
     explorerUrl: `https://frontend.kasplextest.xyz/address/${tokenAddress}`,
+    recipients: TOKEN_CONFIG.recipients,
     metamaskConfig: {
       address: tokenAddress,
       symbol: tokenInfo.symbol_,
