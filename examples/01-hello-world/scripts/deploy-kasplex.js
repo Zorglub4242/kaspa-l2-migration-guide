@@ -103,7 +103,7 @@ async function main() {
   console.log("🎉 DEPLOYMENT SUCCESSFUL!");
   console.log("=" .repeat(50));
   console.log("📍 Contract Address:", contractAddress);
-  console.log("🔍 Explorer URL:", `https://frontend.kasplextest.xyz/address/${contractAddress}`);
+  console.log("🔍 Explorer URL:", `https://explorer.testnet.kasplextest.xyz/address/${contractAddress}`);
   console.log("📝 Transaction Hash:", txResponse.hash);
   console.log("");
   
@@ -139,7 +139,7 @@ async function main() {
   console.log("");
   
   console.log("🎯 NEXT STEPS:");
-  console.log("1. 🔍 View your contract: https://frontend.kasplextest.xyz/address/" + contractAddress);
+  console.log("1. 🔍 View your contract: https://explorer.testnet.kasplextest.xyz/address/" + contractAddress);
   console.log("2. 💻 Interact via console: npx hardhat console --network kasplex");
   console.log("3. 🧪 Run tests: npx hardhat test");
   console.log("4. 📚 Try next example: cd ../02-erc20-standard");
@@ -162,7 +162,7 @@ async function main() {
     deploymentHash: txResponse.hash,
     gasUsed: gasEstimate.toString(),
     timestamp: new Date().toISOString(),
-    explorerUrl: `https://frontend.kasplextest.xyz/address/${contractAddress}`
+    explorerUrl: `https://explorer.testnet.kasplextest.xyz/address/${contractAddress}`
   };
   
   const fs = require("fs");

@@ -179,7 +179,7 @@ async function main() {
   console.log("🎉 TOKEN DEPLOYMENT SUCCESSFUL!");
   console.log("=" .repeat(60));
   console.log("📍 Contract Address:", tokenAddress);
-  console.log("🔍 Explorer URL:", `https://frontend.kasplextest.xyz/address/${tokenAddress}`);
+  console.log("🔍 Explorer URL:", `https://explorer.testnet.kasplextest.xyz/address/${tokenAddress}`);
   console.log("📝 Transaction Hash:", token.deployTransaction.hash);
   console.log("");
   
@@ -296,7 +296,7 @@ async function main() {
   console.log("");
   
   console.log("🎯 NEXT STEPS:");
-  console.log("1. 🔍 View your token: https://frontend.kasplextest.xyz/address/" + tokenAddress);
+  console.log("1. 🔍 View your token: https://explorer.testnet.kasplextest.xyz/address/" + tokenAddress);
   console.log("2. 💻 Interact via console: npx hardhat console --network kasplex");
   console.log("3. 🧪 Run tests: npx hardhat test");
   console.log("4. 💸 Send tokens to friends (ultra-cheap transfers!)");
@@ -325,7 +325,7 @@ async function main() {
     deploymentHash: token.deployTransaction.hash,
     gasUsed: gasEstimate.toString(),
     timestamp: new Date().toISOString(),
-    explorerUrl: `https://frontend.kasplextest.xyz/address/${tokenAddress}`,
+    explorerUrl: `https://explorer.testnet.kasplextest.xyz/address/${tokenAddress}`,
     recipients: TOKEN_CONFIG.recipients,
     metamaskConfig: {
       address: tokenAddress,

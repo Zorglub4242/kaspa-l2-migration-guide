@@ -230,7 +230,7 @@ After successful deployment, add your collection to MetaMask to see your NFTs:
    RPC URL: https://rpc.kasplextest.xyz
    Chain ID: 167012
    Currency Symbol: KAS
-   Explorer: https://frontend.kasplextest.xyz
+   Explorer: https://explorer.testnet.kasplextest.xyz
    ```
 
 2. **Switch to Kasplex Network** in MetaMask (top dropdown)
@@ -260,7 +260,7 @@ After deployment, you'll see output like this:
 ### 🔍 View on Explorer
 
 You can also view your collection on the Kasplex explorer:
-- Visit: `https://frontend.kasplextest.xyz/address/YOUR_CONTRACT_ADDRESS`
+- Visit: `https://explorer.testnet.kasplextest.xyz/address/YOUR_CONTRACT_ADDRESS`
 - See all NFTs, transactions, and collection details
 - Verify your deployment publicly
 

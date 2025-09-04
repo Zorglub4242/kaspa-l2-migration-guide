@@ -63,7 +63,7 @@ cat .env
 - RPC URL: `https://rpc.kasplextest.xyz`
 - Chain ID: `167012`
 - Currency: `KAS`
-- Explorer: `https://frontend.kasplextest.xyz`
+- Explorer: `https://explorer.testnet.kasplextest.xyz`
 
 **Switch to Kasplex network and verify:**
 - [ ] You're on Kasplex testnet (not Ethereum mainnet!)

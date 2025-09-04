@@ -97,8 +97,8 @@ module.exports = {
         network: "kasplex",
         chainId: 167012,
         urls: {
-          apiURL: "https://frontend.kasplextest.xyz/api",
-          browserURL: "https://frontend.kasplextest.xyz"
+          apiURL: "https://explorer.testnet.kasplextest.xyz/api",
+          browserURL: "https://explorer.testnet.kasplextest.xyz"
         }
       }
     ]

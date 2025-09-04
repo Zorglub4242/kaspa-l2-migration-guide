@@ -36,7 +36,7 @@ The simplest possible smart contract to get started with Kasplex. **Same Solidit
    - RPC URL: `https://rpc.kasplextest.xyz`
    - Chain ID: `167012`
    - Currency: `KAS`
-   - Explorer: `https://frontend.kasplextest.xyz`
+   - Explorer: `https://explorer.testnet.kasplextest.xyz`
 
 3. **Get testnet KAS**:
    - Visit: https://faucet.zealousswap.com/
@@ -137,7 +137,7 @@ async function main() {
   const address = await hello.getAddress();
   
   console.log("✅ HelloWorld deployed to:", address);
-  console.log("🔍 View on Explorer:", `https://frontend.kasplextest.xyz/address/${address}`);
+  console.log("🔍 View on Explorer:", `https://explorer.testnet.kasplextest.xyz/address/${address}`);
   console.log("💬 Initial message:", await hello.getMessage());
 }
 

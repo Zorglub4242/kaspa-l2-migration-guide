@@ -99,7 +99,7 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
   name: "Kasplex Network Testnet",
   rpc: "https://rpc.kasplextest.xyz", 
   chainId: 167012,
-  explorer: "https://frontend.kasplextest.xyz",
+  explorer: "https://explorer.testnet.kasplextest.xyz",
   faucet: "https://faucet.zealousswap.com/"
 }
 ```
@@ -134,7 +134,7 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 - [ ] **Get testnet KAS**: [Zealous Swap](https://faucet.zealousswap.com/) or [Kaspa Finance](https://app.kaspafinance.io/faucets)
 - [ ] **Deploy first contract**: `npm run deploy:kasplex` (works immediately!)
 - [ ] **Add Kasplex network** to MetaMask (network details below)
-- [ ] **View on explorer**: [frontend.kasplextest.xyz](https://frontend.kasplextest.xyz)
+- [ ] **View on explorer**: [explorer.testnet.kasplextest.xyz](https://explorer.testnet.kasplextest.xyz)
 
 ### 📋 Detailed Setup
 Need help? Check our **[Setup Guide](SETUP.md)** for step-by-step instructions!

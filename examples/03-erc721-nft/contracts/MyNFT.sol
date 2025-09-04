@@ -5,16 +5,13 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-
 /**
  * @title MyNFT
  * @dev Standard ERC721 NFT contract with URI storage and enumerable functionality
  */
 contract MyNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
-    using Counters for Counters.Counter;
     
-    Counters.Counter private _tokenIdCounter;
+    uint256 private _nextTokenId;
     
     // Contract metadata
     string private _contractURI;
@@ -50,10 +47,10 @@ contract MyNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
      */
     function mint(address to, string memory uri) public onlyOwner returns (uint256) {
         require(to != address(0), "Cannot mint to zero address");
-        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
+        require(_nextTokenId < maxSupply, "Max supply reached");
         
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _nextTokenId;
+        _nextTokenId++;
         
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
@@ -71,15 +68,15 @@ contract MyNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
         require(to != address(0), "Cannot mint to zero address");
         require(uris.length > 0, "Must provide at least one URI");
         require(
-            _tokenIdCounter.current() + uris.length <= maxSupply, 
+            _nextTokenId + uris.length <= maxSupply, 
             "Batch would exceed max supply"
         );
         
         uint256[] memory tokenIds = new uint256[](uris.length);
         
         for (uint256 i = 0; i < uris.length; i++) {
-            uint256 tokenId = _tokenIdCounter.current();
-            _tokenIdCounter.increment();
+            uint256 tokenId = _nextTokenId;
+            _nextTokenId++;
             
             _safeMint(to, tokenId);
             _setTokenURI(tokenId, uris[i]);
@@ -96,10 +93,10 @@ contract MyNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
      */
     function publicMint(string memory uri) public payable returns (uint256) {
         require(msg.value >= mintPrice, "Insufficient payment");
-        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
+        require(_nextTokenId < maxSupply, "Max supply reached");
         
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = _nextTokenId;
+        _nextTokenId++;
         
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, uri);
@@ -134,14 +131,14 @@ contract MyNFT is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable {
      * @dev Get total number of minted tokens
      */
     function totalMinted() public view returns (uint256) {
-        return _tokenIdCounter.current();
+        return _nextTokenId;
     }
     
     /**
      * @dev Get remaining supply
      */
     function remainingSupply() public view returns (uint256) {
-        return maxSupply - _tokenIdCounter.current();
+        return maxSupply - _nextTokenId;
     }
     
     /**

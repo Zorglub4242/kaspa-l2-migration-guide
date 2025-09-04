@@ -73,7 +73,7 @@ kasplex = { chainId = 167012 }
 - RPC URL: `https://rpc.kasplextest.xyz`
 - Chain ID: `167012` 
 - Currency: `KAS`
-- Explorer: `https://frontend.kasplextest.xyz`
+- Explorer: `https://explorer.testnet.kasplextest.xyz`
 
 ### 2. Deployment Commands (Same flags, different network)
 
@@ -93,7 +93,7 @@ npx hardhat run scripts/deploy.js --network kasplex
 console.log(`https://etherscan.io/address/${contractAddress}`);
 
 // After  
-console.log(`https://frontend.kasplextest.xyz/address/${contractAddress}`);
+console.log(`https://explorer.testnet.kasplextest.xyz/address/${contractAddress}`);
 ```
 
 ## 🚫 What Doesn't Work (Almost Nothing)
@@ -157,7 +157,7 @@ const kasplex = {
   network: 'kasplex',
   nativeCurrency: { name: 'KAS', symbol: 'KAS', decimals: 18 },
   rpcUrls: { default: 'https://rpc.kasplextest.xyz' },
-  blockExplorers: { default: { url: 'https://frontend.kasplextest.xyz' } },
+  blockExplorers: { default: { url: 'https://explorer.testnet.kasplextest.xyz' } },
 };
 ```
 
@@ -249,7 +249,7 @@ Savings: 99.99% 🤯
 - ✅ **Clear MetaMask cache** - Settings > Advanced > Reset
 
 ### Contract Verification Issues
-- ✅ **Use correct explorer** - frontend.kasplextest.xyz
+- ✅ **Use correct explorer** - explorer.testnet.kasplextest.xyz
 - ✅ **Same compiler version** - Must match deployment
 - ✅ **Same optimization settings** - Keep identical
 

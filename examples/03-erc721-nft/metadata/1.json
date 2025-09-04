@@ -1,0 +1,26 @@
+{
+  "name": "Kasplex NFT Collection #1",
+  "description": "Example NFT collection deployed on Kasplex L2 - Token #1",
+  "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I0ZGNkI2QjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM0RUNEQzQ7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzQ1QjdEMTtzdG9wLW9wYWNpdHk6MSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIAogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0idXJsKCNncmFkMSkiLz4KICAKICA8IS0tIEdlb21ldHJpYyBzaGFwZXMgLS0+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iOCIgb3BhY2l0eT0iMC44Ii8+CiAgPHJlY3QgeD0iMTk2IiB5PSIxOTYiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjYiIG9wYWNpdHk9IjAuNiIgdHJhbnNmb3JtPSJyb3RhdGUoNDUgMjU2IDI1NikiLz4KICA8cG9seWdvbiBwb2ludHM9IjI1NiwxMzYgMzA2LDIzNiAyMDYsMjM2IiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC40Ii8+CiAgPHBvbHlnb24gcG9pbnRzPSIyNTYsMzc2IDIwNiwyNzYgMzA2LDI3NiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuNCIvPgogIAogIDwhLS0gQ2VudGVyIGRvdCAtLT4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjE2IiBmaWxsPSJ3aGl0ZSIvPgogIAogIDwhLS0gVGV4dCAtLT4KICA8dGV4dCB4PSIyNTYiIHk9IjQwMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuOSI+S2FzcGxleCBORlQgIzE8L3RleHQ+Cjwvc3ZnPg==",
+  "attributes": [
+    {
+      "trait_type": "File Type",
+      "value": "SVG"
+    },
+    {
+      "trait_type": "File Size",
+      "value": "1 KB"
+    },
+    {
+      "trait_type": "Minted On",
+      "value": "Kasplex L2"
+    },
+    {
+      "display_type": "date",
+      "trait_type": "Created",
+      "value": 1757006437
+    }
+  ],
+  "compiler": "Kasplex NFT Example",
+  "date": 1757006437727
+}

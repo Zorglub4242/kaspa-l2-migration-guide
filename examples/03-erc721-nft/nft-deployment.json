@@ -1,0 +1,26 @@
+{
+  "network": "kasplex-testnet",
+  "chainId": 167012,
+  "contractAddress": "0x74Ca654d437886C38A08001c49F3df341276c143",
+  "collectionName": "Kasplex NFT Collection",
+  "collectionSymbol": "KNFT",
+  "maxSupply": 1000,
+  "mintPrice": 0,
+  "totalMinted": "3",
+  "deployer": "0xC7BED213023060A99901d5Ee0877E78b93586c54",
+  "deploymentHash": "0xcb735de14d90c15a5cf9c76337f303f678394ca6a634ae0722074b71693a5706",
+  "gasUsed": "3883112",
+  "timestamp": "2025-09-04T17:20:43.756Z",
+  "explorerUrl": "https://explorer.testnet.kasplextest.xyz/address/0x74Ca654d437886C38A08001c49F3df341276c143",
+  "imagesUsed": [
+    "example-1.svg",
+    "example-2.svg",
+    "example-3.svg"
+  ],
+  "metadataFolder": "C:\\Sources\\ethereum-to-kasplex-guide\\examples\\03-erc721-nft\\metadata",
+  "metamaskConfig": {
+    "address": "0x74Ca654d437886C38A08001c49F3df341276c143",
+    "name": "Kasplex NFT Collection",
+    "symbol": "KNFT"
+  }
+}

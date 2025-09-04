@@ -173,7 +173,7 @@ After successful deployment, you'll want to add your token to MetaMask to see yo
    RPC URL: https://rpc.kasplextest.xyz
    Chain ID: 167012
    Currency Symbol: KAS
-   Explorer: https://frontend.kasplextest.xyz
+   Explorer: https://explorer.testnet.kasplextest.xyz
    ```
 
 2. **Switch to Kasplex Network** in MetaMask (top dropdown)
@@ -207,7 +207,7 @@ After deployment, you'll see output like this:
 ### 🔍 View on Explorer
 
 You can also view your token on the Kasplex explorer:
-- Visit: `https://frontend.kasplextest.xyz/address/YOUR_CONTRACT_ADDRESS`
+- Visit: `https://explorer.testnet.kasplextest.xyz/address/YOUR_CONTRACT_ADDRESS`
 - See all transactions, holders, and token details
 - Verify your deployment publicly
 

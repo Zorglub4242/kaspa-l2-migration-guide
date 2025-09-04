@@ -72,7 +72,7 @@ async function main() {
   
   // Check minimum balance
   const minBalance = ethers.utils.parseEther("0.05"); // 0.05 KAS minimum for NFTs
-  if (balance < minBalance) {
+  if (balance.lt(minBalance)) {
     console.log("❌ Insufficient balance!");
     console.log("💡 Get free KAS from faucet: https://faucet.zealousswap.com/ or https://app.kaspafinance.io/faucets");
     console.log("💡 You need at least 0.05 KAS for NFT deployment");
@@ -215,7 +215,7 @@ async function main() {
   console.log("🎉 NFT CONTRACT DEPLOYMENT SUCCESSFUL!");
   console.log("=".repeat(60));
   console.log("📍 Contract Address:", contractAddress);
-  console.log("🔍 Explorer URL:", `https://frontend.kasplextest.xyz/address/${contractAddress}`);
+  console.log("🔍 Explorer URL:", `https://explorer.testnet.kasplextest.xyz/address/${contractAddress}`);
   console.log("📝 Transaction Hash:", nft.deployTransaction.hash);
   console.log("");
   
@@ -386,7 +386,7 @@ async function main() {
   console.log("");
   
   console.log("🎯 NEXT STEPS:");
-  console.log("1. 🔍 View your collection: https://frontend.kasplextest.xyz/address/" + contractAddress);
+  console.log("1. 🔍 View your collection: https://explorer.testnet.kasplextest.xyz/address/" + contractAddress);
   console.log("2. 💻 Interact via console: npx hardhat console --network kasplex");
   console.log("3. 🎨 Mint more NFTs: Use the mint() or batchMint() functions");
   console.log("4. 💸 Transfer NFTs: Ultra-cheap transfers on Kasplex!");
@@ -417,7 +417,7 @@ async function main() {
     deploymentHash: nft.deployTransaction.hash,
     gasUsed: gasEstimate.toString(),
     timestamp: new Date().toISOString(),
-    explorerUrl: `https://frontend.kasplextest.xyz/address/${contractAddress}`,
+    explorerUrl: `https://explorer.testnet.kasplextest.xyz/address/${contractAddress}`,
     imagesUsed: imageFiles.slice(0, mintCount),
     metadataFolder: metadataFolder,
     metamaskConfig: {
