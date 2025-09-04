@@ -78,18 +78,18 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 ## 🛠️ Framework Support
 
 ### Hardhat
-- **[Ethereum Setup](frameworks/hardhat-ethereum/)** - Standard configuration
-- **[Kasplex Setup](frameworks/hardhat-kasplex/)** - Same config, different network
+- **[Ethereum Setup](frameworks/hardhat-ethereum/)** - Standard Ethereum configuration with all networks
+- **[Kasplex Setup](frameworks/hardhat-kasplex/)** - Same setup, just add Kasplex network (99% cost savings!)
 
-### Foundry
-- **[Ethereum Setup](frameworks/foundry-ethereum/)** - Standard configuration  
-- **[Kasplex Setup](frameworks/foundry-kasplex/)** - Same config, different network
+### Foundry  
+- **[Ethereum Setup](frameworks/foundry-ethereum/)** - Modern Rust-powered development for Ethereum
+- **[Kasplex Setup](frameworks/foundry-kasplex/)** - Lightning-fast builds with ultra-low network costs
 
 ## 🔄 Migration Guides
 
-- **[From Ethereum](migration-guides/ethereum-mainnet-to-kasplex.md)** - Switch networks
-- **[From Polygon](migration-guides/polygon-to-kasplex.md)** - Lower gas costs
-- **[Zero Code Changes](migration-guides/zero-code-changes.md)** - What works immediately
+- **[From Ethereum](migration-guides/ethereum-mainnet-to-kasplex.md)** - Save 99% on gas costs with zero code changes
+- **[From Polygon](migration-guides/polygon-to-kasplex.md)** - Even better performance and 80-90% additional savings
+- **[Zero Code Changes](migration-guides/zero-code-changes.md)** - What works immediately without modifications
 
 ## 🌐 Network Details
 
