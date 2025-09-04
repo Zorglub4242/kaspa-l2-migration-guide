@@ -48,8 +48,26 @@ async function main() {
     deployTx.gasPrice = configuredGasPrice;
     deployTx.gasLimit = gasEstimate;
     
+    // Explicitly set nonce to avoid any nonce issues
+    const nonce = await deployer.getTransactionCount("pending");
+    deployTx.nonce = nonce;
+    
+    console.log("🔍 Transaction details:");
+    console.log("   - To:", deployTx.to || "Contract Creation");
+    console.log("   - Gas Limit:", deployTx.gasLimit.toString());
+    console.log("   - Gas Price:", ethers.utils.formatUnits(deployTx.gasPrice, "gwei"), "Gwei");
+    console.log("   - Nonce:", deployTx.nonce);
+    console.log("   - Data Length:", deployTx.data?.length || 0, "bytes");
+    
     console.log("📤 Sending raw deployment transaction...");
-    const txResponse = await deployer.sendTransaction(deployTx);
+    
+    // Add timeout to sendTransaction
+    const sendTxPromise = deployer.sendTransaction(deployTx);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Transaction submission timeout after 30 seconds")), 30000);
+    });
+    
+    const txResponse = await Promise.race([sendTxPromise, timeoutPromise]);
     console.log("✅ Raw transaction sent! Hash:", txResponse.hash);
     
     console.log("⏳ Waiting for transaction confirmation...");
