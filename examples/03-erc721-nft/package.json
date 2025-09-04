@@ -1,0 +1,34 @@
+{
+  "name": "kasplex-nft-collection-example",
+  "version": "1.0.0",
+  "description": "ERC721 NFT collection example for Kasplex L2 with local image support",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy:kasplex": "npx hardhat run scripts/deploy-kasplex.js --network kasplex",
+    "deploy:local": "npx hardhat run scripts/deploy-kasplex.js --network localhost",
+    "console:kasplex": "npx hardhat console --network kasplex",
+    "console:local": "npx hardhat console --network localhost",
+    "test": "npx hardhat test",
+    "verify": "npx hardhat verify --network kasplex"
+  },
+  "keywords": [
+    "nft",
+    "erc721",
+    "kasplex",
+    "ethereum",
+    "blockchain",
+    "solidity",
+    "hardhat"
+  ],
+  "author": "Merlin / Zorglub4242",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "ethers": "^5.7.2"
+  }
+}

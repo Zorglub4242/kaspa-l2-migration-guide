@@ -1,0 +1,35 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="grad2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFE066;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF6B9D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B73FF;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#grad2)"/>
+  
+  <!-- Pattern -->
+  <g transform="translate(256,256)">
+    <g id="petal">
+      <path d="M 0,0 Q 40,-80 0,-120 Q -40,-80 0,0" fill="white" opacity="0.3"/>
+    </g>
+    <use href="#petal" transform="rotate(0)"/>
+    <use href="#petal" transform="rotate(45)"/>
+    <use href="#petal" transform="rotate(90)"/>
+    <use href="#petal" transform="rotate(135)"/>
+    <use href="#petal" transform="rotate(180)"/>
+    <use href="#petal" transform="rotate(225)"/>
+    <use href="#petal" transform="rotate(270)"/>
+    <use href="#petal" transform="rotate(315)"/>
+  </g>
+  
+  <!-- Inner circles -->
+  <circle cx="256" cy="256" r="80" fill="none" stroke="white" stroke-width="4" opacity="0.6"/>
+  <circle cx="256" cy="256" r="40" fill="none" stroke="white" stroke-width="3" opacity="0.8"/>
+  <circle cx="256" cy="256" r="12" fill="white"/>
+  
+  <!-- Text -->
+  <text x="256" y="450" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white" opacity="0.9">Digital Art #2</text>
+</svg>

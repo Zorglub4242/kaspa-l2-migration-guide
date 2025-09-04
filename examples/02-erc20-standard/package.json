@@ -33,7 +33,7 @@
     "hardhat",
     "defi"
   ],
-  "author": "Kasplex Developer Hub",
+  "author": "Merlin / Zorglub4242",
   "license": "MIT",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
