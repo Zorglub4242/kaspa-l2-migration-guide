@@ -42,6 +42,10 @@ async function main() {
   // Deploy the contract with explicit gas configuration
   console.log("🚀 Starting deployment transaction...");
   
+  let contractAddress;
+  let hello;
+  let txResponse;
+  
   try {
     // Try manual deployment transaction instead of ethers deploy() wrapper
     const deployTx = await HelloWorld.getDeployTransaction();
@@ -73,7 +77,7 @@ async function main() {
       setTimeout(() => reject(new Error("Transaction submission timeout after 30 seconds")), 30000);
     });
     
-    const txResponse = await Promise.race([sendTxPromise, timeoutPromise]);
+    txResponse = await Promise.race([sendTxPromise, timeoutPromise]);
     console.log("✅ Raw transaction sent! Hash:", txResponse.hash);
     
     console.log("⏳ Waiting for transaction confirmation...");
@@ -81,8 +85,8 @@ async function main() {
     console.log("🎉 Transaction confirmed! Contract deployed at:", receipt.contractAddress);
     
     // Create contract instance from deployed address
-    const hello = HelloWorld.attach(receipt.contractAddress);
-    const contractAddress = receipt.contractAddress;
+    hello = HelloWorld.attach(receipt.contractAddress);
+    contractAddress = receipt.contractAddress;
     
     console.log("🎉 DEPLOYMENT SUCCESSFUL!");
     console.log("=" .repeat(50));
@@ -100,7 +104,7 @@ async function main() {
   console.log("=" .repeat(50));
   console.log("📍 Contract Address:", contractAddress);
   console.log("🔍 Explorer URL:", `https://frontend.kasplextest.xyz/address/${contractAddress}`);
-  console.log("📝 Transaction Hash:", hello.deploymentTransaction().hash);
+  console.log("📝 Transaction Hash:", txResponse.hash);
   console.log("");
   
   // Test the contract
@@ -155,7 +159,7 @@ async function main() {
     network: "kasplex-testnet",
     chainId: 167012,
     deployer: deployerAddress,
-    deploymentHash: hello.deploymentTransaction().hash,
+    deploymentHash: txResponse.hash,
     gasUsed: gasEstimate.toString(),
     timestamp: new Date().toISOString(),
     explorerUrl: `https://frontend.kasplextest.xyz/address/${contractAddress}`
