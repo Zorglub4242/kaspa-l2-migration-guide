@@ -1,0 +1,42 @@
+{
+  "name": "hello-world-kasplex",
+  "version": "1.0.0",
+  "description": "Simple Hello World contract for Ethereum and Kasplex comparison",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile",
+    "deploy:ethereum": "npx hardhat run scripts/deploy-ethereum.js --network ethereum",
+    "deploy:sepolia": "npx hardhat run scripts/deploy-ethereum.js --network sepolia", 
+    "deploy:kasplex": "npx hardhat run scripts/deploy-kasplex.js --network kasplex",
+    "deploy:local": "npx hardhat run scripts/deploy-kasplex.js --network localhost",
+    "console:kasplex": "npx hardhat console --network kasplex",
+    "console:ethereum": "npx hardhat console --network ethereum",
+    "node": "npx hardhat node",
+    "clean": "npx hardhat clean"
+  },
+  "keywords": [
+    "ethereum",
+    "kasplex",
+    "solidity",
+    "smart-contracts",
+    "layer2",
+    "evm",
+    "hardhat"
+  ],
+  "author": "Kasplex Developer Hub",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kasplex/ethereum-to-kasplex-guide"
+  },
+  "homepage": "https://github.com/kasplex/ethereum-to-kasplex-guide#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
