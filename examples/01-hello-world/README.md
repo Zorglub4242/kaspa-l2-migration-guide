@@ -39,7 +39,7 @@ The simplest possible smart contract to get started with Kasplex. **Same Solidit
    - Explorer: `https://frontend.kasplextest.xyz`
 
 3. **Get testnet KAS**:
-   - Visit: https://kasplextest.xyz/faucet
+   - Visit: https://faucet.zealousswap.com/
    - Enter your wallet address
    - Claim 50 KAS (free, daily)
 

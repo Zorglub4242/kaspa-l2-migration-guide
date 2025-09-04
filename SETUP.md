@@ -30,10 +30,10 @@ accounts: ["your_private_key_here"]  // No 0x prefix needed
 
 ### 3. Get Testnet Funds (1 minute)
 
-**Kasplex Testnet** (Free, Daily):
-- Visit: https://kasplextest.xyz/faucet
-- Paste your wallet address
-- Get 50 KAS (enough for thousands of transactions!)
+**Kasplex Testnet** (Free, Daily - choose either):
+- **Zealous Swap**: https://faucet.zealousswap.com/
+- **Kaspa Finance**: https://app.kaspafinance.io/faucets
+- Paste your wallet address and claim daily KAS (enough for thousands of transactions!)
 
 **Ethereum Sepolia** (Optional, for comparison):
 - Visit: https://sepoliafaucet.com/

@@ -44,7 +44,7 @@ Create and deploy a standard ERC20 token using OpenZeppelin. **The exact same co
    ```
 
 2. **Get testnet funds**:
-   - **Kasplex**: [Faucet](https://kasplextest.xyz/faucet) - 50 KAS daily (free)
+   - **Kasplex**: [Faucet](https://faucet.zealousswap.com/) - 50 KAS daily (free)
    - **Ethereum Sepolia**: [Faucet](https://sepoliafaucet.com/) - 0.5 ETH daily
 
 3. **Deploy to Kasplex** (recommended - ultra cheap):

@@ -16,7 +16,7 @@ async function main() {
   const minBalance = ethers.parseEther("0.001"); // 0.001 KAS minimum
   if (balance < minBalance) {
     console.log("❌ Insufficient balance!");
-    console.log("💡 Get free KAS from faucet: https://kasplextest.xyz/faucet");
+    console.log("💡 Get free KAS from faucet: https://faucet.zealousswap.com/ or https://app.kaspafinance.io/faucets");
     process.exit(1);
   }
   
@@ -124,7 +124,7 @@ main()
     console.log("");
     console.log("🔧 TROUBLESHOOTING:");
     console.log("1. Check your private key is set in hardhat.config.js");
-    console.log("2. Ensure you have KAS: https://kasplextest.xyz/faucet");
+    console.log("2. Ensure you have KAS: https://faucet.zealousswap.com/ or https://app.kaspafinance.io/faucets");
     console.log("3. Verify network config: RPC https://rpc.kasplextest.xyz");
     console.log("4. Join Discord for help: https://discord.gg/kasplex");
     process.exit(1);

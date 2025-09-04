@@ -22,10 +22,10 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
    echo "PRIVATE_KEY=your_private_key_here" > .env
    ```
 
-3. **Get free testnet KAS**:
-   - Visit: https://kasplextest.xyz/faucet
-   - Paste your wallet address
-   - Claim 50 KAS (enough for thousands of transactions!)
+3. **Get free testnet KAS** (choose either faucet):
+   - **Zealous Swap**: https://faucet.zealousswap.com/
+   - **Kaspa Finance**: https://app.kaspafinance.io/faucets
+   - Paste your wallet address and claim daily KAS
 
 4. **Deploy** (works immediately!):
    ```bash
@@ -87,7 +87,7 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
   rpc: "https://rpc.kasplextest.xyz", 
   chainId: 167012,
   explorer: "https://frontend.kasplextest.xyz",
-  faucet: "https://kasplextest.xyz/faucet"
+  faucet: "https://faucet.zealousswap.com/"
 }
 ```
 
@@ -117,7 +117,7 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 
 - [ ] **Clone repository**: `git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git`
 - [ ] **Add your private key**: Copy `.env.example` to `.env` and add your MetaMask key
-- [ ] **Get testnet KAS**: Visit [faucet](https://kasplextest.xyz/faucet) (50 KAS daily)
+- [ ] **Get testnet KAS**: [Zealous Swap](https://faucet.zealousswap.com/) or [Kaspa Finance](https://app.kaspafinance.io/faucets)
 - [ ] **Deploy first contract**: `npm run deploy:kasplex` (works immediately!)
 - [ ] **Add Kasplex network** to MetaMask (network details below)
 - [ ] **View on explorer**: [frontend.kasplextest.xyz](https://frontend.kasplextest.xyz)
