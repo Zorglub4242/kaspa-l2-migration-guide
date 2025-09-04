@@ -30,11 +30,13 @@ async function main() {
   // Estimate gas for deployment
   const deployTx = await HelloWorld.getDeployTransaction();
   const gasEstimate = await deployer.estimateGas(deployTx);
-  const gasPrice = await deployer.provider.getFeeData();
+  
+  // Use configured gas price (20 Gwei) instead of querying network
+  const configuredGasPrice = ethers.utils.parseUnits("20", "gwei");
   
   console.log("⛽ Estimated gas:", gasEstimate.toString());
-  console.log("💸 Gas price:", ethers.utils.formatUnits(gasPrice.gasPrice, "gwei"), "Gwei");
-  console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(gasPrice.gasPrice)), "KAS");
+  console.log("💸 Gas price:", ethers.utils.formatUnits(configuredGasPrice, "gwei"), "Gwei (configured)");
+  console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(configuredGasPrice)), "KAS");
   console.log("");
   
   // Deploy the contract

@@ -49,11 +49,13 @@ async function main() {
     TOKEN_CONFIG.initialSupply
   );
   const gasEstimate = await deployer.estimateGas(deployTx);
-  const gasPrice = await deployer.provider.getFeeData();
+  
+  // Use configured gas price (20 Gwei) instead of querying network
+  const configuredGasPrice = ethers.utils.parseUnits("20", "gwei");
   
   console.log("⛽ Estimated gas:", gasEstimate.toString());
-  console.log("💸 Gas price:", ethers.utils.formatUnits(gasPrice.gasPrice, "gwei"), "Gwei");
-  console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(gasPrice.gasPrice)), "KAS");
+  console.log("💸 Gas price:", ethers.utils.formatUnits(configuredGasPrice, "gwei"), "Gwei (configured)");
+  console.log("💰 Estimated cost:", ethers.utils.formatEther(gasEstimate.mul(configuredGasPrice)), "KAS");
   console.log("");
   
   // Deploy the token
@@ -136,7 +138,7 @@ async function main() {
   console.log("");
   
   console.log("💰 COST COMPARISON:");
-  const costInEth = ethers.utils.formatEther(gasEstimate.mul(gasPrice.gasPrice));
+  const costInEth = ethers.utils.formatEther(gasEstimate.mul(configuredGasPrice));
   const costInUsd = parseFloat(costInEth) * 0.01; // Rough KAS price
   console.log("- Deployment cost: ~$" + costInUsd.toFixed(4));
   console.log("- Transfer cost: ~$0.0001");
