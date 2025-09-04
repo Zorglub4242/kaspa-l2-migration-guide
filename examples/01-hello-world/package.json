@@ -9,6 +9,7 @@
     "deploy:ethereum": "npx hardhat run scripts/deploy-ethereum.js --network ethereum",
     "deploy:sepolia": "npx hardhat run scripts/deploy-ethereum.js --network sepolia", 
     "deploy:kasplex": "npx hardhat run scripts/deploy-kasplex.js --network kasplex",
+    "deploy:kasplex-relayer": "npx hardhat run scripts/deploy-kasplex.js --network kasplex_relayer",
     "deploy:local": "npx hardhat run scripts/deploy-kasplex.js --network localhost",
     "console:kasplex": "npx hardhat console --network kasplex",
     "console:ethereum": "npx hardhat console --network ethereum",

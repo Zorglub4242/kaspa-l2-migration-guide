@@ -48,7 +48,8 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
    npm run deploy:hello-world
    
    # If you used Option B (cd examples/01-hello-world):
-   npm run deploy:kasplex
+   npm run deploy:kasplex          # Direct RPC (may timeout)
+   npm run deploy:kasplex-relayer  # Via relayer (more reliable)
    ```
 
 5. **Done!** 🎉 Your contract is live on Kasplex with 99% cost savings!
@@ -186,6 +187,7 @@ networks: {
 - **Some precompiles**: Limited to basic set (ecrecover, sha256, etc.)
 - **Gas reporting**: Some tools may not recognize Kasplex gas costs
 - **Block times**: ~10 seconds vs Ethereum's ~12 seconds
+- **RPC Reliability**: Testnet RPC may occasionally timeout on transaction submission (retry after a few minutes)
 
 ### 🚀 Performance Differences
 - **Gas costs**: 100x lower than Ethereum mainnet

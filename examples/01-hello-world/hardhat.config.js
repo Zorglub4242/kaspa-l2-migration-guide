@@ -37,13 +37,24 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 
-    // Kasplex L2 Testnet (ultra cheap, same EVM compatibility!)
+    // Kasplex L2 Testnet - Direct RPC (may timeout occasionally)
     kasplex: {
       url: "https://rpc.kasplextest.xyz",
       chainId: 167012,
       gasPrice: 20000000000, // 20 Gwei - same as Ethereum, but KAS is much cheaper!
       gas: 4000000, // Gas limit
       timeout: 60000, // 60 second timeout to prevent hanging
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+
+    // Kasplex L2 via Relayer (more reliable for deployments)
+    kasplex_relayer: {
+      url: "http://localhost:8546",  // Local relayer if available
+      chainId: 167012,
+      gasPrice: 20000000000,
+      gas: 10000000,
+      timeout: 600000, // 10 minutes - relayer is more reliable
+      allowUnlimitedContractSize: true,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 
