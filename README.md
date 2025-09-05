@@ -303,6 +303,12 @@ curl -X POST https://rpc.kasplextest.xyz \
 # Should return current block number like {"jsonrpc":"2.0","id":1,"result":"0x465354"}
 ```
 
+## 💝 Support the Project
+
+**Donations are welcome!** They're a great way to motivate us to build more crazy stuff.
+
+**Kaspa Address**: `kaspa:qq82dqjym58503xdn284vjm58fdmqj2plkc9pgc4880yxme5czelku7j2ts7g`
+
 ---
 
 **Ready to build?** Pick an example and deploy in 2 minutes! 🚀
