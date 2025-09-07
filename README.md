@@ -1,16 +1,32 @@
-# 🎯 Your Ethereum Code Works on Kasplex
+# 🎯 Your Ethereum Code Works on Kaspa L2
 
-**Zero code changes needed. Just switch the network.**
+**Zero code changes needed. Choose Kasplex or Igra and switch the network.**
 
-Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum contracts, tools, and knowledge work exactly the same - but with ultra-low gas fees and 10-second finality.
+## ⚠️ Important Disclaimer
+
+**This guide was created entirely with the assistance of AI tools by someone exploring blockchain development possibilities.** 
+
+While I have experience in software development and blockchain projects, this specific Ethereum-to-Kasplex migration guide represents experimental work created through AI-assisted development.
+
+**Please be aware:**
+- 🔍 **Gaps may exist** in testing methodology and coverage
+- 🛡️ **Security vulnerabilities** may be present in example code
+- ⚡ **Not production-ready** - treat all code as experimental/educational
+- 📚 **Independent verification required** before using in any serious capacity
+
+This guide is intended to help other developers **get started with testing and exploration**, not as a definitive production deployment resource.
+
+**Always perform your own security audits and testing before deploying any smart contracts with real value.**
+
+---
+
+Kasplex and Igra are fully EVM-compatible Layer 2s built on Kaspa. Your existing Ethereum contracts, tools, and knowledge work exactly the same - but with ultra-low gas fees and fast finality.
 
 ## ⚡ Quick Start (2 minutes)
 
 1. **Clone and setup**:
    ```bash
-   git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git
-   cd ethereum-to-kasplex-guide
-   
+     
    # Option A: Setup all examples at once
    npm run setup
    
@@ -37,35 +53,45 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
    - Ensure it has ZERO real funds
    - Export private key and add to .env
 
-3. **Get free testnet KAS** (choose either faucet):
+3. **Get free testnet tokens**:
+   
+   **For Kasplex L2:**
    - **Zealous Swap**: https://faucet.zealousswap.com/
    - **Kaspa Finance**: https://app.kaspafinance.io/faucets
-   - Paste your wallet address and claim daily KAS
+   
+   **For Igra Caravel:**
+   - **IGRA Faucet**: https://faucet.caravel.igralabs.com/
+   
+   Paste your wallet address and claim daily testnet tokens
 
-4. **Deploy** (works immediately!):
+4. **Deploy** (choose your network):
    ```bash
    # If you used Option A (npm run setup):
    npm run deploy:hello-world
    
    # If you used Option B (cd examples/01-hello-world):
+   # Deploy to Kasplex:
    npm run deploy:kasplex          # Direct RPC (may timeout)
    npm run deploy:kasplex-relayer  # Via relayer (more reliable)
+   
+   # Deploy to Igra:
+   npm run deploy:igra             # Deploy to Igra Caravel testnet
    ```
 
-5. **Done!** 🎉 Your contract is live on Kasplex with 99% cost savings!
+5. **Done!** 🎉 Your contract is live on Kaspa L2 with massive cost savings!
 
 ## 📊 Network Comparison
 
-| Aspect | Ethereum Mainnet | Polygon | Arbitrum | **Kasplex L2** |
-|--------|------------------|---------|-----------|----------------|
-| **Solidity Version** | ✅ 0.8.26 | ✅ 0.8.26 | ✅ 0.8.26 | ✅ **0.8.26** |
-| **OpenZeppelin** | ✅ Works | ✅ Works | ✅ Works | ✅ **Works** |
-| **Hardhat/Foundry** | ✅ Works | ✅ Works | ✅ Works | ✅ **Works** |
-| **MetaMask** | ✅ Works | ✅ Works | ✅ Works | ✅ **Works** |
-| **Gas Cost** | 💰 $20-100 | 💰 $0.10-1 | 💰 $0.50-5 | 💰 **$0.01-0.10** |
-| **Finality** | ⏰ 12 minutes | ⏰ Instant* | ⏰ 7 days | ⏰ **10 seconds** |
-| **DAG Native** | ❌ No | ❌ No | ❌ No | ✅ **Yes** |
-| **Code Changes** | - | - | - | 🎯 **ZERO** |
+| Aspect | Ethereum Mainnet | Polygon | Arbitrum | **Kasplex L2** | **Igra Caravel** |
+|--------|------------------|---------|-----------|----------------|------------------|
+| **Solidity Version** | ✅ 0.8.26 | ✅ 0.8.26 | ✅ 0.8.26 | ✅ **0.8.26** | ✅ **0.8.26** |
+| **OpenZeppelin** | ✅ Works | ✅ Works | ✅ Works | ✅ **Works** | ✅ **Works** |
+| **Hardhat/Foundry** | ✅ Works | ✅ Works | ✅ Works | ✅ **Works** | ✅ **Works** |
+| **MetaMask** | ✅ Works | ✅ Works | ✅ Works | ✅ **Works** | ✅ **Works** |
+| **Gas Cost** | 💰 $20-100 | 💰 $0.10-1 | 💰 $0.50-5 | 💰 **$0.01-0.10** | 💰 **$0.01-0.10** |
+| **Finality** | ⏰ 12 minutes | ⏰ Instant* | ⏰ 7 days | ⏰ **10 seconds** | ⏰ **~10 seconds** |
+| **DAG Native** | ❌ No | ❌ No | ❌ No | ✅ **Yes** | ✅ **Yes** |
+| **Code Changes** | - | - | - | 🎯 **ZERO** | 🎯 **ZERO** |
 
 *Polygon finality is instant but has occasional reorgs
 
@@ -75,39 +101,28 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 - **[ERC20 Token](examples/02-erc20-standard/)** - Standard OpenZeppelin token
 - **[NFT Collection](examples/03-erc721-nft/)** - Standard ERC721 with metadata
 
+## 🧪 Testing & Analysis Tools
+
+- **[Network Test Tool](network-test-tool/)** - 🎯 **PROVEN**: 100% EVM compatibility on both Kasplex and Igra + Complete DeFi testing suite (66 tests passed on both networks)
+
 ## 🛠️ Framework Support
 
 ### Hardhat
 - **[Ethereum Setup](frameworks/hardhat-ethereum/)** - Standard Ethereum configuration with all networks
-- **[Kasplex Setup](frameworks/hardhat-kasplex/)** - Same setup, just add Kasplex network (99% cost savings!)
+- **[Kaspa L2 Setup](frameworks/hardhat-kasplex/)** - Add Kasplex or Igra networks for massive cost savings
 
 ### Foundry  
 - **[Ethereum Setup](frameworks/foundry-ethereum/)** - Modern Rust-powered development for Ethereum
-- **[Kasplex Setup](frameworks/foundry-kasplex/)** - Lightning-fast builds with ultra-low network costs
+- **[Kaspa L2 Setup](frameworks/foundry-kasplex/)** - Lightning-fast builds with ultra-low network costs on Kasplex or Igra
 
 ## 🔄 Migration Guides
 
-- **[From Ethereum](migration-guides/ethereum-mainnet-to-kasplex.md)** - Save 99% on gas costs with zero code changes
-- **[From Polygon](migration-guides/polygon-to-kasplex.md)** - Even better performance and 80-90% additional savings
-- **[Zero Code Changes](migration-guides/zero-code-changes.md)** - What works immediately without modifications
+- **[From Ethereum](migration-guides/ethereum-mainnet-to-kasplex.md)** - Save 99% on gas costs with zero code changes (Kasplex or Igra)
+- **[From Polygon](migration-guides/polygon-to-kasplex.md)** - Even better performance and additional savings on Kaspa L2s
+- **[Zero Code Changes](migration-guides/zero-code-changes.md)** - What works immediately without modifications on both networks
 
-## 🌐 Network Details
 
-### Kasplex L2 Testnet
-```javascript
-{
-  name: "Kasplex Network Testnet",
-  rpc: "https://rpc.kasplextest.xyz", 
-  chainId: 167012,
-  explorer: "https://explorer.testnet.kasplextest.xyz",
-  faucet: "https://faucet.zealousswap.com/"
-}
-```
-
-### Add to MetaMask (One Click)
-[Add Kasplex Network](https://chainlist.org/?search=kasplex) - Or add manually with details above
-
-## 💡 Why Kasplex?
+## 💡 Why Kaspa L2?
 
 ### ✅ **Full EVM Compatibility**
 - Same Solidity compiler
@@ -116,35 +131,28 @@ Kasplex is a fully EVM-compatible Layer 2 built on Kaspa. Your existing Ethereum
 - Same wallet support (MetaMask, WalletConnect)
 
 ### ⚡ **Better Performance**
-- **Ultra-low gas fees**: 100x cheaper than Ethereum
+- **Ultra-low gas fees**: 200x+ cheaper than Ethereum
 - **Fast finality**: 10 seconds vs 12 minutes
-- **High throughput**: 1000+ TPS
 - **DAG-based**: Built on Kaspa's innovative architecture
 
 ### 🔒 **Security & Decentralization**
-- **Based Rollup**: Inherits Kaspa L1 security
-- **Decentralized sequencing**: No central point of failure  
-- **Open source**: Fully auditable and transparent
+- **Rollup Architecture**: Both inherit Kaspa L1 security (traditional and based rollups)
+- **Decentralized approach**: Reducing central points of failure  
+
+**This guide covers both Kasplex and Igra Labs**, providing migration paths and testing frameworks for both current and future Kaspa L2 capabilities.
 
 ## 🚀 Getting Started Checklist
 
-- [ ] **Clone repository**: `git clone https://github.com/Zorglub4242/ethereum-to-kasplex-guide.git`
+- [ ] **Clone repository**: `git clone https://github.com/Zorglub4242/kaspa-l2-migration-guide.git`
 - [ ] **Create test wallet**: New MetaMask account with NO real funds (security critical!)
 - [ ] **Add test private key**: Copy `.env.example` to `.env` and add your TEST wallet key
-- [ ] **Get testnet KAS**: [Zealous Swap](https://faucet.zealousswap.com/) or [Kaspa Finance](https://app.kaspafinance.io/faucets)
-- [ ] **Deploy first contract**: `npm run deploy:kasplex` (works immediately!)
-- [ ] **Add Kasplex network** to MetaMask (network details below)
-- [ ] **View on explorer**: [explorer.testnet.kasplextest.xyz](https://explorer.testnet.kasplextest.xyz)
+- [ ] **Get testnet tokens**: [Kasplex faucets](https://faucet.zealousswap.com/) or [Igra faucet](https://faucet.caravel.igralabs.com/)
+- [ ] **Deploy first contract**: `npm run deploy:kasplex` or `npm run deploy:igra` (works immediately!)
+- [ ] **Add network** to MetaMask (Kasplex or Igra network details below)
+- [ ] **View on explorer**: [Kasplex](https://explorer.testnet.kasplextest.xyz) or [Igra](https://explorer.caravel.igralabs.com)
 
 ### 📋 Detailed Setup
 Need help? Check our **[Setup Guide](SETUP.md)** for step-by-step instructions!
-
-## 🤝 Community & Support
-
-- **Documentation**: [docs-kasplex.gitbook.io](https://docs-kasplex.gitbook.io/l2-network)
-- **Community**: Check official Kasplex channels
-- **Twitter**: [@kasplex](https://twitter.com/kasplex)
-- **GitHub**: Issues and contributions welcome
 
 ## 🧠 Technical Compatibility Guide
 
@@ -170,7 +178,12 @@ networks: {
   kasplex: {
     url: "https://rpc.kasplextest.xyz",
     chainId: 167012,
-    gasPrice: 20000000000, // 20 Gwei
+    gasPrice: 2500000000000, // 2500 Gwei
+  },
+  igra: {
+    url: "https://rpc.caravel.igralabs.com",
+    chainId: 19762,
+    gasPrice: 2500000000000, // 2500 Gwei
   }
 }
 ```
@@ -178,130 +191,15 @@ networks: {
 ### ⚠️ Known Limitations
 - **EIP-4844 (Blob transactions)**: Not yet supported
 - **Some precompiles**: Limited to basic set (ecrecover, sha256, etc.)
-- **Gas reporting**: Some tools may not recognize Kasplex gas costs
+- **Gas reporting**: Some tools may not recognize gas costs
 - **Block times**: ~10 seconds vs Ethereum's ~12 seconds
 - **RPC Reliability**: Testnet RPC may occasionally timeout on transaction submission (retry after a few minutes)
 
 ### 🚀 Performance Differences
 - **Gas costs**: 100x lower than Ethereum mainnet
 - **Finality**: 10 seconds vs 12+ minutes on Ethereum
-- **Throughput**: 1000+ TPS vs Ethereum's 15 TPS
 - **State growth**: More sustainable due to DAG architecture
 
-## 🛠️ Developer Tips & Troubleshooting
-
-### 💡 Critical Success Factors
-
-**Gas Price Requirements**
-```javascript
-// ✅ WORKS - Use 2000 Gwei for reliable transaction inclusion
-gasPrice: ethers.utils.parseUnits("2000", "gwei")
-
-// ❌ FAILS - Low gas prices (20-100 Gwei) cause timeouts
-gasPrice: ethers.utils.parseUnits("20", "gwei")  // Hangs indefinitely
-```
-
-**Why 2000 Gwei Works:**
-- Kasplex network requires higher gas prices for transaction inclusion
-- Even at 2000 Gwei, costs are still 100x cheaper than Ethereum
-- Proven configuration used by successful projects
-
-**Nonce Management**
-```javascript
-// ✅ WORKS - Let ethers handle nonce automatically  
-delete deployTx.nonce;
-const txResponse = await deployer.sendTransaction(deployTx);
-
-// ❌ FAILS - Manual nonce can cause "orphan transaction" errors
-deployTx.nonce = await deployer.getTransactionCount("latest");
-```
-
-### 🚨 Common Issues & Solutions
-
-**Problem: Deployment hangs indefinitely**
-```
-📤 Sending raw deployment transaction...
-[hangs here forever]
-```
-
-**Root Cause:** Gas price too low (20-100 Gwei)  
-**Solution:** Use 2000 Gwei gas price
-
-**Problem: "Orphan transaction" error**
-```
-Error: transaction is an orphan where orphan is disallowed
-```
-
-**Root Cause:** Manual nonce management conflicts  
-**Solution:** Let ethers calculate nonce automatically
-
-**Problem: Variable scope errors**
-```
-ReferenceError: contractAddress is not defined
-```
-
-**Root Cause:** Variables declared inside try block  
-**Solution:** Declare variables before try block
-```javascript
-let contractAddress;
-let hello;
-let txResponse;
-
-try {
-  // Use assignments, not const declarations
-  contractAddress = receipt.contractAddress;
-}
-```
-
-### 📋 Debugging Checklist
-
-When deployments fail, check these in order:
-
-1. **✅ Gas Price**: Must be 2000 Gwei
-2. **✅ Balance**: At least 1 KAS for deployment
-3. **✅ Private Key**: Correctly set in .env file (no 0x prefix)
-4. **✅ Network**: Using `https://rpc.kasplextest.xyz`
-5. **✅ Nonce**: Let ethers handle automatically
-6. **✅ Ethers Version**: Use v5.x for best compatibility
-
-### 🎯 Proven Working Configuration
-
-```javascript
-// hardhat.config.js
-networks: {
-  kasplex: {
-    url: "https://rpc.kasplextest.xyz",
-    chainId: 167012,
-    gasPrice: 2000000000000, // 2000 Gwei - CRITICAL!
-    gas: 10000000, // 10M gas limit
-    timeout: 600000, // 10 minutes
-    pollingInterval: 5000, // 5 second polling
-    allowUnlimitedContractSize: true,
-    accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-  }
-}
-```
-
-```javascript
-// deploy script
-const configuredGasPrice = ethers.utils.parseUnits("2000", "gwei");
-const hello = await HelloWorld.deploy({
-  gasPrice: configuredGasPrice,
-  gasLimit: gasEstimate
-});
-```
-
-### 🔍 Network Status Check
-
-If you suspect network issues:
-```bash
-# Check if RPC is responding
-curl -X POST https://rpc.kasplextest.xyz \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
-
-# Should return current block number like {"jsonrpc":"2.0","id":1,"result":"0x465354"}
-```
 
 ## 💝 Support the Project
 
@@ -311,8 +209,8 @@ curl -X POST https://rpc.kasplextest.xyz \
 
 ---
 
-**Ready to build?** Pick an example and deploy in 2 minutes! 🚀
+**Ready to build?** Pick an example and deploy in 2 minutes on either Kasplex or Igra! 🚀
 
-**Questions?** Check our [FAQ](migration-guides/zero-code-changes.md) or join the Discord.
+**Questions?** Check our [FAQ](migration-guides/zero-code-changes.md) or join the community discussions.
 
-**Want to contribute?** PRs welcome! Help make Kasplex the best EVM experience.
+**Want to contribute?** PRs welcome! Help make Kaspa L2s the best EVM experience.

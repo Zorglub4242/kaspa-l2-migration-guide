@@ -49,10 +49,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kasplex/ethereum-to-kasplex-guide",
+    "url": "https://github.com/Zorglub4242/kaspa-l2-migration-guide",
     "directory": "examples/02-erc20-standard"
   },
-  "homepage": "https://github.com/kasplex/ethereum-to-kasplex-guide/tree/main/examples/02-erc20-standard#readme",
+  "homepage": "https://github.com/Zorglub4242/kaspa-l2-migration-guide/tree/main/examples/02-erc20-standard#readme",
   "engines": {
     "node": ">=16.0.0"
   }

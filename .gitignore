@@ -56,3 +56,17 @@ deployments/hardhat/
 *.key
 *.pem
 private-key.txt
+
+# Multi-network testing UI (exclude until ready)
+multi-network-tester/
+!multi-network-tester/PRD.md
+
+# Legacy testing tools (exclude from repository)
+examples/08-blockchain-load-tester/
+examples/09-blockchain-load-tester-enhanced/
+
+# Claude Code session data
+.claude/
+
+# All test results (exclude everything from test runs)
+**/test-results/

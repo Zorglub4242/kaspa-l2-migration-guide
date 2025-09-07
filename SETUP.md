@@ -193,7 +193,7 @@ gas: 4000000,           // 4M gas limit - handles any contract
 
 ### Get Help
 - **Discord**: https://discord.gg/kasplex
-- **GitHub Issues**: https://github.com/Zorglub4242/ethereum-to-kasplex-guide/issues
+- **GitHub Issues**: https://github.com/Zorglub4242/kaspa-l2-migration-guide/issues
 - **Documentation**: https://docs-kasplex.gitbook.io/l2-network
 
 ## 🎯 Success Checklist

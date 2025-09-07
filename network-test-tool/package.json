@@ -1,0 +1,77 @@
+{
+  "name": "blockchain-load-tester-enhanced",
+  "version": "1.0.0",
+  "description": "Enhanced blockchain load testing framework with interactive timing analysis for Ethereum and Kasplex networks",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile",
+    "deploy:kasplex": "npx hardhat run scripts/deploy-universal.js --network kasplex",
+    "deploy:sepolia": "npx hardhat run scripts/deploy-universal.js --network sepolia", 
+    "deploy:holesky": "npx hardhat run scripts/deploy-universal.js --network holesky",
+    "deploy:goerli": "npx hardhat run scripts/deploy-universal.js --network goerli",
+    "deploy:local": "npx hardhat run scripts/deploy-universal.js --network localhost",
+    "load-test:simple": "npx hardhat run scripts/load-test-simple.js --network",
+    "load-test:stress": "npx hardhat run scripts/load-test-stress.js --network",
+    "load-test:max-tps": "npx hardhat run scripts/load-test-max-tps.js --network",
+    "load-test:burst": "npx hardhat run scripts/load-test-burst.js --network",
+    "load-test:compare": "npx hardhat run scripts/load-test-compare.js",
+    "load-test:diagnostic": "npx hardhat run scripts/load-test-diagnostic.js --network",
+    "load-test:reliable": "npx hardhat run scripts/load-test-reliable.js --network",
+    "deploy:defi-suite": "npx hardhat run scripts/deploy-defi-suite.js --network",
+    "load-test:defi-tokens": "npx hardhat run scripts/load-test-defi-tokens.js --network",
+    "load-test:defi-dex": "npx hardhat run scripts/load-test-defi-dex.js --network",
+    "load-test:defi-full": "npx hardhat run scripts/load-test-defi-suite.js",
+    "load-test:complete-defi": "npx hardhat run scripts/complete-defi-suite.js --network",
+    "load-test:multi-network": "node scripts/multi-network-comparison.js",
+    "data:manage": "node scripts/data-management.js",
+    "console:kasplex": "npx hardhat console --network kasplex",
+    "console:sepolia": "npx hardhat console --network sepolia",
+    "console:holesky": "npx hardhat console --network holesky",
+    "deploy:evm-compatibility": "npx hardhat run scripts/deploy-evm-compatibility.js --network",
+    "test:evm-compatibility": "npx hardhat run scripts/run-evm-compatibility-tests.js --network",
+    "node": "npx hardhat node",
+    "clean": "npx hardhat clean"
+  },
+  "keywords": [
+    "ethereum",
+    "kasplex",
+    "solidity",
+    "smart-contracts",
+    "layer2",
+    "evm",
+    "hardhat",
+    "load-testing",
+    "performance",
+    "blockchain",
+    "stress-testing",
+    "throughput",
+    "tps",
+    "gas-optimization"
+  ],
+  "author": "Merlin / Zorglub4242",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "hardhat": "^2.19.0",
+    "ethereum-waffle": "^4.0.10",
+    "chai": "^4.3.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ethers": "^5.7.2",
+    "cli-table3": "^0.6.3",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "axios": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zorglub4242/kaspa-l2-migration-guide"
+  },
+  "homepage": "https://github.com/Zorglub4242/kaspa-l2-migration-guide#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

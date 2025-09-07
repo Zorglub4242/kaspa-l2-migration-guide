@@ -40,9 +40,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kasplex/ethereum-to-kasplex-guide"
+    "url": "https://github.com/Zorglub4242/kaspa-l2-migration-guide"
   },
-  "homepage": "https://github.com/kasplex/ethereum-to-kasplex-guide#readme",
+  "homepage": "https://github.com/Zorglub4242/kaspa-l2-migration-guide#readme",
   "engines": {
     "node": ">=16.0.0"
   }
