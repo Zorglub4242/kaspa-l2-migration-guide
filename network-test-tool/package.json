@@ -1,13 +1,24 @@
 {
   "name": "blockchain-load-tester-enhanced",
   "version": "1.0.0",
-  "description": "Enhanced blockchain load testing framework with interactive timing analysis for Ethereum and Kasplex networks",
+  "description": "MEV-Aware Blockchain Finality Measurement Tool with comprehensive analytics for Ethereum, Kasplex, and Igra networks",
   "main": "index.js",
+  "bin": {
+    "finality-cli": "./cli-finality.js"
+  },
   "scripts": {
     "test": "npx hardhat test",
     "compile": "npx hardhat compile",
+    "finality:interactive": "node cli-finality.js interactive",
+    "finality:test": "node cli-finality.js test",
+    "finality:benchmark": "node cli-finality.js benchmark", 
+    "finality:compare": "node cli-finality.js compare",
+    "finality:help": "node cli-finality.js help",
+    "test:finality-components": "node test-finality-components.js",
+    "test:network-adapters": "node test-network-adapters.js",
+    "test:complete-system": "node test-complete-system.js",
     "deploy:kasplex": "npx hardhat run scripts/deploy-universal.js --network kasplex",
-    "deploy:sepolia": "npx hardhat run scripts/deploy-universal.js --network sepolia", 
+    "deploy:sepolia": "npx hardhat run scripts/deploy-universal.js --network sepolia",
     "deploy:holesky": "npx hardhat run scripts/deploy-universal.js --network holesky",
     "deploy:goerli": "npx hardhat run scripts/deploy-universal.js --network goerli",
     "deploy:local": "npx hardhat run scripts/deploy-universal.js --network localhost",
@@ -36,35 +47,38 @@
   "keywords": [
     "ethereum",
     "kasplex",
-    "solidity",
-    "smart-contracts",
-    "layer2",
-    "evm",
-    "hardhat",
-    "load-testing",
-    "performance",
+    "igra",
+    "finality",
+    "mev",
     "blockchain",
-    "stress-testing",
-    "throughput",
-    "tps",
-    "gas-optimization"
+    "layer2",
+    "analytics",
+    "measurement",
+    "timing",
+    "performance",
+    "cli",
+    "web3",
+    "defi",
+    "optimization"
   ],
   "author": "Merlin / Zorglub4242",
   "license": "MIT",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "hardhat": "^2.19.0",
+    "chai": "^4.3.10",
     "ethereum-waffle": "^4.0.10",
-    "chai": "^4.3.10"
+    "hardhat": "^2.19.0"
   },
   "dependencies": {
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
+    "commander": "^14.0.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
-    "cli-table3": "^0.6.3",
-    "chalk": "^4.1.2",
-    "ora": "^5.4.1",
-    "axios": "^1.6.0"
+    "inquirer": "^12.9.4",
+    "ora": "^5.4.1"
   },
   "repository": {
     "type": "git",

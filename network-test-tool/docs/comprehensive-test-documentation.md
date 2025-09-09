@@ -224,6 +224,130 @@ function testMultiSigWallet():
     4. Validate multi-signature execution
 ```
 
+## MEV Risk Assessment Framework
+
+### What is MEV and Why It Matters for Smart Contract Developers
+
+**MEV (Maximal Extractable Value)** occurs when block producers can profit by reordering, including, or excluding transactions. For smart contract developers, this means:
+
+- Users' trades might get "sandwiched" (front-run and back-run)
+- Transaction costs can spike unexpectedly during high MEV activity  
+- DeFi protocols may experience unexpected arbitrage affecting pricing
+- Transaction ordering might not match user expectations
+
+### Our MEV Risk Assessment Algorithm
+
+#### Step 1: Real-Time Network Monitoring
+We continuously monitor each network every 10 seconds:
+
+```
+Network Monitoring Checklist:
+├── Current gas prices (detecting spikes)
+├── Block utilization (fullness indicates competition)
+├── Pending transaction count (mempool congestion)
+└── Network congestion level (affects MEV extraction time)
+```
+
+#### Step 2: MEV Score Calculation (0-100 Scale)
+
+**Low MEV Risk (0-30)** - Safe Environment:
+- Stable gas prices
+- Blocks not consistently full
+- Small pending transaction pool
+- **Networks**: Kasplex L2, Igra L2
+
+**Medium MEV Risk (30-70)** - Moderate Caution:
+- Fluctuating gas prices
+- Blocks reaching capacity
+- Growing mempool competition
+- **Network**: Ethereum Sepolia
+
+**High MEV Risk (70-100)** - High Alert:
+- Volatile, spiking gas prices
+- Consistently full blocks
+- Mempool crowded with MEV bots
+- **Example**: Ethereum mainnet during DeFi activity peaks
+
+#### Step 3: Network Architecture Assessment
+
+**Why Kaspa L2s Have Extremely Low MEV Risk:**
+```
+Built on Kaspa L1 (10 blocks/sec = 0.1s) = Ultra-fast settlement
+L2 Transaction Sequencing = Current 3-9s, targeting sub-second
+Igra Development Target = Sub-second finality (per Pavel Emdin, Igra team)
+Fast L1 Settlement = Minimal MEV extraction windows
+Different Architecture = L2 rollups with DAG-based L1
+```
+
+**Why Ethereum Has Higher MEV Risk:**
+```
+Slower blocks (~12 seconds) = More MEV extraction time
+Public mempool = Transactions visible to MEV bots
+High DeFi volume = Many arbitrage opportunities
+MEV-Boost integration = Sophisticated extraction infrastructure
+Traditional blockchain = Sequential block production
+```
+
+### Practical Implications for Your Smart Contracts
+
+#### For Kasplex L2 Deployments:
+✅ **Low MEV Risk (Score: 10-30, potentially much lower when optimized)**
+- Built on Kaspa's 0.1s L1 for fast settlement
+- **Current**: 9.54s finality (likely artificially capped - to be confirmed)
+- **Potential**: Should leverage Kaspa's speed for sub-second capability
+- L2 sequencing with rapid L1 anchoring
+- **Architecture**: L2 rollup → Kaspa L1 (10 blocks/sec)
+- **Recommendation**: Basic protection now, minimal when speed optimized
+
+#### For Igra L2 Deployments:
+✅ **Extremely Low MEV Risk (Score: 5-20, targeting near-zero)**
+- **Current**: 3s finality (artificially capped on testnet)
+- **Target**: Sub-second finality (per Pavel Emdin, Igra team)
+- **L1 Base**: Kaspa's 0.1s blocks enable ultimate speed
+- Sub-second target will eliminate most MEV opportunities
+- **Recommendation**: Minimal MEV protection needed, focus on UX
+
+#### For Ethereum Deployments:
+⚠️ **Medium-High MEV Risk (Score: 30-70)**
+- Users face potential sandwich attacks
+- Variable gas costs during MEV competition
+- Transaction reordering possible
+- **Recommendation**: Implement robust MEV protection
+
+### MEV Protection Strategies by Network
+
+**For L2 Networks (Low Risk):**
+- Monitor MEV scores for sudden spikes
+- Implement basic slippage protection (1-3%)
+- Focus on performance optimizations
+- Warn users during rare high-MEV periods
+
+**For Ethereum Networks (Medium-High Risk):**
+- Implement robust slippage protection (5-10% minimum)
+- Consider commit-reveal schemes for sensitive operations
+- Monitor gas trends before important transactions
+- Integrate MEV protection services (e.g., Flashbots Protect)
+- Add MEV-aware timing for critical operations
+
+### MEV Monitoring Integration
+
+Our testing framework provides real-time MEV risk assessment:
+
+```javascript
+// Example MEV monitoring integration
+const mevRisk = await monitor.getCurrentMevRisk('kasplex');
+if (mevRisk.score > 50) {
+    console.warn('High MEV activity detected - consider delaying sensitive operations');
+}
+```
+
+**Key MEV Metrics Tracked:**
+- MEV Score (0-100)
+- Gas price volatility
+- Block utilization trends
+- MEV-affected transaction percentage
+- Reorganization frequency
+
 ## Performance Metrics Tracked
 
 1. Transaction Success Rate
@@ -231,6 +355,8 @@ function testMultiSigWallet():
 3. Gas Consumption
 4. Economic Cost Analysis
 5. Protocol-Specific Operation Counts
+6. **MEV Risk Assessment** (Real-time scoring)
+7. **MEV Impact Analysis** (Transaction reordering detection)
 
 ## Key Benefits of This Testing Framework
 

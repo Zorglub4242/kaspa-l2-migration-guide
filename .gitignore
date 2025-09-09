@@ -70,3 +70,16 @@ examples/09-blockchain-load-tester-enhanced/
 
 # All test results (exclude everything from test runs)
 **/test-results/
+
+# Network test tool - exclude test results and planning docs
+network-test-tool/mock-finality-results-*.json
+network-test-tool/real-finality-results-*.json
+network-test-tool/test-results.json
+network-test-tool/network-adapter-test-results.json
+network-test-tool/complete-system-test-report.json
+
+# Planning and development documents (keep in repo but exclude from main history)
+network-test-tool/docs/finality-measurement-prd.md
+network-test-tool/docs/finality-implementation-plan.md
+network-test-tool/docs/existing-code-integration-analysis.md
+network-test-tool/docs/mev-impact-analysis.md
