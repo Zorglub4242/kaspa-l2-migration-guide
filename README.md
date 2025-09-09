@@ -2,6 +2,8 @@
 
 **Zero code changes needed. Choose Kasplex or Igra and switch the network.**
 
+💡 **Want to understand the motivation behind this project?** Check out our [discovery story on dev.to](https://dev.to/m_c8cfdd8a63ea1b5334/kaspa-smart-contracts-a-personal-discovery-that-started-with-a-simple-dao-project-2blg) - a journey that started with a simple DAO project and led to exploring Kaspa's revolutionary L2 ecosystem.
+
 ## ⚠️ Important Disclaimer
 
 **This guide was created entirely with the assistance of AI tools by someone exploring blockchain development possibilities.** 
