@@ -343,14 +343,16 @@ class ResourcePool {
   }
 
   printPoolStats() {
-    console.log(chalk.cyan('\\n📊 Resource Pool Statistics:'));
+    console.log(''); // New line
+    console.log(chalk.cyan('📊 Resource Pool Statistics:'));
     console.log(chalk.gray('='.repeat(40)));
     
     console.log(`Providers: ${this.providers.size}/${this.options.maxProviders}`);
     console.log(`Contracts: ${this.contracts.size}/${this.options.maxContracts}`);
     console.log(`Signers: ${this.signers.size}/${this.options.maxSigners}`);
     
-    console.log('\\nConnection Stats by Network:');
+    console.log('');
+    console.log('Connection Stats by Network:');
     const stats = this.getConnectionStats();
     for (const [networkId, stat] of Object.entries(stats)) {
       console.log(`  ${networkId}: ${stat.hits} hits, ${stat.misses} misses (${(stat.hitRate * 100).toFixed(1)}% hit rate)`);
@@ -358,7 +360,8 @@ class ResourcePool {
     
     // Memory usage
     const memUsage = process.memoryUsage();
-    console.log(`\\nMemory Usage: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB heap`);
+    console.log('');
+    console.log(`Memory Usage: ${Math.round(memUsage.heapUsed / 1024 / 1024)}MB heap`);
   }
 
   async cleanup() {

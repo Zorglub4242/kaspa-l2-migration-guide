@@ -48,7 +48,8 @@ class ProgressTracker extends EventEmitter {
     }, cliProgress.Presets.shades_grey);
     
     this.isActive = true;
-    console.log(chalk.cyan('📊 Progress tracking initialized\\n'));
+    console.log(chalk.cyan('📊 Progress tracking initialized'));
+    console.log(''); // New line
   }
 
   getProgressFormat() {
@@ -226,7 +227,8 @@ class ProgressTracker extends EventEmitter {
   showEstimates() {
     if (!this.isActive) return;
     
-    console.log(chalk.yellow('\\n📈 Progress Estimates:'));
+    console.log(''); // New line
+    console.log(chalk.yellow('📈 Progress Estimates:'));
     
     for (const [networkName, progress] of this.networkProgress) {
       if (progress.completed === 0) continue;
@@ -243,7 +245,8 @@ class ProgressTracker extends EventEmitter {
   displaySummaryStats() {
     if (!this.isActive) return;
     
-    console.log(chalk.cyan('\\n📊 Progress Summary:'));
+    console.log(''); // New line
+    console.log(chalk.cyan('📊 Progress Summary:'));
     
     const totalElapsed = Date.now() - this.startTime;
     const totalTests = Array.from(this.networkProgress.values())
@@ -274,7 +277,8 @@ class ProgressTracker extends EventEmitter {
     this.networkProgress.clear();
     this.isActive = false;
     
-    console.log(chalk.gray('\\n📊 Progress tracking stopped'));
+    console.log(''); // New line
+    console.log(chalk.gray('📊 Progress tracking stopped'));
   }
 
   // Utility methods for specific test types
@@ -314,7 +318,8 @@ class ProgressTracker extends EventEmitter {
     
     const metrics = this.gatherMetrics();
     
-    console.log(chalk.cyan('\\n📈 Real-time Metrics:'));
+    console.log(''); // New line
+    console.log(chalk.cyan('📈 Real-time Metrics:'));
     console.log(`  Active Networks: ${metrics.activeNetworks}`);
     console.log(`  Tests in Progress: ${metrics.testsInProgress}`);
     console.log(`  Current TPS: ${metrics.averageTPS}`);

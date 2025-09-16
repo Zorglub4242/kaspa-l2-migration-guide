@@ -138,7 +138,7 @@ async function runTests(options) {
 
 async function runInteractiveMode() {
   console.log(chalk.cyan.bold('🚀 Blockchain Test Suite - Interactive Menu'));
-  console.log(chalk.gray('Select what you want to do and get the exact command to run\\n'));
+  console.log(chalk.gray('Select what you want to do and get the exact command to run\n'));
 
   while (true) {
     const mainAction = await inquirer.prompt([
@@ -198,7 +198,7 @@ async function runInteractiveMode() {
 
 async function runInteractiveTestBuilder() {
   console.log(chalk.cyan.bold('\\n🧪 Interactive Test Configuration'));
-  console.log(chalk.gray('Build your test command step by step\\n'));
+  console.log(chalk.gray('Build your test command step by step\n'));
 
   const allNetworks = getAllNetworks();
   const testTypes = ['evm', 'defi', 'load', 'finality'];
@@ -280,7 +280,7 @@ async function runInteractiveTestBuilder() {
 
   console.log(chalk.green('\\n✅ Configuration complete!'));
   console.log(chalk.yellow('Generated Command:'));
-  console.log(chalk.white.bold(`  ${command}\\n`));
+  console.log(chalk.white.bold(`  ${command}\n`));
 
   const action = await inquirer.prompt([
     {
@@ -296,7 +296,7 @@ async function runInteractiveTestBuilder() {
   ]);
 
   if (action.action === 'execute') {
-    console.log(chalk.green('\\n🚀 Starting tests...\\n'));
+    console.log(chalk.green('\\n🚀 Starting tests...\n'));
 
     const runner = new TestRunner({
       networks: answers.networks,
@@ -320,7 +320,7 @@ async function runInteractiveTestBuilder() {
 
 async function runInteractiveDeployBuilder() {
   console.log(chalk.cyan.bold('\\n🚀 Interactive Contract Deployment'));
-  console.log(chalk.gray('Configure contract deployment options\\n'));
+  console.log(chalk.gray('Configure contract deployment options\n'));
 
   const answers = await inquirer.prompt([
     {
@@ -366,7 +366,7 @@ async function runInteractiveDeployBuilder() {
 
   console.log(chalk.green('\\n✅ Configuration complete!'));
   console.log(chalk.yellow('Generated Command:'));
-  console.log(chalk.white.bold(`  ${command}\\n`));
+  console.log(chalk.white.bold(`  ${command}\n`));
 
   const action = await inquirer.prompt([
     {
@@ -382,7 +382,7 @@ async function runInteractiveDeployBuilder() {
   ]);
 
   if (action.action === 'execute') {
-    console.log(chalk.green('\\n🚀 Starting deployment...\\n'));
+    console.log(chalk.green('\\n🚀 Starting deployment...\n'));
     await runDeployment({
       networks: answers.networks.join(','),
       type: answers.type,
@@ -397,7 +397,7 @@ async function runInteractiveDeployBuilder() {
 
 async function runInteractiveDashboardBuilder() {
   console.log(chalk.cyan.bold('\\n📊 Interactive Dashboard Configuration'));
-  console.log(chalk.gray('Launch live metrics dashboard\\n'));
+  console.log(chalk.gray('Launch live metrics dashboard\n'));
 
   const answers = await inquirer.prompt([
     {
@@ -426,7 +426,7 @@ async function runInteractiveDashboardBuilder() {
 
   console.log(chalk.green('\\n✅ Configuration complete!'));
   console.log(chalk.yellow('Generated Command:'));
-  console.log(chalk.white.bold(`  ${command}\\n`));
+  console.log(chalk.white.bold(`  ${command}\n`));
 
   const action = await inquirer.prompt([
     {
@@ -442,7 +442,7 @@ async function runInteractiveDashboardBuilder() {
   ]);
 
   if (action.action === 'execute') {
-    console.log(chalk.green('\\n🚀 Starting dashboard...\\n'));
+    console.log(chalk.green('\\n🚀 Starting dashboard...\n'));
     // Dashboard execution would go here
     console.log(chalk.green('Dashboard launched! Press Ctrl+C to stop.'));
   } else if (action.action === 'copy') {
@@ -454,7 +454,7 @@ async function runInteractiveDashboardBuilder() {
 
 async function runInteractiveStatusBuilder() {
   console.log(chalk.cyan.bold('\\n📈 Interactive Status Check'));
-  console.log(chalk.gray('Check network and contract status\\n'));
+  console.log(chalk.gray('Check network and contract status\n'));
 
   const answers = await inquirer.prompt([
     {
@@ -485,7 +485,7 @@ async function runInteractiveStatusBuilder() {
 
   console.log(chalk.green('\\n✅ Configuration complete!'));
   console.log(chalk.yellow('Generated Command:'));
-  console.log(chalk.white.bold(`  ${command}\\n`));
+  console.log(chalk.white.bold(`  ${command}\n`));
 
   const action = await inquirer.prompt([
     {
@@ -509,7 +509,7 @@ async function runInteractiveStatusBuilder() {
 
 async function runInteractiveResultsBuilder() {
   console.log(chalk.cyan.bold('\\n📋 Interactive Results Viewer'));
-  console.log(chalk.gray('View and analyze test results\\n'));
+  console.log(chalk.gray('View and analyze test results\n'));
 
   const answers = await inquirer.prompt([
     {
@@ -542,7 +542,7 @@ async function runInteractiveResultsBuilder() {
 
   console.log(chalk.green('\\n✅ Configuration complete!'));
   console.log(chalk.yellow('Generated Command:'));
-  console.log(chalk.white.bold(`  ${command}\\n`));
+  console.log(chalk.white.bold(`  ${command}\n`));
 
   const action = await inquirer.prompt([
     {
@@ -565,7 +565,7 @@ async function runInteractiveResultsBuilder() {
 
 async function runInteractiveContractsBuilder() {
   console.log(chalk.cyan.bold('\\n⚙️ Interactive Contract Management'));
-  console.log(chalk.gray('Manage deployed contracts\\n'));
+  console.log(chalk.gray('Manage deployed contracts\n'));
 
   const answers = await inquirer.prompt([
     {
@@ -598,7 +598,7 @@ async function runInteractiveContractsBuilder() {
 
   console.log(chalk.green('\\n✅ Configuration complete!'));
   console.log(chalk.yellow('Generated Command:'));
-  console.log(chalk.white.bold(`  ${command}\\n`));
+  console.log(chalk.white.bold(`  ${command}\n`));
 
   const action = await inquirer.prompt([
     {
@@ -856,7 +856,7 @@ async function showDryRun(options) {
     Math.max(...networks.map(() => tests.length * 2)) : 
     totalTests * 2;
   
-  console.log(chalk.green(`\\n📊 Estimated: ${totalTests} test suites, ~${estimatedTime} minutes`));
+  console.log(chalk.green(`📊 Estimated: ${totalTests} test suites, ~${estimatedTime} minutes`));
 }
 
 function parseList(str) {

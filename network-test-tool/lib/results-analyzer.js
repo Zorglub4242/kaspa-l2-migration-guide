@@ -219,7 +219,8 @@ class ResultsAnalyzer {
 
   displayDetailedResults(results) {
     if (results.results) {
-      console.log(chalk.yellow('\\n🔍 Network Details:'));
+      console.log('');
+      console.log(chalk.yellow('🔍 Network Details:'));
       
       for (const [networkName, networkResult] of Object.entries(results.results)) {
         if (!networkResult || !networkResult.summary) continue;
@@ -227,7 +228,8 @@ class ResultsAnalyzer {
         const { summary } = networkResult;
         const statusIcon = summary.overallSuccessRate === 1.0 ? '✅' : '⚠️';
         
-        console.log(`\\n  ${statusIcon} ${networkName.toUpperCase()}:`);
+        console.log('');
+        console.log(`  ${statusIcon} ${networkName.toUpperCase()}:`);
         console.log(`    Tests: ${summary.successfulTests}/${summary.totalTests}`);
         console.log(`    Success Rate: ${(summary.overallSuccessRate * 100).toFixed(1)}%`);
         console.log(`    Duration: ${this.formatDuration(summary.totalDuration)}`);
@@ -340,7 +342,8 @@ class ResultsAnalyzer {
     console.log(overallTable.toString());
     
     // Test type comparison
-    console.log(chalk.yellow('\\n📋 Test Type Performance:'));
+    console.log('');
+    console.log(chalk.yellow('📋 Test Type Performance:'));
     
     const allTestTypes = new Set();
     networks.forEach(network => {
@@ -348,7 +351,8 @@ class ResultsAnalyzer {
     });
     
     allTestTypes.forEach(testType => {
-      console.log(chalk.cyan(`\\n${testType.toUpperCase()} Tests:`));
+      console.log('');
+      console.log(chalk.cyan(`${testType.toUpperCase()} Tests:`));
       
       const testTable = new Table({
         head: ['Network', 'Runs', 'Success Rate', 'Avg Duration'],
@@ -380,7 +384,8 @@ class ResultsAnalyzer {
   }
 
   displayPerformanceInsights(networks) {
-    console.log(chalk.magenta.bold('\\n💡 Performance Insights:'));
+    console.log('');
+    console.log(chalk.magenta.bold('💡 Performance Insights:'));
     console.log(chalk.gray('='.repeat(40)));
     
     // Find best and worst performing networks

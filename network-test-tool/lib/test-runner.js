@@ -118,7 +118,8 @@ class TestRunner extends EventEmitter {
     
     for (const networkName of this.options.networks) {
       try {
-        console.log(chalk.cyan(`\\n🌐 Testing ${networkName.toUpperCase()}`));
+        console.log(''); // New line
+        console.log(chalk.cyan(`🌐 Testing ${networkName.toUpperCase()}`));
         console.log(chalk.gray('='.repeat(40)));
         
         const networkResult = await this.runNetworkTests(networkName);
@@ -435,7 +436,8 @@ class TestRunner extends EventEmitter {
   async generateSummary() {
     const totalDuration = Date.now() - this.startTime;
     
-    console.log(chalk.cyan.bold('\\n📊 TEST SUITE SUMMARY'));
+    console.log(''); // New line
+    console.log(chalk.cyan.bold('📊 TEST SUITE SUMMARY'));
     console.log(chalk.gray('='.repeat(50)));
     
     // Overall metrics
@@ -449,7 +451,8 @@ class TestRunner extends EventEmitter {
     console.log(chalk.cyan('Execution:'), this.options.parallel ? 'Parallel' : 'Sequential');
     
     // Per-network summary
-    console.log(chalk.yellow('\\n🌐 Network Results:'));
+    console.log(''); // New line
+    console.log(chalk.yellow('🌐 Network Results:'));
     for (const [networkName, result] of this.results) {
       if (result.error) {
         console.log(chalk.red(`  ❌ ${networkName}: ${result.error}`));
@@ -461,7 +464,8 @@ class TestRunner extends EventEmitter {
     }
     
     // Test type breakdown
-    console.log(chalk.yellow('\\n🧪 Test Type Results:'));
+    console.log(''); // New line
+    console.log(chalk.yellow('🧪 Test Type Results:'));
     const testTypes = new Set();
     this.results.forEach(result => {
       if (result.tests) {
@@ -488,9 +492,11 @@ class TestRunner extends EventEmitter {
     await this.saveResults();
     
     if (successfulNetworks === totalNetworks) {
-      console.log(chalk.green.bold('\\n🎉 All tests passed successfully!'));
+      console.log(''); // New line
+      console.log(chalk.green.bold('🎉 All tests passed successfully!'));
     } else {
-      console.log(chalk.yellow.bold('\\n⚠️  Some tests failed. Check the detailed results.'));
+      console.log(''); // New line
+      console.log(chalk.yellow.bold('⚠️  Some tests failed. Check the detailed results.'));
     }
   }
 
@@ -520,11 +526,13 @@ class TestRunner extends EventEmitter {
     const filePath = path.join(resultsDir, filename);
     await fs.writeFile(filePath, JSON.stringify(summaryData, null, 2));
     
-    console.log(chalk.gray(`\\n💾 Detailed results saved to: ${filePath}`));
+    console.log(''); // New line
+    console.log(chalk.gray(`💾 Detailed results saved to: ${filePath}`));
   }
 
   printConfiguration() {
-    console.log(chalk.gray('\\n📋 Test Configuration:'));
+    console.log(''); // New line
+    console.log(chalk.gray('📋 Test Configuration:'));
     console.log(chalk.gray('  Networks:'), this.options.networks.join(', '));
     console.log(chalk.gray('  Tests:'), this.options.tests.join(', '));
     console.log(chalk.gray('  Mode:'), this.options.mode);
@@ -1041,7 +1049,8 @@ class TestRunner extends EventEmitter {
         const gasPrice = await provider.getGasPrice();
         const network = await provider.getNetwork();
         
-        console.log(chalk.cyan(`\\n🌐 ${config.name}:`));
+        console.log(''); // New line
+        console.log(chalk.cyan(`🌐 ${config.name}:`));
         console.log(`  Chain ID: ${network.chainId}`);
         console.log(`  Block Number: ${blockNumber.toLocaleString()}`);
         console.log(`  Gas Price: ${require('ethers').utils.formatUnits(gasPrice, 'gwei')} gwei`);
@@ -1049,7 +1058,8 @@ class TestRunner extends EventEmitter {
         console.log(`  Status: ${chalk.green('✅ Online')}`);
         
       } catch (error) {
-        console.log(chalk.cyan(`\\n🌐 ${networkName}:`));
+        console.log(''); // New line
+        console.log(chalk.cyan(`🌐 ${networkName}:`));
         console.log(`  Status: ${chalk.red('❌ Offline')}`);
         console.log(`  Error: ${error.message}`);
       }
