@@ -186,6 +186,7 @@ class DeFiTestRunner {
     }
 
     // Map database contracts to our contract structure
+    // Support both old naming (MockERC20_TokenA) and new naming (TokenA)
     const contractMapping = {
       'MockERC20_TokenA': 'tokenA',
       'MockERC20_TokenB': 'tokenB',
@@ -194,7 +195,16 @@ class DeFiTestRunner {
       'MockLendingProtocol': 'lending',
       'MockYieldFarm': 'yieldFarm',
       'MockERC721Collection': 'nftCollection',
-      'MockMultiSigWallet': 'multiSig'
+      'MockMultiSigWallet': 'multiSig',
+      // New simplified naming
+      'TokenA': 'tokenA',
+      'TokenB': 'tokenB',
+      'RewardToken': 'rewardToken',
+      'DEX': 'dex',
+      'LendingProtocol': 'lending',
+      'YieldFarm': 'yieldFarm',
+      'NFTCollection': 'nftCollection',
+      'MultiSigWallet': 'multiSig'
     };
 
     // Create contract instances
@@ -231,7 +241,21 @@ class DeFiTestRunner {
     const fs = require('fs');
     const path = require('path');
 
-    const artifactPath = path.join(__dirname, '../artifacts/contracts', `${contractName}.sol`, `${contractName}.json`);
+    // Map simplified names back to Mock contract names
+    const artifactNameMapping = {
+      'TokenA': 'MockERC20',
+      'TokenB': 'MockERC20',
+      'RewardToken': 'MockERC20',
+      'DEX': 'MockDEX',
+      'LendingProtocol': 'MockLendingProtocol',
+      'YieldFarm': 'MockYieldFarm',
+      'NFTCollection': 'MockERC721Collection',
+      'MultiSigWallet': 'MockMultiSigWallet'
+    };
+
+    // Use the mapped name or the original name
+    const artifactName = artifactNameMapping[contractName] || contractName;
+    const artifactPath = path.join(__dirname, '../artifacts/contracts', `${artifactName}.sol`, `${artifactName}.json`);
 
     if (!fs.existsSync(artifactPath)) {
       throw new Error(`Contract artifact not found: ${artifactPath}`);
