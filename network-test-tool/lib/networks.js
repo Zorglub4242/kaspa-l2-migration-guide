@@ -47,7 +47,7 @@ const NETWORKS = {
     timeouts: {
       transaction: 120000,
       deployment: 300000,
-      finality: 15000
+      finality: 1000  // Reduced from 15000ms to 1000ms for faster polling
     }
   },
   
@@ -72,7 +72,7 @@ const NETWORKS = {
     timeouts: {
       transaction: 60000,
       deployment: 180000,
-      finality: 2000  // Reduced from 10000ms to 2000ms for faster polling
+      finality: 1000  // Reduced from 2000ms to 1000ms for faster polling
     }
   }
 };

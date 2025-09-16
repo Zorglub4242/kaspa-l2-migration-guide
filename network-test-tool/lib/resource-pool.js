@@ -79,6 +79,10 @@ class ResourcePool {
         provider = new ethers.providers.JsonRpcProvider(networkConfig.rpc, network);
       }
 
+      // Set the polling interval on the provider (critical for fast confirmations!)
+      provider.pollingInterval = providerOptions.pollingInterval;
+      console.log(chalk.gray(`🔍 Provider polling interval set to: ${provider.pollingInterval}ms`));
+
       // Override detectNetwork to return our known network immediately
       provider.detectNetwork = () => Promise.resolve(network);
       
