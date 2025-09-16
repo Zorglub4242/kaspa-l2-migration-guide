@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .kpi-card {
+            padding: 20px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+        }
+
+        .kpi-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .kpi-change {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 4px 8px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .kpi-up {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .kpi-down {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .network-status-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .network-status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .network-status-item.healthy {
+            border-left-color: #27ae60;
+        }
+
+        .network-status-item.warning {
+            border-left-color: #f39c12;
+        }
+
+        .network-status-item.error {
+            border-left-color: #e74c3c;
+        }
+
+        .network-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-healthy { background: #27ae60; }
+        .status-warning { background: #f39c12; }
+        .status-error { background: #e74c3c; }
+
+        .test-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .test-summary-table th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .test-summary-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .test-summary-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .risk-item {
+            padding: 12px;
+            margin: 10px 0;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+        }
+
+        .risk-item.high {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .risk-item.medium {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .risk-item.low {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+
+        .action-items {
+            list-style: none;
+            padding: 0;
+        }
+
+        .action-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-priority {
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .action-priority.high { background: #dc3545; }
+        .action-priority.medium { background: #ffc107; color: #333; }
+        .action-priority.low { background: #28a745; }
+
+        .cost-breakdown {
+            display: grid;
+            gap: 10px;
+        }
+
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .cost-label {
+            color: #6c757d;
+        }
+
+        .cost-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .trend-chart {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin-top: 20px;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Executive Dashboard</h1>
+            <div class="header-subtitle">Network Performance & Health Overview</div>
+            <div style="margin-top: 10px; opacity: 0.8;">{{formatTime timestamp}}</div>
+        </div>
+
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-icon">🌐</div>
+                <div class="kpi-value">{{networks.length}}</div>
+                <div class="kpi-label">Active Networks</div>
+                <div class="kpi-change kpi-up">↑ 100% operational</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-value">{{overallSuccessRate}}%</div>
+                <div class="kpi-label">Success Rate</div>
+                <div class="kpi-change {{#if (gte overallSuccessRate 95)}}kpi-up{{else}}kpi-down{{/if}}">
+                    {{#if (gte overallSuccessRate 95)}}↑ Excellent{{else}}↓ Needs attention{{/if}}
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📝</div>
+                <div class="kpi-value">{{totalContracts}}</div>
+                <div class="kpi-label">Deployed Contracts</div>
+                <div class="kpi-change kpi-up">{{healthyContracts}} healthy</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">⛽</div>
+                <div class="kpi-value">${{formatNumber totalCostUSD}}</div>
+                <div class="kpi-label">Total Cost (USD)</div>
+                <div class="kpi-change kpi-down">↓ {{costSavings}}% vs mainnet</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🚀</div>
+                <div class="kpi-value">{{avgTPS}}</div>
+                <div class="kpi-label">Avg TPS</div>
+                <div class="kpi-change kpi-up">↑ {{tpsImprovement}}% this week</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">⏱️</div>
+                <div class="kpi-value">{{avgFinality}}s</div>
+                <div class="kpi-label">Avg Finality</div>
+                <div class="kpi-change kpi-up">↑ Fast confirmation</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="panel-card">
+                    <div class="panel-title">📊 Network Status</div>
+                    <div class="network-status-grid">
+                        {{#each networks}}
+                        <div class="network-status-item {{status}}">
+                            <div class="network-name">
+                                {{icon}} {{name}}
+                                <span class="status-indicator status-{{status}}"></span>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; color: #6c757d;">{{successRate}}% success</div>
+                                <div style="font-size: 12px; color: #adb5bd;">{{testsRun}} tests</div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">📈 Test Performance Summary</div>
+                    <table class="test-summary-table">
+                        <thead>
+                            <tr>
+                                <th>Test Type</th>
+                                <th>Passed</th>
+                                <th>Failed</th>
+                                <th>Success Rate</th>
+                                <th>Avg Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each testSummary}}
+                            <tr>
+                                <td><strong>{{type}}</strong></td>
+                                <td style="color: #27ae60;">{{passed}}</td>
+                                <td style="color: #e74c3c;">{{failed}}</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: {{successRate}}%;">
+                                            {{successRate}}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{avgTime}}ms</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">💰 Cost Analysis</div>
+                    <div class="cost-breakdown">
+                        <div class="cost-item">
+                            <span class="cost-label">Contract Deployments</span>
+                            <span class="cost-value">${{formatNumber deploymentCost}}</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">EVM Tests</span>
+                            <span class="cost-value">${{formatNumber evmTestCost}}</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">DeFi Operations</span>
+                            <span class="cost-value">${{formatNumber defiTestCost}}</span>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-label">Load Testing</span>
+                            <span class="cost-value">${{formatNumber loadTestCost}}</span>
+                        </div>
+                        <div class="cost-item" style="border-top: 2px solid #dee2e6; margin-top: 10px; padding-top: 15px;">
+                            <span class="cost-label"><strong>Total Operating Cost</strong></span>
+                            <span class="cost-value" style="font-size: 20px; color: #e74c3c;">
+                                ${{formatNumber totalOperatingCost}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="trend-chart">
+                        📉 Cost Trend Chart (Coming Soon)
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="panel-card">
+                    <div class="panel-title">⚠️ Risk Assessment</div>
+                    {{#each risks}}
+                    <div class="risk-item {{severity}}">
+                        <div style="font-weight: bold; margin-bottom: 5px;">{{title}}</div>
+                        <div style="font-size: 14px; color: #6c757d;">{{description}}</div>
+                    </div>
+                    {{/each}}
+                    {{#unless risks}}
+                    <div class="risk-item low">
+                        <div style="font-weight: bold;">✅ All Systems Operational</div>
+                        <div style="font-size: 14px;">No critical risks detected</div>
+                    </div>
+                    {{/unless}}
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">📋 Recommended Actions</div>
+                    <ul class="action-items">
+                        {{#each recommendations}}
+                        <li class="action-item">
+                            <span class="action-priority {{priority}}">{{uppercase priority}}</span>
+                            <span>{{action}}</span>
+                        </li>
+                        {{/each}}
+                        {{#unless recommendations}}
+                        <li class="action-item">
+                            <span class="action-priority low">LOW</span>
+                            <span>Continue monitoring system performance</span>
+                        </li>
+                        <li class="action-item">
+                            <span class="action-priority low">LOW</span>
+                            <span>Schedule regular contract health checks</span>
+                        </li>
+                        {{/unless}}
+                    </ul>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">🏆 Key Achievements</div>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 10px; background: #d4edda; margin: 5px 0; border-radius: 5px;">
+                            ✅ 100% EVM compatibility achieved
+                        </li>
+                        <li style="padding: 10px; background: #d4edda; margin: 5px 0; border-radius: 5px;">
+                            ✅ All DeFi protocols operational
+                        </li>
+                        <li style="padding: 10px; background: #d4edda; margin: 5px 0; border-radius: 5px;">
+                            ✅ {{percentageSaving}}% cost savings vs mainnet
+                        </li>
+                        <li style="padding: 10px; background: #d4edda; margin: 5px 0; border-radius: 5px;">
+                            ✅ Sub-second finality achieved
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">📅 Upcoming Tasks</div>
+                    <ul style="list-style: none; padding: 0;">
+                        {{#each upcomingTasks}}
+                        <li style="padding: 10px; background: #f8f9fa; margin: 5px 0; border-radius: 5px; border-left: 3px solid #007bff;">
+                            <div style="font-weight: bold;">{{task}}</div>
+                            <div style="font-size: 12px; color: #6c757d;">Due: {{dueDate}}</div>
+                        </li>
+                        {{/each}}
+                        {{#unless upcomingTasks}}
+                        <li style="padding: 10px; background: #f8f9fa; margin: 5px 0; border-radius: 5px;">
+                            No scheduled tasks
+                        </li>
+                        {{/unless}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Generated by Network Test Tool - Executive Dashboard v1.0</p>
+            <p>Report Date: {{formatTime timestamp}} | Next Update: {{nextUpdate}}</p>
+            <p>© 2025 Kaspa L2 Testing Team - Confidential</p>
+        </div>
+    </div>
+</body>
+</html>

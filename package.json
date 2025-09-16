@@ -6,7 +6,13 @@
     "setup": "echo 'Setting up examples with ethers v5 compatibility...' && cd examples/01-hello-world && npm install --legacy-peer-deps && cd ../02-erc20-standard && npm install --legacy-peer-deps",
     "deploy:hello-world": "cd examples/01-hello-world && npm run deploy:kasplex",
     "deploy:erc20": "cd examples/02-erc20-standard && npm run deploy:kasplex",
-    "clean": "cd examples/01-hello-world && npm run clean && cd ../02-erc20-standard && npm run clean"
+    "clean": "cd examples/01-hello-world && npm run clean && cd ../02-erc20-standard && npm run clean",
+    "generate-report": "cd network-test-tool && node generate-report.js --latest",
+    "generate-report:since": "cd network-test-tool && node generate-report.js --since",
+    "generate-report:custom": "cd network-test-tool && node generate-report.js",
+    "test:full": "cd network-test-tool && powershell -ExecutionPolicy Bypass -File run-full-test-suite.ps1",
+    "test:quick": "cd network-test-tool && powershell -ExecutionPolicy Bypass -File run-full-test-suite.ps1 -SkipDeployment -SkipFinality",
+    "test:single": "cd network-test-tool && powershell -ExecutionPolicy Bypass -File run-full-test-suite.ps1 -Networks"
   },
   "repository": {
     "type": "git",

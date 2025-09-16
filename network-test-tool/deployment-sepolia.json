@@ -1,0 +1,18 @@
+{
+  "contractName": "LoadTestContract",
+  "contractAddress": "0xB70c8a754946Dca5249eb2Ae6EeCB978cfAcD3B3",
+  "network": "sepolia",
+  "networkName": "Ethereum Sepolia",
+  "chainId": 11155111,
+  "deployer": "0xC7BED213023060A99901d5Ee0877E78b93586c54",
+  "deploymentHash": "0xc9780b7f61a1e26a725c546ef6412e2666dba5c209107698e1c18c24c7d6d401",
+  "gasUsed": "620307",
+  "timestamp": "2025-09-10T14:56:54.584Z",
+  "explorerUrl": "https://sepolia.etherscan.io/address/0xB70c8a754946Dca5249eb2Ae6EeCB978cfAcD3B3",
+  "testFunctions": [
+    "increment() - Basic load test function",
+    "batchIncrement(uint256) - Batch processing test",
+    "stressTest(uint256, string) - Variable gas usage test",
+    "simulateParallelLoad(uint256) - Parallel processing test"
+  ]
+}

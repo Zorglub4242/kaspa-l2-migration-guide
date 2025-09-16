@@ -1,0 +1,51 @@
+{
+  "name": "Blockchain Test Analytics Dashboard",
+  "description": "Pre-configured dashboard for blockchain test analysis",
+  "cards": [
+    {
+      "name": "Overall EVM Compatibility Score",
+      "sql": "SELECT network_name, COUNT(*) as total_tests,\n                      ROUND((SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as success_rate\n                      FROM test_results WHERE test_type = 'evm-compatibility'\n                      GROUP BY network_name ORDER BY success_rate DESC",
+      "visualization": "bar",
+      "size": {
+        "x": 8,
+        "y": 4
+      }
+    },
+    {
+      "name": "DeFi Protocol Health Matrix",
+      "sql": "SELECT network_name, test_name as protocol,\n                      ROUND((SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as success_rate\n                      FROM test_results WHERE test_type = 'defi-protocols'\n                      GROUP BY network_name, test_name ORDER BY network_name, success_rate DESC",
+      "visualization": "table",
+      "size": {
+        "x": 8,
+        "y": 6
+      }
+    },
+    {
+      "name": "Test Execution Trends",
+      "sql": "SELECT DATE(start_time) as date, COUNT(*) as tests,\n                      SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as passed\n                      FROM test_results WHERE start_time >= date('now', '-7 days')\n                      GROUP BY DATE(start_time) ORDER BY date",
+      "visualization": "line",
+      "size": {
+        "x": 16,
+        "y": 4
+      }
+    },
+    {
+      "name": "Gas Usage Analysis",
+      "sql": "SELECT network_name, test_type,\n                      ROUND(AVG(gas_used), 0) as avg_gas,\n                      ROUND(MIN(gas_used), 0) as min_gas,\n                      ROUND(MAX(gas_used), 0) as max_gas\n                      FROM test_results WHERE success = 1\n                      GROUP BY network_name, test_type",
+      "visualization": "table",
+      "size": {
+        "x": 8,
+        "y": 4
+      }
+    },
+    {
+      "name": "Network Comparison KPIs",
+      "sql": "SELECT network_name,\n                      COUNT(*) as total_tests,\n                      SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as passed_tests,\n                      COUNT(DISTINCT test_type) as test_types,\n                      ROUND(AVG(duration), 2) as avg_duration_ms\n                      FROM test_results GROUP BY network_name",
+      "visualization": "scalar",
+      "size": {
+        "x": 4,
+        "y": 2
+      }
+    }
+  ]
+}

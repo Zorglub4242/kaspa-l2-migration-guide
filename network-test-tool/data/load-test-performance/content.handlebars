@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load Test Performance Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%); padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 10px; padding: 40px; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #e74c3c; padding-bottom: 10px; margin-bottom: 20px; }
+        .performance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
+        .perf-card { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; border: 2px solid #dee2e6; }
+        .perf-value { font-size: 36px; font-weight: bold; color: #e74c3c; }
+        .perf-label { color: #6c757d; font-size: 12px; text-transform: uppercase; margin-top: 5px; }
+        .latency-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .latency-table th { background: #e74c3c; color: white; padding: 12px; }
+        .latency-table td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
+        .bottleneck-analysis { background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0; }
+        .stress-results { background: #f8d7da; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Load Test Performance Analysis</h1>
+        <p style="color: #7f8c8d;">Generated: {{formatTime timestamp}} | Test Duration: {{testDuration}}</p>
+
+        <div class="performance-grid">
+            <div class="perf-card">
+                <div class="perf-value">{{maxTPS}}</div>
+                <div class="perf-label">Max TPS Achieved</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">{{avgTPS}}</div>
+                <div class="perf-label">Average TPS</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">{{totalTransactions}}</div>
+                <div class="perf-label">Total Transactions</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">{{successRate}}%</div>
+                <div class="perf-label">Success Rate</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">{{avgLatency}}ms</div>
+                <div class="perf-label">Avg Latency</div>
+            </div>
+            <div class="perf-card">
+                <div class="perf-value">{{p99Latency}}ms</div>
+                <div class="perf-label">P99 Latency</div>
+            </div>
+        </div>
+
+        <h2>📊 Latency Percentiles</h2>
+        <table class="latency-table">
+            <thead>
+                <tr>
+                    <th>Network</th>
+                    <th>P50</th>
+                    <th>P75</th>
+                    <th>P90</th>
+                    <th>P95</th>
+                    <th>P99</th>
+                    <th>P99.9</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each latencyPercentiles}}
+                <tr>
+                    <td><strong>{{network}}</strong></td>
+                    <td>{{p50}}ms</td>
+                    <td>{{p75}}ms</td>
+                    <td>{{p90}}ms</td>
+                    <td>{{p95}}ms</td>
+                    <td>{{p99}}ms</td>
+                    <td>{{p999}}ms</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <div class="bottleneck-analysis">
+            <h2>🔍 Bottleneck Analysis</h2>
+            <ul style="margin-top: 15px; padding-left: 20px;">
+                {{#each bottlenecks}}
+                <li><strong>{{component}}:</strong> {{issue}} (Impact: {{impact}})</li>
+                {{/each}}
+            </ul>
+        </div>
+
+        <div class="stress-results">
+            <h2>💪 Stress Test Results</h2>
+            <p>Network behavior under extreme load conditions:</p>
+            <ul style="margin-top: 15px; padding-left: 20px;">
+                <li>Breaking point: {{breakingPoint}} TPS</li>
+                <li>Recovery time: {{recoveryTime}}s</li>
+                <li>Memory peak: {{memoryPeak}}MB</li>
+                <li>CPU utilization: {{cpuPeak}}%</li>
+            </ul>
+        </div>
+
+        <h2>📈 Performance Recommendations</h2>
+        <ul style="line-height: 2; padding-left: 20px;">
+            <li>Optimize gas price strategy to reduce failed transactions</li>
+            <li>Implement connection pooling to improve throughput</li>
+            <li>Use batch transactions for better efficiency</li>
+            <li>Consider horizontal scaling for sustained high load</li>
+        </ul>
+    </div>
+</body>
+</html>

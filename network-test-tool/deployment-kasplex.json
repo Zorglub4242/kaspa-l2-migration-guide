@@ -1,0 +1,18 @@
+{
+  "contractName": "LoadTestContract",
+  "contractAddress": "0x6d5FFEBbC8ea188020b407C17EBAfCc748273277",
+  "network": "kasplex",
+  "networkName": "Kasplex L2",
+  "chainId": 167012,
+  "deployer": "0xC7BED213023060A99901d5Ee0877E78b93586c54",
+  "deploymentHash": "0x09878ae974183361f3b0e21c613858dd9ea4152ebdc7bd06595027c4d2815b00",
+  "gasUsed": "620307",
+  "timestamp": "2025-09-10T14:02:55.852Z",
+  "explorerUrl": "https://explorer.testnet.kasplextest.xyz/address/0x6d5FFEBbC8ea188020b407C17EBAfCc748273277",
+  "testFunctions": [
+    "increment() - Basic load test function",
+    "batchIncrement(uint256) - Batch processing test",
+    "stressTest(uint256, string) - Variable gas usage test",
+    "simulateParallelLoad(uint256) - Parallel processing test"
+  ]
+}

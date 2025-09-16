@@ -1,5 +1,6 @@
 const { ethers } = require("hardhat");
-const { dataStorage } = require('../utils/data-storage');
+const { TestDatabase } = require('../lib/database');
+const { ContractRegistry } = require('../lib/contract-registry');
 const { logger } = require('../utils/logger');
 const { priceFetcher } = require('../utils/price-fetcher');
 const fs = require('fs').promises;
@@ -26,7 +27,7 @@ const path = require('path');
  */
 
 class CompleteDeFiTester {
-  constructor() {
+  constructor(options = {}) {
     this.contracts = {};
     this.transactions = [];
     this.metrics = {
@@ -40,6 +41,14 @@ class CompleteDeFiTester {
     this.startTime = Date.now();
     this.network = null;
     this.deployer = null;
+    this.testLabel = process.env.TEST_LABEL || null;
+    this.testId = this.generateTestId();
+  }
+
+  generateTestId() {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const randomId = Math.random().toString(36).substring(2, 8);
+    return `${timestamp}-${randomId}`;
   }
 
   async sleep(ms) {
@@ -70,6 +79,25 @@ class CompleteDeFiTester {
 
       this.transactions.push(txRecord);
       
+      // Store in database
+      await this.database.insertTestResult({
+        runId: this.testId,
+        networkName: this.network.name,
+        testType: 'defi-suite',
+        testName: type,
+        success: receipt.status === 1,
+        startTime: txRecord.timestamp,
+        endTime: txRecord.timestamp,
+        duration: 0, // Transaction time is instantaneous for this purpose
+        gasUsed: gasUsed,
+        gasPrice: gasPrice,
+        transactionHash: tx.hash,
+        blockNumber: receipt.blockNumber,
+        errorMessage: null,
+        errorCategory: null,
+        metadata: JSON.stringify({ ...additionalData, explorerLink: txRecord.explorerLink, gasCost: gasCost.toString() })
+      });
+      
       // Update metrics
       this.metrics.gas.total += gasUsed;
       this.metrics.gas.max = Math.max(this.metrics.gas.max, gasUsed);
@@ -82,7 +110,7 @@ class CompleteDeFiTester {
         this.metrics.operations.failed++;
       }
 
-      logger.info(`📝 ${type} | Hash: ${tx.hash} | Gas: ${gasUsed.toLocaleString()} | Block: ${receipt.blockNumber}`);
+      logger.info(`📝 ${type} | Hash: ${tx.hash} | Gas: ${gasUsed.toLocaleString()} | Block: ${receipt.blockNumber} | 💾 Stored in DB`);
       
       return txRecord;
     } catch (error) {
@@ -93,14 +121,15 @@ class CompleteDeFiTester {
   }
 
   getExplorerLink(hash) {
-    const network = process.env.NETWORK || 'local';
+    // Use chain ID to determine correct explorer
+    const chainId = this.network?.chainId;
     const explorers = {
-      'sepolia': `https://sepolia.etherscan.io/tx/${hash}`,
-      'kasplex': `https://explorer.testnet.kasplextest.xyz/tx/${hash}`,
-      'ethereum': `https://etherscan.io/tx/${hash}`,
-      'local': `Local Network - Hash: ${hash}`
+      11155111: `https://sepolia.etherscan.io/tx/${hash}`,        // Sepolia
+      167012: `https://explorer.testnet.kasplextest.xyz/tx/${hash}`, // Kasplex
+      19416: `https://explorer.caravel.igralabs.com/tx/${hash}`,  // IGRA Caravel
+      1: `https://etherscan.io/tx/${hash}`,                       // Ethereum Mainnet
     };
-    return explorers[network] || explorers.local;
+    return explorers[chainId] || `Unknown Network (Chain ${chainId}) - Hash: ${hash}`;
   }
 
   async initialize() {
@@ -108,12 +137,9 @@ class CompleteDeFiTester {
     logger.gray('='.repeat(80));
     logger.info('📋 Testing: ERC20 + DEX + Lending + Yield + NFT + MultiSig');
     
-    await dataStorage.init();
-    dataStorage.setTestConfiguration('complete-defi-suite', {
-      protocols: ['ERC20', 'DEX', 'Lending', 'YieldFarm', 'NFT', 'MultiSig'],
-      enhanced: true,
-      comprehensive: true
-    });
+    this.database = new TestDatabase();
+    await this.database.initialize();
+    logger.info('✅ Database initialized for DeFi test storage');
 
     [this.deployer] = await ethers.getSigners();
     this.network = await ethers.provider.getNetwork();
@@ -187,6 +213,28 @@ class CompleteDeFiTester {
           await new Promise(resolve => setTimeout(resolve, 12000));
           
           return contract;
+        } else if (this.network.chainId === 19416) { // Igra L2 - manual deployment like Kasplex
+          const deployTx = await contractFactory.getDeployTransaction(...constructorArgs);
+
+          // Use manual gas settings for Igra to avoid estimation issues
+          deployTx.gasPrice = ethers.utils.parseUnits("2000", "gwei");
+          deployTx.gasLimit = 2000000; // 2M gas limit to avoid estimation
+
+          logger.info(`💰 Using fixed gas price for Igra L2: 2000.0 gwei`);
+
+          // Let ethers handle nonce automatically
+          delete deployTx.nonce;
+
+          const sentTx = await this.deployer.sendTransaction(deployTx);
+          await this.recordTransaction(transactionType, sentTx);
+          const receipt = await sentTx.wait();
+
+          const contract = contractFactory.attach(receipt.contractAddress);
+
+          logger.info(`⏸️  Waiting 3 seconds for Igra network stabilization...`);
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          return contract;
         } else {
           // Standard deployment for other networks
           const contract = await contractFactory.deploy(...constructorArgs);
@@ -240,6 +288,21 @@ class CompleteDeFiTester {
           await new Promise(resolve => setTimeout(resolve, 3000));
           
           return txResponse;
+        } else if (this.network.chainId === 19416) { // Igra L2 - manual gas like Kasplex
+          // Use manual gas settings for Igra to avoid estimation issues
+          const gasPrice = ethers.utils.parseUnits("2000", "gwei");
+          const gasLimit = 1000000; // 1M gas limit for operations
+
+          logger.info(`💰 Using fixed gas price for Igra L2: 2000.0 gwei`);
+
+          const txOptions = {
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            ...overrides // Include value and other overrides
+          };
+
+          const txResponse = await contract[methodName](...args, txOptions);
+          return txResponse;
         } else {
           // Standard transaction for other networks
           const txResponse = await contract[methodName](...args, overrides);
@@ -262,60 +325,77 @@ class CompleteDeFiTester {
     logger.cyan('\\n📋 PHASE 1: DEPLOYING ALL DEFI CONTRACTS');
     logger.gray('-'.repeat(60));
 
-    // Check for existing Kasplex contracts (from environment or previous successful run)
-    const existingKasplexContracts = {
-      tokenA: process.env.KASPLEX_TOKEN_A,
-      tokenB: process.env.KASPLEX_TOKEN_B,
-      rewardToken: process.env.KASPLEX_REWARD_TOKEN,
-      dex: process.env.KASPLEX_DEX,
-      lending: process.env.KASPLEX_LENDING, 
-      yieldFarm: process.env.KASPLEX_YIELD_FARM,
-      nftCollection: process.env.KASPLEX_NFT,
-      multiSig: process.env.KASPLEX_MULTISIG
-    };
+    // Check for existing DeFi contracts in database for any network
+    logger.info('🔄 Checking for existing DeFi contracts in database...');
+    const registry = new ContractRegistry();
+    await registry.initialize();
 
-    if (this.network.chainId === 167012 && existingKasplexContracts.tokenA) {
-      logger.info('🔄 Checking for existing Kasplex contracts...');
-      try {
-        // Try to connect to existing contracts
-        const MockERC20 = await ethers.getContractFactory("MockERC20");
-        const MockDEX = await ethers.getContractFactory("MockDEX");
-        const MockLendingProtocol = await ethers.getContractFactory("MockLendingProtocol");
-        const MockYieldFarm = await ethers.getContractFactory("MockYieldFarm");
-        const MockERC721Collection = await ethers.getContractFactory("MockERC721Collection");
-        const MockMultiSigWallet = await ethers.getContractFactory("MockMultiSigWallet");
+    try {
+      // Get all existing DeFi contracts for this network
+      const existingContracts = await registry.getActiveContractsByType(this.network.chainId, 'defi');
 
-        this.contracts.tokenA = MockERC20.attach(existingKasplexContracts.tokenA);
-        this.contracts.tokenB = MockERC20.attach(existingKasplexContracts.tokenB);
-        this.contracts.rewardToken = MockERC20.attach(existingKasplexContracts.rewardToken);
-        this.contracts.dex = MockDEX.attach(existingKasplexContracts.dex);
-        this.contracts.lending = MockLendingProtocol.attach(existingKasplexContracts.lending);
-        this.contracts.yieldFarm = MockYieldFarm.attach(existingKasplexContracts.yieldFarm);
-        this.contracts.nftCollection = MockERC721Collection.attach(existingKasplexContracts.nftCollection);
-        this.contracts.multiSig = MockMultiSigWallet.attach(existingKasplexContracts.multiSig);
+      if (existingContracts && existingContracts.length > 0) {
+        logger.info(`📊 Found ${existingContracts.length} existing DeFi contracts in database`);
 
-        // Test contract connectivity
-        await this.contracts.tokenA.name();
-        
-        logger.success('✅ Successfully connected to existing Kasplex contracts!');
-        logger.info('📍 Contract addresses:');
-        logger.info(`   🪙 TokenA: ${existingKasplexContracts.tokenA}`);
-        logger.info(`   🪙 TokenB: ${existingKasplexContracts.tokenB}`);
-        logger.info(`   🪙 RewardToken: ${existingKasplexContracts.rewardToken}`);
-        logger.info(`   🏪 DEX: ${existingKasplexContracts.dex}`);
-        logger.info(`   🏦 Lending: ${existingKasplexContracts.lending}`);
-        logger.info(`   🌾 YieldFarm: ${existingKasplexContracts.yieldFarm}`);
-        logger.info(`   🎨 NFT: ${existingKasplexContracts.nftCollection}`);
-        logger.info(`   🔐 MultiSig: ${existingKasplexContracts.multiSig}`);
-        
-        const phaseDuration = Date.now() - phaseStart;
-        this.metrics.phases.deployment = phaseDuration;
-        logger.success(`✅ Contract connection completed in ${phaseDuration}ms`);
-        return;
-      } catch (error) {
-        logger.warning(`⚠️  Could not connect to existing contracts: ${error.message}`);
-        logger.info('🔄 Falling back to fresh deployment...');
+        // Create a map of contract names to addresses
+        const contractMap = {};
+        existingContracts.forEach(contract => {
+          contractMap[contract.contract_name] = contract.contract_address;
+        });
+
+        // Check if we have all required contracts
+        const requiredContracts = ['TokenA', 'TokenB', 'RewardToken', 'DEX', 'LendingProtocol', 'YieldFarm', 'NFTCollection', 'MultiSigWallet'];
+        const missingContracts = requiredContracts.filter(name => !contractMap[name]);
+
+        if (missingContracts.length === 0) {
+          logger.info('✅ All required DeFi contracts found in database. Connecting...');
+
+          // Connect to existing contracts
+          const MockERC20 = await ethers.getContractFactory("MockERC20");
+          const MockDEX = await ethers.getContractFactory("MockDEX");
+          const MockLendingProtocol = await ethers.getContractFactory("MockLendingProtocol");
+          const MockYieldFarm = await ethers.getContractFactory("MockYieldFarm");
+          const MockERC721Collection = await ethers.getContractFactory("MockERC721Collection");
+          const MockMultiSigWallet = await ethers.getContractFactory("MockMultiSigWallet");
+
+          this.contracts.tokenA = MockERC20.attach(contractMap['TokenA']);
+          this.contracts.tokenB = MockERC20.attach(contractMap['TokenB']);
+          this.contracts.rewardToken = MockERC20.attach(contractMap['RewardToken']);
+          this.contracts.dex = MockDEX.attach(contractMap['DEX']);
+          this.contracts.lending = MockLendingProtocol.attach(contractMap['LendingProtocol']);
+          this.contracts.yieldFarm = MockYieldFarm.attach(contractMap['YieldFarm']);
+          this.contracts.nftCollection = MockERC721Collection.attach(contractMap['NFTCollection']);
+          this.contracts.multiSig = MockMultiSigWallet.attach(contractMap['MultiSigWallet']);
+
+          // Test contract connectivity
+          await this.contracts.tokenA.name();
+
+          logger.success('✅ Successfully connected to existing DeFi contracts from database!');
+          logger.info('📍 Contract addresses:');
+          logger.info(`   🪙 TokenA: ${contractMap['TokenA']}`);
+          logger.info(`   🪙 TokenB: ${contractMap['TokenB']}`);
+          logger.info(`   🪙 RewardToken: ${contractMap['RewardToken']}`);
+          logger.info(`   🏪 DEX: ${contractMap['DEX']}`);
+          logger.info(`   🏦 Lending: ${contractMap['LendingProtocol']}`);
+          logger.info(`   🌾 YieldFarm: ${contractMap['YieldFarm']}`);
+          logger.info(`   🎨 NFT: ${contractMap['NFTCollection']}`);
+          logger.info(`   🔐 MultiSig: ${contractMap['MultiSigWallet']}`);
+
+          const phaseDuration = Date.now() - phaseStart;
+          this.metrics.phases.deployment = phaseDuration;
+          logger.success(`✅ Contract connection completed in ${phaseDuration}ms`);
+          return;
+        } else {
+          logger.warning(`⚠️  Missing contracts in database: ${missingContracts.join(', ')}`);
+          logger.info('🔄 Falling back to fresh deployment...');
+        }
+      } else {
+        logger.info('📝 No existing DeFi contracts found in database');
+        logger.info('🔄 Proceeding with fresh deployment...');
       }
+    } catch (error) {
+      logger.warning(`⚠️  Could not load contracts from database: ${error.message}`);
+      logger.info('🔄 Falling back to fresh deployment...');
     }
 
     // Fresh deployment fallback
@@ -753,10 +833,26 @@ class CompleteDeFiTester {
       recommendations: this.generateRecommendations()
     };
 
-    // Save comprehensive report
-    const reportPath = path.join(process.cwd(), 'test-results', 'COMPLETE-DEFI-ANALYSIS.json');
-    await fs.mkdir(path.dirname(reportPath), { recursive: true });
-    await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
+    // Store comprehensive report in database
+    await this.database.insertTestResult({
+      runId: this.testId,
+      networkName: this.network.name,
+      testType: 'defi-suite',
+      testName: 'comprehensive-report',
+      success: true,
+      startTime: new Date(this.startTime).toISOString(),
+      endTime: new Date().toISOString(),
+      duration: totalDuration,
+      gasUsed: this.metrics.gas.total,
+      gasPrice: 0, // Not applicable for summary
+      transactionHash: null,
+      blockNumber: currentBlock,
+      errorMessage: null,
+      errorCategory: null,
+      metadata: JSON.stringify(report)
+    });
+    
+    logger.success('💾 Comprehensive report stored in database');
 
     // Generate markdown report
     await this.generateMarkdownReport(report);
@@ -779,6 +875,7 @@ class CompleteDeFiTester {
     const bases = {
       'sepolia': 'https://sepolia.etherscan.io',
       'kasplex': 'https://explorer.testnet.kasplextest.xyz',
+      'igra': 'https://igra-testnet.explorer.io',
       'ethereum': 'https://etherscan.io',
       'local': 'Local Network'
     };
@@ -955,8 +1052,26 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\\n')}
 *Complete DeFi Protocol Test Suite v1.0*
 `;
 
-    const markdownPath = path.join(process.cwd(), 'test-results', 'COMPLETE-DEFI-REPORT.md');
-    await fs.writeFile(markdownPath, markdown);
+    // Store markdown report in database
+    await this.database.insertTestResult({
+      runId: this.testId,
+      networkName: this.network.name,
+      testType: 'defi-suite',
+      testName: 'markdown-report',
+      success: true,
+      startTime: new Date().toISOString(),
+      endTime: new Date().toISOString(),
+      duration: 0,
+      gasUsed: 0,
+      gasPrice: 0,
+      transactionHash: null,
+      blockNumber: null,
+      errorMessage: null,
+      errorCategory: null,
+      metadata: JSON.stringify({ format: 'markdown', content: markdown })
+    });
+    
+    logger.success('✅ Markdown report stored in database');
   }
 
   async generateDiscordSummary(report) {
@@ -986,13 +1101,42 @@ ${report.recommendations.map(rec => `- ${rec}`).join('\\n')}
 *Complete DeFi Protocol Suite - ${new Date().toLocaleDateString()}*
 `;
 
-    const discordPath = path.join(process.cwd(), 'test-results', 'DISCORD-COMPLETE-SUMMARY.txt');
-    await fs.writeFile(discordPath, summary);
+    // Store Discord summary in database
+    await this.database.insertTestResult({
+      runId: this.testId,
+      networkName: this.network.name,
+      testType: 'defi-suite',
+      testName: 'discord-summary',
+      success: true,
+      startTime: new Date().toISOString(),
+      endTime: new Date().toISOString(),
+      duration: 0,
+      gasUsed: 0,
+      gasPrice: 0,
+      transactionHash: null,
+      blockNumber: null,
+      errorMessage: null,
+      errorCategory: null,
+      metadata: JSON.stringify({ format: 'discord', content: summary })
+    });
+    
+    logger.success('✅ Discord summary stored in database');
+  }
+
+  async cleanup() {
+    if (this.database) {
+      await this.database.close();
+      logger.info('🔒 Database connection closed');
+    }
   }
 }
 
 async function main() {
   const tester = new CompleteDeFiTester();
+  
+  if (process.env.TEST_LABEL) {
+    console.log(`🏷️  Test Label: ${process.env.TEST_LABEL}`);
+  }
   
   try {
     await tester.initialize();
@@ -1005,10 +1149,12 @@ async function main() {
     await tester.phase7_MultiSigOperations();
     
     const report = await tester.generateComprehensiveReport();
+    await tester.cleanup();
     return report;
     
   } catch (error) {
     logger.error(`❌ Test suite failed: ${error.message}`);
+    await tester.cleanup();
     throw error;
   }
 }

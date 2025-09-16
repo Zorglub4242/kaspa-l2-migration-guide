@@ -1,0 +1,49 @@
+{
+  "network": {
+    "name": "Igra L2",
+    "chainId": 19416
+  },
+  "timestamp": "2025-09-16T15:35:10.874Z",
+  "deployments": {
+    "MockERC721Collection": {
+      "name": "MockERC721Collection",
+      "address": "0x7994DEf66003DBd7543e72C375B2bc0608E43535",
+      "transactionHash": "0x3a0db70a02f266a9a92dc6414250df4bcdf1e8906b74971648ce93a115d4f672",
+      "blockNumber": 4922857,
+      "gasUsed": "2540496",
+      "gasPrice": "2000000000000",
+      "deployedAt": "2025-09-16T15:34:54.829Z",
+      "constructorArgs": [
+        "DeFi NFT Collection",
+        "DFNFT",
+        "https://api.defi-nft.com/metadata/"
+      ],
+      "network": {
+        "name": "Igra L2",
+        "chainId": 19416
+      }
+    },
+    "MockMultiSigWallet": {
+      "name": "MockMultiSigWallet",
+      "address": "0xDC6703c921A17b403fE4A0fc8B0c744Deeb04c70",
+      "transactionHash": "0xdbdec39b65187765fa9bbc846aef60d313ef98db090899bd3b74bc9f530a9977",
+      "blockNumber": 4922880,
+      "gasUsed": "2720971",
+      "gasPrice": "2000000000000",
+      "deployedAt": "2025-09-16T15:35:10.861Z",
+      "constructorArgs": [
+        [
+          "0xC7BED213023060A99901d5Ee0877E78b93586c54",
+          "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        ],
+        2,
+        "0xC7BED213023060A99901d5Ee0877E78b93586c54"
+      ],
+      "network": {
+        "name": "Igra L2",
+        "chainId": 19416
+      }
+    }
+  }
+}

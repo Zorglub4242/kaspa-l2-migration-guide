@@ -50,9 +50,11 @@ module.exports = {
         `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}` :
         "https://rpc.sepolia.org", // Fallback public RPC
       chainId: 11155111,
-      gasPrice: 20000000000, // 20 Gwei
+      gasPrice: 500000000, // 0.5 Gwei - conservative for testnet
       gas: 10000000,
       timeout: 600000,
+      pollingInterval: 8000, // 8 second polling for Ethereum
+      allowUnlimitedContractSize: true,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 
@@ -63,6 +65,18 @@ module.exports = {
       gasPrice: 15000000000, // 15 Gwei
       gas: 10000000,
       timeout: 600000,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+
+    // Igra Caravel L2 Network 
+    igra: {
+      url: "https://caravel.igralabs.com:8545",
+      chainId: 19416,
+      gasPrice: 2000000000000, // 2000 Gwei - required for EVM compatibility
+      gas: 10000000,
+      timeout: 600000,
+      pollingInterval: 3000, // 3 second polling for fast L2
+      allowUnlimitedContractSize: true,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
 

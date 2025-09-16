@@ -20,14 +20,26 @@ async function deployWithRetry(ContractFactory, contractName, args = [], maxRetr
                 console.log(`   🔢 Using fresh nonce: ${currentNonce}`);
             }
             
-            // Deploy with overrides to force different transaction hashes
-            // Start with 2001 gwei and increase by 100 gwei per attempt
-            const gasPriceGwei = 2001 + (attempt * 100);
+            // Deploy with network-appropriate gas prices
+            const [deployer] = await ethers.getSigners();
+            const network = await deployer.provider.getNetwork();
+            
+            let baseGasPriceGwei;
+            if (network.chainId === 167012) { // Kasplex
+                baseGasPriceGwei = 2001 + (attempt * 100);
+            } else if (network.chainId === 11155111) { // Sepolia
+                baseGasPriceGwei = 0.5 + (attempt * 0.1);
+            } else if (network.chainId === 19416) { // Igra
+                baseGasPriceGwei = 2000 + (attempt * 10); // Igra requires 2000 gwei minimum
+            } else {
+                baseGasPriceGwei = 1 + (attempt * 0.5); // Default for unknown networks
+            }
+            
             const overrides = {
                 gasLimit: ethers.utils.hexlify(3000000 + Math.floor(Math.random() * 100000)), // Random gas for different tx hash
-                gasPrice: ethers.utils.parseUnits(gasPriceGwei.toString(), "gwei")
+                gasPrice: ethers.utils.parseUnits(baseGasPriceGwei.toString(), "gwei")
             };
-            console.log(`   ⛽ Using gas price: ${gasPriceGwei} gwei`);
+            console.log(`   ⛽ Using gas price: ${baseGasPriceGwei} gwei`);
             
             const contract = await ContractFactory.deploy(...args, overrides);
             await contract.deployed();
@@ -113,6 +125,7 @@ async function main() {
             },
             deployer: deployer.address,
             timestamp: new Date().toISOString(),
+            label: process.env.TEST_LABEL || null,
             contracts: deployments,
             gasUsage: gasUsed,
             totalGasUsed: totalGasUsed,
@@ -124,7 +137,9 @@ async function main() {
         await updateEnvFile(network.chainId, deployments);
         
         // Save deployment report
-        const reportPath = path.join(__dirname, '../test-results', `evm-compatibility-deployment-${network.chainId}-${Date.now()}.json`);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const labelSuffix = process.env.TEST_LABEL ? `-${process.env.TEST_LABEL.replace(/[^a-zA-Z0-9]/g, '-')}` : '';
+        const reportPath = path.join(__dirname, '../test-results', `evm-compatibility-deployment-${network.chainId}${labelSuffix}-${timestamp}.json`);
         fs.writeFileSync(reportPath, JSON.stringify(deploymentInfo, null, 2));
         console.log(`\n💾 Deployment report saved: ${reportPath}`);
         
@@ -144,7 +159,9 @@ async function main() {
                 partialDeployments: deployments
             };
             
-            const errorPath = path.join(__dirname, '../test-results', `evm-compatibility-deployment-error-${Date.now()}.json`);
+            const errorTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const errorLabelSuffix = process.env.TEST_LABEL ? `-${process.env.TEST_LABEL.replace(/[^a-zA-Z0-9]/g, '-')}` : '';
+            const errorPath = path.join(__dirname, '../test-results', `evm-compatibility-deployment-error${errorLabelSuffix}-${errorTimestamp}.json`);
             fs.writeFileSync(errorPath, JSON.stringify(partialInfo, null, 2));
             console.log(`💾 Error report saved: ${errorPath}`);
         }

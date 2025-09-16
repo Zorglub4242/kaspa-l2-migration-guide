@@ -57,25 +57,13 @@ contract CREATE2Factory {
         bool[] memory results = new bool[](3);
         
         // Test 1: Deploy SimpleStorage with constructor args
-        try this.testSimpleStorageDeployment() {
-            results[0] = true;
-        } catch {
-            results[0] = false;
-        }
+        results[0] = _testSimpleStorageDeployment();
         
-        // Test 2: Deploy same contract with different salt
-        try this.testDifferentSaltDeployment() {
-            results[1] = true;
-        } catch {
-            results[1] = false;
-        }
+        // Test 2: Deploy same contract with different salt  
+        results[1] = _testDifferentSaltDeployment();
         
         // Test 3: Verify deterministic addresses
-        try this.testDeterministicAddresses() {
-            results[2] = true;
-        } catch {
-            results[2] = false;
-        }
+        results[2] = _testDeterministicAddresses();
         
         allPassed = results[0] && results[1] && results[2];
         emit CREATE2TestResult("all_create2_tests", allPassed, address(0));
@@ -83,7 +71,7 @@ contract CREATE2Factory {
         return allPassed;
     }
     
-    function testSimpleStorageDeployment() external returns (address deployed) {
+    function _testSimpleStorageDeployment() internal returns (bool success) {
         // Get SimpleStorage bytecode with constructor arg (value = 42)
         bytes memory bytecode = abi.encodePacked(
             type(SimpleStorage).creationCode,
@@ -91,17 +79,23 @@ contract CREATE2Factory {
         );
         
         bytes32 salt = keccak256("test1");
-        deployed = deployInternal(salt, bytecode);
         
-        // Verify the deployed contract works
-        SimpleStorage storage_ = SimpleStorage(deployed);
-        require(storage_.value() == 42, "Constructor arg not set correctly");
+        // Use internal call instead of external this call
+        address deployed = deployInternal(salt, bytecode);
+        if (deployed != address(0)) {
+            // Verify the deployed contract works
+            SimpleStorage storage_ = SimpleStorage(deployed);
+            if (storage_.value() == 42) {
+                emit CREATE2TestResult("simple_storage_deploy", true, deployed);
+                return true;
+            }
+        }
         
-        emit CREATE2TestResult("simple_storage_deploy", true, deployed);
-        return deployed;
+        emit CREATE2TestResult("simple_storage_deploy", false, address(0));
+        return false;
     }
     
-    function testDifferentSaltDeployment() external returns (address deployed) {
+    function _testDifferentSaltDeployment() internal returns (bool success) {
         // Deploy same contract with different salt
         bytes memory bytecode = abi.encodePacked(
             type(SimpleStorage).creationCode,
@@ -109,17 +103,23 @@ contract CREATE2Factory {
         );
         
         bytes32 salt = keccak256("test2");
-        deployed = deployInternal(salt, bytecode);
         
-        // Verify different address than previous deployment
-        SimpleStorage storage_ = SimpleStorage(deployed);
-        require(storage_.value() == 100, "Second deployment failed");
+        // Use internal call instead of external this call
+        address deployed = deployInternal(salt, bytecode);
+        if (deployed != address(0)) {
+            // Verify different address than previous deployment
+            SimpleStorage storage_ = SimpleStorage(deployed);
+            if (storage_.value() == 100) {
+                emit CREATE2TestResult("different_salt_deploy", true, deployed);
+                return true;
+            }
+        }
         
-        emit CREATE2TestResult("different_salt_deploy", true, deployed);
-        return deployed;
+        emit CREATE2TestResult("different_salt_deploy", false, address(0));
+        return false;
     }
     
-    function testDeterministicAddresses() external returns (bool success) {
+    function _testDeterministicAddresses() internal returns (bool success) {
         bytes memory bytecode = abi.encodePacked(
             type(SimpleStorage).creationCode,
             abi.encode(uint256(200))
@@ -131,13 +131,16 @@ contract CREATE2Factory {
         // Compute address before deployment
         address predictedAddr = computeAddress(salt, bytecodeHash);
         
-        // Deploy and verify address matches prediction
+        // Use internal call instead of external this call
         address deployed = deployInternal(salt, bytecode);
-        
-        success = (deployed == predictedAddr);
-        emit CREATE2TestResult("deterministic_addresses", success, deployed);
-        
-        return success;
+        if (deployed != address(0)) {
+            success = (deployed == predictedAddr);
+            emit CREATE2TestResult("deterministic_addresses", success, deployed);
+            return success;
+        } else {
+            emit CREATE2TestResult("deterministic_addresses", false, address(0));
+            return false;
+        }
     }
     
     // Helper function to get bytecode for external calls

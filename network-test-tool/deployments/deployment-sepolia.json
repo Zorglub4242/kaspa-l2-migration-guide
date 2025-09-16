@@ -1,0 +1,51 @@
+{
+  "network": {
+    "name": "Ethereum Sepolia",
+    "chainId": 11155111
+  },
+  "timestamp": "2025-09-16T08:50:15.744Z",
+  "deployments": {
+    "PrecompileTest": {
+      "name": "PrecompileTest",
+      "address": "0xA6fCd6d318dE053e6D25c9d3dEE79f1DB87CaE0D",
+      "transactionHash": "0x5ddbbcc0f322948167607bf7fb0f9dcc3ea6927dc9753e88a0033b14a4756f02",
+      "blockNumber": 9214233,
+      "gasUsed": "814725",
+      "gasPrice": "1225269",
+      "deployedAt": "2025-09-16T08:49:54.659Z",
+      "constructorArgs": [],
+      "network": {
+        "name": "Ethereum Sepolia",
+        "chainId": 11155111
+      }
+    },
+    "AssemblyTest": {
+      "name": "AssemblyTest",
+      "address": "0xBD68f596daAb9D668C24F2E32597F3b23e770d26",
+      "transactionHash": "0xda36405915ee29c22bc436f603c4455d42902d6a81fbbe22b2b8d841f4ebd439",
+      "blockNumber": 9214234,
+      "gasUsed": "1102922",
+      "gasPrice": "1208386",
+      "deployedAt": "2025-09-16T08:50:03.699Z",
+      "constructorArgs": [],
+      "network": {
+        "name": "Ethereum Sepolia",
+        "chainId": 11155111
+      }
+    },
+    "CREATE2Factory": {
+      "name": "CREATE2Factory",
+      "address": "0xDFC108e8F8D7f37a2A688545563B5d19517Bf773",
+      "transactionHash": "0x09e156bc11305ed87b10d9afca3b67601264a9f720e8c47a421b0cf4a9afcfcd",
+      "blockNumber": 9214235,
+      "gasUsed": "753485",
+      "gasPrice": "1207529",
+      "deployedAt": "2025-09-16T08:50:15.742Z",
+      "constructorArgs": [],
+      "network": {
+        "name": "Ethereum Sepolia",
+        "chainId": 11155111
+      }
+    }
+  }
+}

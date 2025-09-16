@@ -1,0 +1,22 @@
+{
+    "name": "executive-dashboard",
+    "engine": "handlebars",
+    "recipe": "chrome-pdf",
+    "chrome": {
+        "displayHeaderFooter": true,
+        "format": "A4",
+        "marginTop": "1cm",
+        "marginBottom": "1cm",
+        "marginLeft": "1cm",
+        "marginRight": "1cm"
+    },
+    "creationDate": {
+        "$$date": 1758025140138
+    },
+    "modificationDate": {
+        "$$date": 1758032591496
+    },
+    "shortid": "KyW61B8",
+    "_id": "HHJ9ylGeeIlyIpfu",
+    "$entitySet": "templates"
+}

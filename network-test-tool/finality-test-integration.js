@@ -15,9 +15,10 @@ const { IgraAdapter } = require('./lib/finality/IgraAdapter');
 const { logger } = require('./lib/utils/logger');
 
 class FinalityTestIntegration {
-  constructor() {
+  constructor(options = {}) {
     this.controller = null;
     this.adapters = {};
+    this.testLabel = process.env.TEST_LABEL || null;
     this.testConfig = {
       networks: [],
       transactionCount: 5, // Reduced for demo
@@ -581,12 +582,16 @@ class FinalityTestIntegration {
   }
 
   async exportMockResults(analysis) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const labelSuffix = this.testLabel ? `-${this.testLabel.replace(/[^a-zA-Z0-9]/g, '-')}` : '';
+    
     const exportData = {
       sessionId: this.controller.sessionId,
       timestamp: new Date().toISOString(),
       testMode: 'mock',
       testConfig: this.testConfig,
       analysis,
+      label: this.testLabel,
       metadata: {
         version: '1.0.0',
         phase: 'Phase 3 - Analytics + MEV Engine',
@@ -598,7 +603,14 @@ class FinalityTestIntegration {
 
     const fs = require('fs');
     const path = require('path');
-    const exportPath = path.join(__dirname, `mock-finality-results-${this.controller.sessionId}.json`);
+    
+    // Save to test-results directory with timestamp and label
+    const resultsDir = path.join(__dirname, 'test-results');
+    if (!fs.existsSync(resultsDir)) {
+      fs.mkdirSync(resultsDir, { recursive: true });
+    }
+    
+    const exportPath = path.join(resultsDir, `finality-mock${labelSuffix}-${timestamp}.json`);
     
     fs.writeFileSync(exportPath, JSON.stringify(exportData, null, 2));
     
@@ -640,12 +652,16 @@ class FinalityTestIntegration {
   }
 
   async exportRealResults(analysis) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const labelSuffix = this.testLabel ? `-${this.testLabel.replace(/[^a-zA-Z0-9]/g, '-')}` : '';
+    
     const exportData = {
       sessionId: this.controller.sessionId,
       timestamp: new Date().toISOString(),
       testMode: 'real',
       testConfig: analysis.config || {},
       analysis,
+      label: this.testLabel,
       metadata: {
         version: '1.0.0',
         phase: 'Real Finality Measurements',
@@ -657,7 +673,14 @@ class FinalityTestIntegration {
 
     const fs = require('fs');
     const path = require('path');
-    const exportPath = path.join(__dirname, `real-finality-results-${this.controller.sessionId}.json`);
+    
+    // Save to test-results directory with timestamp and label
+    const resultsDir = path.join(__dirname, 'test-results');
+    if (!fs.existsSync(resultsDir)) {
+      fs.mkdirSync(resultsDir, { recursive: true });
+    }
+    
+    const exportPath = path.join(resultsDir, `finality-real${labelSuffix}-${timestamp}.json`);
     
     fs.writeFileSync(exportPath, JSON.stringify(exportData, null, 2));
     

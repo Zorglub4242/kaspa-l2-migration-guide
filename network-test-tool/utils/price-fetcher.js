@@ -12,28 +12,46 @@ class PriceFetcher {
   // Map network names to CoinGecko IDs
   getCoinGeckoId(network) {
     const mapping = {
+      // Config keys
       'kasplex': 'kaspa',        // KAS token
       'sepolia': 'ethereum',     // ETH on Sepolia
-      'holesky': 'ethereum',     // ETH on Holesky  
+      'holesky': 'ethereum',     // ETH on Holesky
       'goerli': 'ethereum',      // ETH on Goerli
       'ethereum': 'ethereum',    // ETH mainnet
-      'mainnet': 'ethereum'      // ETH mainnet
+      'mainnet': 'ethereum',     // ETH mainnet
+      'igra': 'kaspa',           // IKAS token (using KAS price as proxy)
+
+      // Display names
+      'kasplex l2': 'kaspa',
+      'ethereum sepolia': 'ethereum',
+      'igra l2': 'kaspa',
+      'ethereum holesky': 'ethereum',
+      'ethereum goerli': 'ethereum'
     };
-    
+
     return mapping[network.toLowerCase()] || 'ethereum';
   }
 
   // Get token symbol for display
   getTokenSymbol(network) {
     const mapping = {
+      // Config keys
       'kasplex': 'KAS',
-      'sepolia': 'ETH', 
+      'sepolia': 'ETH',
       'holesky': 'ETH',
       'goerli': 'ETH',
       'ethereum': 'ETH',
-      'mainnet': 'ETH'
+      'mainnet': 'ETH',
+      'igra': 'IKAS',
+
+      // Display names
+      'kasplex l2': 'KAS',
+      'ethereum sepolia': 'ETH',
+      'igra l2': 'IKAS',
+      'ethereum holesky': 'ETH',
+      'ethereum goerli': 'ETH'
     };
-    
+
     return mapping[network.toLowerCase()] || 'ETH';
   }
 
