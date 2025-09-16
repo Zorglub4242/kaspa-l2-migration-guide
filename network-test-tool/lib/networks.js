@@ -38,9 +38,10 @@ const NETWORKS = {
     },
     faucet: 'https://faucet.kasplextest.xyz',
     gasConfig: {
-      strategy: 'adaptive',
-      base: ethers.utils.parseUnits('2001', 'gwei'),
-      fallback: ethers.utils.parseUnits('2001', 'gwei'),
+      strategy: 'dynamic', // Changed from 'adaptive' to use network suggested prices
+      base: ethers.utils.parseUnits('10', 'gwei'), // Reduced from 2001 to reasonable testnet price
+      fallback: ethers.utils.parseUnits('50', 'gwei'), // Fallback if network query fails
+      maxGasPrice: ethers.utils.parseUnits('2001', 'gwei'), // Cap at network's typical price
       tolerance: 0.1
     },
     timeouts: {
@@ -62,14 +63,16 @@ const NETWORKS = {
     },
     faucet: 'https://faucet.caravel.igralabs.com/',
     gasConfig: {
-      strategy: 'fixed',
-      required: ethers.utils.parseUnits('2000', 'gwei'), // Igra requires exactly 2000 gwei
+      strategy: 'dynamic', // Changed from 'fixed' to allow dynamic pricing
+      base: ethers.utils.parseUnits('10', 'gwei'), // Start with reasonable testnet price
+      fallback: ethers.utils.parseUnits('2000', 'gwei'), // Use 2000 gwei if network suggests it
+      maxGasPrice: ethers.utils.parseUnits('2000', 'gwei'), // Cap at previously required price
       tolerance: 0.1
     },
     timeouts: {
       transaction: 60000,
       deployment: 180000,
-      finality: 10000
+      finality: 2000  // Reduced from 10000ms to 2000ms for faster polling
     }
   }
 };

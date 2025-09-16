@@ -94,28 +94,36 @@ class DeFiTestRunner {
   }
 
   /**
+   * Optimized transaction wait with custom confirmations
+   */
+  async waitForTransaction(tx, confirmations = 1) {
+    // Use provider's waitForTransaction with custom settings for faster confirmation
+    const receipt = await this.signer.provider.waitForTransaction(tx.hash, confirmations, 30000);
+    return receipt;
+  }
+
+  /**
    * Get transaction overrides with gas price and limits
    */
   async getTxOverrides(operationType = 'simple') {
-    // Network-specific gas handling
-    if (this.network.chainId === 19416) { // Igra L2
-      const gasPrice = ethers.utils.parseUnits("2000", "gwei"); // Exactly 2000 gwei required for Igra
+    // Use the gas manager for all networks (now supports dynamic pricing)
+    const gasPrice = await this.gasManager.getGasPrice();
 
-      // Gas limits based on operation complexity for Igra
+    // Network-specific gas limits
+    if (this.network.chainId === 19416 || this.network.chainId === 167012) {
+      // Higher gas limits for Igra and Kasplex L2s
       const gasLimits = {
         simple: 500000,     // 500k for simple operations (transfers, approvals)
         complex: 1000000,   // 1M for complex operations (DEX, lending)
         veryComplex: 1500000 // 1.5M for very complex operations
       };
 
-      // Fixed gas price for Igra L2 (2000 gwei) - logged once at initialization
       return {
         gasPrice,
         gasLimit: gasLimits[operationType] || gasLimits.simple
       };
     } else {
-      // Other networks use dynamic gas pricing
-      const gasPrice = await this.gasManager.getGasPrice();
+      // Standard networks use default gas limits
       return { gasPrice };
     }
   }
@@ -159,10 +167,7 @@ class DeFiTestRunner {
     // Initialize lending markets
     await this.initializeLendingMarkets();
 
-    // Log gas configuration once at initialization
-    if (this.network.chainId === 19416) {
-      console.log(chalk.gray(`ℹ️ Using fixed gas price of 2000 gwei for Igra L2`));
-    }
+    // Gas configuration is now dynamic for all networks
 
     console.log(chalk.green(`✅ DeFi test runner initialized with ${Object.keys(this.contracts).length} contracts`));
   }
@@ -278,9 +283,9 @@ class DeFiTestRunner {
       // Execute all mints in parallel
       const mintTxs = await Promise.all(mintTxPromises);
 
-      // Wait for all to be mined (also in parallel)
+      // Wait for all to be mined (also in parallel) with optimized wait
       await Promise.all(mintTxs.map(async ({ name, tx }) => {
-        await tx.wait();
+        await this.waitForTransaction(tx, 1);
         console.log(`  ✅ Minted 10,000 ${name}`);
       }));
 
@@ -350,7 +355,7 @@ class DeFiTestRunner {
       if (initTxs.length > 0) {
         const txResults = await Promise.all(initTxs);
         await Promise.all(txResults.map(async ({ name, tx }) => {
-          await tx.wait();
+          await this.waitForTransaction(tx, 1);
           console.log(`  ✅ Initialized ${name}`);
         }));
       }
@@ -372,7 +377,7 @@ class DeFiTestRunner {
       );
 
       const [txA, txB] = await Promise.all(liquidityTxs);
-      await Promise.all([txA.wait(), txB.wait()]);
+      await Promise.all([this.waitForTransaction(txA, 1), this.waitForTransaction(txB, 1)]);
       console.log('  ✅ Added liquidity to lending protocol (TokenA & TokenB)');
 
       this.marketsInitialized = true; // Cache that markets are initialized
@@ -687,7 +692,7 @@ class DeFiTestRunner {
     const txOverrides = await this.getTxOverrides();
 
     const tx = await this.contracts.tokenA.transfer(recipient, amount, txOverrides);
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -701,7 +706,7 @@ class DeFiTestRunner {
     const txOverrides = await this.getTxOverrides();
 
     const tx = await this.contracts.tokenA.approve(spender, amount, txOverrides);
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -720,24 +725,18 @@ class DeFiTestRunner {
     // First, owner approves spender with proper gas overrides
     const approveOverrides = await this.getTxOverrides('simple');
     const approveTx = await this.contracts.tokenA.approve(spenderAddress, amount, approveOverrides);
-    await approveTx.wait();
+    await this.waitForTransaction(approveTx, 1);
 
-    // Add delay for Igra network
-    if (this.network.chainId === 19416) {
-      // Delay removed - using manual nonce management
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // For the actual transferFrom test, we need to ensure the spender has gas
     // Since we can't easily fund the random wallet, we'll test with our own signer
     // Approve ourselves to spend our own tokens (valid ERC20 pattern)
     const selfApproveOverrides = await this.getTxOverrides('simple');
     const selfApproveTx = await this.contracts.tokenA.approve(ownerAddress, amount, selfApproveOverrides);
-    await selfApproveTx.wait();
+    await this.waitForTransaction(selfApproveTx, 1);
 
-    // Add delay for Igra network
-    if (this.network.chainId === 19416) {
-      // Delay removed - using manual nonce management
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Now call transferFrom to transfer from ourselves to another address
     const recipientAddress = ethers.Wallet.createRandom().address;
@@ -748,7 +747,7 @@ class DeFiTestRunner {
       amount,
       transferFromOverrides
     );
-    const receipt = await transferFromTx.wait();
+    const receipt = await this.waitForTransaction(transferFromTx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -770,7 +769,7 @@ class DeFiTestRunner {
           this.contracts.tokenB.address,
           createPairOverrides
         );
-        await createPairTx.wait();
+        await this.waitForTransaction(createPairTx, 1);
         this.pairCreated = true;
         console.log('  ℹ️ Created DEX pair');
       } catch (error) {
@@ -792,12 +791,9 @@ class DeFiTestRunner {
     ]);
 
     // Wait for both approvals to be mined
-    await Promise.all([approvalA.wait(), approvalB.wait()]);
+    await Promise.all([this.waitForTransaction(approvalA, 1), this.waitForTransaction(approvalB, 1)]);
 
-    // Small delay only if on Igra (reduced from 3000ms to 1000ms)
-    if (this.network.chainId === 19416) {
-      await this.waitWithProgress('⏳ Network sync', 1000);
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Add liquidity after approvals are confirmed
     const overridesLiquidity = await this.getTxOverrides('complex');
@@ -809,7 +805,7 @@ class DeFiTestRunner {
       amountB,
       overridesLiquidity
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -828,12 +824,9 @@ class DeFiTestRunner {
       amount,
       overridesApproval
     );
-    await approval.wait();
+    await this.waitForTransaction(approval, 1);
 
-    // Minimal delay (reduced to 500ms)
-    if (this.network.chainId === 19416) {
-      await this.waitWithProgress('⏳ Sync', 500);
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Swap with manual nonce
     const overridesSwap = await this.getTxOverrides('complex');
@@ -845,7 +838,7 @@ class DeFiTestRunner {
       0, // minAmountOut
       overridesSwap
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -863,7 +856,7 @@ class DeFiTestRunner {
       liquidityAmount,
       txOverrides
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -881,12 +874,9 @@ class DeFiTestRunner {
       amount,
       overridesApproval
     );
-    await approval.wait(); // Wait for approval to be mined
+    await this.waitForTransaction(approval, 1); // Optimized wait
 
-    // Add delay for Igra network
-    if (this.network.chainId === 19416) {
-      // Delay removed - using manual nonce management
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Deposit after approval is confirmed
     const overridesDeposit = await this.getTxOverrides('complex');
@@ -895,7 +885,7 @@ class DeFiTestRunner {
       amount,
       overridesDeposit
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -912,7 +902,7 @@ class DeFiTestRunner {
       borrowAmount,
       txOverrides
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -930,12 +920,9 @@ class DeFiTestRunner {
       repayAmount,
       overridesApproval
     );
-    await approval.wait(); // Wait for approval to be mined
+    await this.waitForTransaction(approval, 1); // Optimized wait
 
-    // Add delay for Igra network
-    if (this.network.chainId === 19416) {
-      // Delay removed - using manual nonce management
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Repay after approval is confirmed with fresh overrides
     const overridesRepay = await this.getTxOverrides('complex');
@@ -944,7 +931,7 @@ class DeFiTestRunner {
       repayAmount,
       overridesRepay
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -966,12 +953,9 @@ class DeFiTestRunner {
       amount,
       overridesApproval
     );
-    await approval.wait(); // Wait for approval to be mined
+    await this.waitForTransaction(approval, 1); // Optimized wait
 
-    // Add delay for Igra network
-    if (this.network.chainId === 19416) {
-      // Delay removed - using manual nonce management
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Stake after approval is confirmed with fresh overrides
     const overridesStake = await this.getTxOverrides('complex');
@@ -979,7 +963,7 @@ class DeFiTestRunner {
       amount,
       overridesStake
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -994,7 +978,7 @@ class DeFiTestRunner {
 
     const txOverrides = await this.getTxOverrides('complex');
     const tx = await this.contracts.yieldFarm.claimRewards(txOverrides);
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -1011,7 +995,7 @@ class DeFiTestRunner {
     const txOverrides = await this.getTxOverrides('complex');
 
     const tx = await this.contracts.yieldFarm.unstake(amount, txOverrides);
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -1029,7 +1013,7 @@ class DeFiTestRunner {
 
     const txOverrides = await this.getTxOverrides('complex');
     const tx = await this.contracts.nftCollection.mint(recipient, tokenId, txOverrides);
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -1050,15 +1034,12 @@ class DeFiTestRunner {
     const overridesMint = await this.getTxOverrides('complex');
     await this.contracts.nftCollection.mint(from, tokenId, overridesMint);
 
-    // Add delay for Igra network
-    if (this.network.chainId === 19416) {
-      // Delay removed - using manual nonce management
-    }
+    // Removed delay - no longer needed with optimized polling
 
     // Transfer it
     const overridesTransfer = await this.getTxOverrides('complex');
     const tx = await this.contracts.nftCollection.transferFrom(from, to, tokenId, overridesTransfer);
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),
@@ -1082,7 +1063,7 @@ class DeFiTestRunner {
       data,
       txOverrides
     );
-    const receipt = await tx.wait();
+    const receipt = await this.waitForTransaction(tx, 1);
 
     return {
       gasUsed: receipt.gasUsed.toNumber(),

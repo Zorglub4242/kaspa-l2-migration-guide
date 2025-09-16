@@ -100,3 +100,8 @@ network-test-tool/deployment-igra.json
 network-test-tool/METABASE-IMPLEMENTATION-PLAN.md
 network-test-tool/METABASE-QUICK-DASHBOARD.md
 nul
+network-test-tool/deployments/deployment-kasplex.json
+network-test-tool/deployments/deployment-sepolia.json
+network-test-tool/data/test-results.db-wal
+network-test-tool/deployments/deployment-sepolia.json
+network-test-tool/test-gas-prices.js

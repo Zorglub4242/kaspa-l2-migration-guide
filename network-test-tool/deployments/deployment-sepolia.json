@@ -3,45 +3,85 @@
     "name": "Ethereum Sepolia",
     "chainId": 11155111
   },
-  "timestamp": "2025-09-16T08:50:15.744Z",
+  "timestamp": "2025-09-16T20:54:15.441Z",
   "deployments": {
-    "PrecompileTest": {
-      "name": "PrecompileTest",
-      "address": "0xA6fCd6d318dE053e6D25c9d3dEE79f1DB87CaE0D",
-      "transactionHash": "0x5ddbbcc0f322948167607bf7fb0f9dcc3ea6927dc9753e88a0033b14a4756f02",
-      "blockNumber": 9214233,
-      "gasUsed": "814725",
-      "gasPrice": "1225269",
-      "deployedAt": "2025-09-16T08:49:54.659Z",
+    "MockDEX": {
+      "name": "MockDEX",
+      "address": "0x4780528B8e939Ad813935cc97a6F124BAa81d6e1",
+      "transactionHash": "0xf701395e604713e7e6a235432f3e7fe07a2ffd733032afc2fd21f9374f13591e",
+      "blockNumber": 9217601,
+      "gasUsed": "1230750",
+      "gasPrice": "1692582",
+      "deployedAt": "2025-09-16T20:50:26.502Z",
       "constructorArgs": [],
       "network": {
         "name": "Ethereum Sepolia",
         "chainId": 11155111
       }
     },
-    "AssemblyTest": {
-      "name": "AssemblyTest",
-      "address": "0xBD68f596daAb9D668C24F2E32597F3b23e770d26",
-      "transactionHash": "0xda36405915ee29c22bc436f603c4455d42902d6a81fbbe22b2b8d841f4ebd439",
-      "blockNumber": 9214234,
-      "gasUsed": "1102922",
-      "gasPrice": "1208386",
-      "deployedAt": "2025-09-16T08:50:03.699Z",
+    "MockLendingProtocol": {
+      "name": "MockLendingProtocol",
+      "address": "0x5957BDFF284902561ca34CE7ebccCd7815D2Ce67",
+      "transactionHash": "0xd1edbc1a9577ca80dd0cb235d24432cd02c1f103f0459d40941d37cb846c8c1c",
+      "blockNumber": 9217603,
+      "gasUsed": "1661099",
+      "gasPrice": "1848824",
+      "deployedAt": "2025-09-16T20:50:50.568Z",
       "constructorArgs": [],
       "network": {
         "name": "Ethereum Sepolia",
         "chainId": 11155111
       }
     },
-    "CREATE2Factory": {
-      "name": "CREATE2Factory",
-      "address": "0xDFC108e8F8D7f37a2A688545563B5d19517Bf773",
-      "transactionHash": "0x09e156bc11305ed87b10d9afca3b67601264a9f720e8c47a421b0cf4a9afcfcd",
-      "blockNumber": 9214235,
-      "gasUsed": "753485",
-      "gasPrice": "1207529",
-      "deployedAt": "2025-09-16T08:50:15.742Z",
+    "MockYieldFarm": {
+      "name": "MockYieldFarm",
+      "address": "0x0459ab42E1A534B668968B9DabbFc7738af98AD0",
+      "transactionHash": "0xb0ef10ac6d43438a9e23ca69a04eedfa6f92d5d52e2135f4c25476efe9610b20",
+      "blockNumber": 9217606,
+      "gasUsed": "1708141",
+      "gasPrice": "1943148",
+      "deployedAt": "2025-09-16T20:51:50.663Z",
       "constructorArgs": [],
+      "network": {
+        "name": "Ethereum Sepolia",
+        "chainId": 11155111
+      }
+    },
+    "MockERC721Collection": {
+      "name": "MockERC721Collection",
+      "address": "0xf580592548F90de4Eb16c9481247Eeb12beF8C0D",
+      "transactionHash": "0x734063da7cb4756730127f6f9c23a3721d29f8fa4954cdeefad382e9a8eaa47b",
+      "blockNumber": 9217611,
+      "gasUsed": "2540496",
+      "gasPrice": "2273601",
+      "deployedAt": "2025-09-16T20:52:50.727Z",
+      "constructorArgs": [
+        "DeFi NFT Collection",
+        "DFNFT",
+        "https://api.defi-nft.com/metadata/"
+      ],
+      "network": {
+        "name": "Ethereum Sepolia",
+        "chainId": 11155111
+      }
+    },
+    "MockMultiSigWallet": {
+      "name": "MockMultiSigWallet",
+      "address": "0xc093a1fF77E7D3f600F5C01e2FEC7bE0F7f1E568",
+      "transactionHash": "0x35594605993e58f5dde7cdb17948bac547e9f8507c65a4c6e00f7458e2b424e4",
+      "blockNumber": 9217618,
+      "gasUsed": "2720971",
+      "gasPrice": "2859457",
+      "deployedAt": "2025-09-16T20:54:15.253Z",
+      "constructorArgs": [
+        [
+          "0xC7BED213023060A99901d5Ee0877E78b93586c54",
+          "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        ],
+        2,
+        "0xC7BED213023060A99901d5Ee0877E78b93586c54"
+      ],
       "network": {
         "name": "Ethereum Sepolia",
         "chainId": 11155111
