@@ -94,40 +94,26 @@ class DeFiTestRunner {
   }
 
   /**
-   * Optimized transaction wait with event-based instant confirmation
+   * Optimized transaction wait with network-specific timeouts
    */
   async waitForTransaction(tx, confirmations = 1) {
-    // Use event listener for instant notification when transaction is mined
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error(`Transaction ${tx.hash} timed out after 30 seconds`));
-      }, 30000);
+    // Use longer timeout for Kasplex (60s) as it can be slower
+    const timeoutMs = this.network.chainId === 167012 ? 60000 : 30000;
 
-      // Set up event listener for instant notification
-      this.signer.provider.once(tx.hash, (receipt) => {
-        clearTimeout(timeout);
-
-        // If we need more confirmations, wait for them
-        if (confirmations > 1) {
-          this.signer.provider.waitForTransaction(tx.hash, confirmations, 30000)
-            .then(resolve)
-            .catch(reject);
-        } else {
-          resolve(receipt);
-        }
-      });
-
-      // Also poll as backup in case event doesn't fire
-      this.signer.provider.waitForTransaction(tx.hash, confirmations, 30000)
-        .then((receipt) => {
-          clearTimeout(timeout);
-          resolve(receipt);
-        })
-        .catch((error) => {
-          clearTimeout(timeout);
-          reject(error);
-        });
-    });
+    try {
+      // Simple, reliable polling-based waiting
+      const receipt = await this.signer.provider.waitForTransaction(
+        tx.hash,
+        confirmations,
+        timeoutMs
+      );
+      return receipt;
+    } catch (error) {
+      if (error.code === 'TIMEOUT') {
+        throw new Error(`Transaction ${tx.hash} timed out after ${timeoutMs/1000} seconds`);
+      }
+      throw error;
+    }
   }
 
   /**
