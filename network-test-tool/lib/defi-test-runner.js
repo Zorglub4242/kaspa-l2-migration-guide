@@ -113,8 +113,8 @@ class DeFiTestRunner {
    * Optimized transaction wait with network-specific timeouts
    */
   async waitForTransaction(tx, confirmations = 1) {
-    // Back to 30 second timeout for all networks as requested
-    const timeoutMs = 30000;
+    // Use network-specific confirmation timeout from config
+    const timeoutMs = this.network.timeouts?.confirmation || 30000;
 
     // Add debugging to understand why transactions are timing out
     console.log(chalk.gray(`⏳ Waiting for tx ${tx.hash.slice(0, 10)}... (timeout: ${timeoutMs/1000}s)`));
@@ -134,7 +134,7 @@ class DeFiTestRunner {
       } catch (e) {
         // Ignore errors in monitoring
       }
-    }, 5000); // Check every 5 seconds
+    }, 1000); // Check every 1 second for faster detection
 
     try {
       // Simple, reliable polling-based waiting
@@ -821,29 +821,21 @@ class DeFiTestRunner {
     const amount = ethers.utils.parseEther('5');
     const ownerAddress = await this.signer.getAddress();
 
-    // Create a new wallet to be the spender
-    const spenderWallet = ethers.Wallet.createRandom().connect(this.signer.provider);
-    const spenderAddress = spenderWallet.address;
-
-    // First, owner approves spender with proper gas overrides
+    // Simplified test: Approve ourselves to spend our own tokens (valid ERC20 pattern)
+    // This tests the transferFrom functionality without needing multiple approvals
     const approveOverrides = await this.getTxOverrides('simple');
-    const approveTx = await this.contracts.tokenA.approve(spenderAddress, amount, approveOverrides);
+    approveOverrides.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Self-approval with nonce ${approveOverrides.nonce}...`));
+
+    const approveTx = await this.contracts.tokenA.approve(ownerAddress, amount, approveOverrides);
     await this.waitForTransaction(approveTx, 1);
-
-    // Removed delay - no longer needed with optimized polling
-
-    // For the actual transferFrom test, we need to ensure the spender has gas
-    // Since we can't easily fund the random wallet, we'll test with our own signer
-    // Approve ourselves to spend our own tokens (valid ERC20 pattern)
-    const selfApproveOverrides = await this.getTxOverrides('simple');
-    const selfApproveTx = await this.contracts.tokenA.approve(ownerAddress, amount, selfApproveOverrides);
-    await this.waitForTransaction(selfApproveTx, 1);
-
-    // Removed delay - no longer needed with optimized polling
 
     // Now call transferFrom to transfer from ourselves to another address
     const recipientAddress = ethers.Wallet.createRandom().address;
     const transferFromOverrides = await this.getTxOverrides('complex');
+    transferFromOverrides.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  TransferFrom with nonce ${transferFromOverrides.nonce}...`));
+
     const transferFromTx = await this.contracts.tokenA.transferFrom(
       ownerAddress,
       recipientAddress,
@@ -862,57 +854,89 @@ class DeFiTestRunner {
     const amountA = ethers.utils.parseEther('100');
     const amountB = ethers.utils.parseEther('100');
 
-    // Create the pair only if not already created (cached)
+    // Check if pair exists before attempting to create
     if (!this.pairCreated) {
-      let nonceUsed = null;
       try {
-        const createPairOverrides = await this.getTxOverrides('simple');
-        nonceUsed = await this.getNextNonce();
-        createPairOverrides.nonce = nonceUsed;
-        console.log(chalk.gray(`  Creating DEX pair with nonce ${nonceUsed}...`));
-        const createPairTx = await this.contracts.dex.createPair(
+        // Try to get the pair address - if it exists, skip creation
+        const pairAddress = await this.contracts.dex.getPair(
           this.contracts.tokenA.address,
-          this.contracts.tokenB.address,
-          createPairOverrides
+          this.contracts.tokenB.address
         );
-        await this.waitForTransaction(createPairTx, 1);
-        this.pairCreated = true;
-        console.log('  ℹ️ Created DEX pair');
+
+        if (pairAddress && pairAddress !== ethers.constants.AddressZero) {
+          console.log(chalk.gray(`  ℹ️ DEX pair already exists at ${pairAddress.slice(0, 10)}...`));
+          this.pairCreated = true;
+        } else {
+          // Pair doesn't exist, create it
+          const createPairOverrides = await this.getTxOverrides('simple');
+          const nonce = await this.getNextNonce();
+          createPairOverrides.nonce = nonce;
+          console.log(chalk.gray(`  Creating DEX pair with nonce ${nonce}...`));
+
+          const createPairTx = await this.contracts.dex.createPair(
+            this.contracts.tokenA.address,
+            this.contracts.tokenB.address,
+            createPairOverrides
+          );
+          await this.waitForTransaction(createPairTx, 1);
+          this.pairCreated = true;
+          console.log('  ✅ Created DEX pair');
+        }
       } catch (error) {
-        console.log(chalk.yellow(`  ⚠️ Create pair failed: ${error.message}. Assuming pair exists.`));
-        // Check if transaction was actually sent
-        if (nonceUsed !== null) {
-          try {
+        // If getPair fails, try to create the pair
+        if (error.message.includes('getPair')) {
+          console.log(chalk.gray('  DEX does not have getPair method, attempting creation...'));
+        }
+
+        let nonceUsed = null;
+        try {
+          const createPairOverrides = await this.getTxOverrides('simple');
+          nonceUsed = await this.getNextNonce();
+          createPairOverrides.nonce = nonceUsed;
+
+          const createPairTx = await this.contracts.dex.createPair(
+            this.contracts.tokenA.address,
+            this.contracts.tokenB.address,
+            createPairOverrides
+          );
+          await this.waitForTransaction(createPairTx, 1);
+          this.pairCreated = true;
+          console.log('  ✅ Created DEX pair');
+        } catch (createError) {
+          console.log(chalk.yellow(`  ⚠️ Create pair failed: ${createError.message}. Assuming pair exists.`));
+
+          // Recover nonce if needed
+          if (nonceUsed !== null) {
             const txCount = await this.signer.getTransactionCount('pending');
             if (txCount <= nonceUsed) {
-              // Transaction wasn't mined, decrement our counter
               this.currentNonce = nonceUsed;
               console.log(chalk.gray(`  Reverted nonce to ${this.currentNonce}`));
             }
-          } catch (e) {
-            // If we can't check, recover nonce
-            await this.recoverNonce();
           }
+          this.pairCreated = true;
         }
-        // Pair might already exist, continue
-        this.pairCreated = true;
       }
     }
 
-    // Sequential approvals to avoid nonce conflicts on slower networks
-    // First approval
+    // Smart parallel execution: Sequential nonce assignment, parallel waiting
     const overridesA = await this.getTxOverrides('simple');
-    overridesA.nonce = await this.getNextNonce();
-    console.log(chalk.gray(`  Approving TokenA with nonce ${overridesA.nonce}...`));
-    const approvalA = await this.contracts.tokenA.approve(this.contracts.dex.address, amountA, overridesA);
-    await this.waitForTransaction(approvalA, 1);
-
-    // Second approval after first is confirmed
     const overridesB = await this.getTxOverrides('simple');
+
+    // Get nonces sequentially to avoid conflicts
+    overridesA.nonce = await this.getNextNonce();
     overridesB.nonce = await this.getNextNonce();
-    console.log(chalk.gray(`  Approving TokenB with nonce ${overridesB.nonce}...`));
+
+    console.log(chalk.gray(`  Approving tokens in parallel (nonces: ${overridesA.nonce}, ${overridesB.nonce})...`));
+
+    // Submit both transactions
+    const approvalA = await this.contracts.tokenA.approve(this.contracts.dex.address, amountA, overridesA);
     const approvalB = await this.contracts.tokenB.approve(this.contracts.dex.address, amountB, overridesB);
-    await this.waitForTransaction(approvalB, 1);
+
+    // Wait for both in parallel
+    await Promise.all([
+      this.waitForTransaction(approvalA, 1),
+      this.waitForTransaction(approvalB, 1)
+    ]);
 
     // Add liquidity after approvals are confirmed
     const overridesLiquidity = await this.getTxOverrides('complex');

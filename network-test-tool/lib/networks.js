@@ -22,7 +22,8 @@ const NETWORKS = {
     timeouts: {
       transaction: 60000,
       deployment: 120000,
-      finality: 30000
+      finality: 30000,
+      confirmation: 30000  // Standard confirmation timeout for Ethereum testnets
     }
   },
   
@@ -47,7 +48,8 @@ const NETWORKS = {
     timeouts: {
       transaction: 120000,
       deployment: 300000,
-      finality: 1000  // Reduced from 15000ms to 1000ms for faster polling
+      finality: 1000,  // Reduced from 15000ms to 1000ms for faster polling
+      confirmation: 15000  // Transaction confirmation timeout (most confirm in 5-10s)
     }
   },
   
@@ -72,7 +74,8 @@ const NETWORKS = {
     timeouts: {
       transaction: 60000,
       deployment: 180000,
-      finality: 1000  // Reduced from 2000ms to 1000ms for faster polling
+      finality: 1000,  // Reduced from 2000ms to 1000ms for faster polling
+      confirmation: 20000  // Transaction confirmation timeout for Igra
     }
   }
 };
