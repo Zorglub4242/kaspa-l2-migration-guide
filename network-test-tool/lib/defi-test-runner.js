@@ -49,6 +49,12 @@ class DeFiTestRunner {
     if (this.currentNonce === null) {
       this.currentNonce = await this.signer.getTransactionCount();
     }
+    // Double-check nonce is still in sync with network
+    const networkNonce = await this.signer.getTransactionCount('pending');
+    if (networkNonce > this.currentNonce) {
+      console.log(chalk.yellow(`⚠️ Nonce out of sync. Local: ${this.currentNonce}, Network: ${networkNonce}. Resetting.`));
+      this.currentNonce = networkNonce;
+    }
     return this.currentNonce++;
   }
 
@@ -56,7 +62,17 @@ class DeFiTestRunner {
    * Reset nonce tracking (call between test suites)
    */
   async resetNonce() {
-    this.currentNonce = await this.signer.getTransactionCount();
+    this.currentNonce = await this.signer.getTransactionCount('pending');
+    console.log(chalk.gray(`  Reset nonce to ${this.currentNonce}`));
+  }
+
+  /**
+   * Recover nonce after failed transaction
+   */
+  async recoverNonce() {
+    const networkNonce = await this.signer.getTransactionCount('pending');
+    console.log(chalk.yellow(`  Recovering nonce. Was: ${this.currentNonce}, Now: ${networkNonce}`));
+    this.currentNonce = networkNonce;
   }
 
   /**
@@ -153,6 +169,12 @@ class DeFiTestRunner {
       }
 
       if (error.code === 'TIMEOUT') {
+        // Check if we need to recover nonce
+        const networkNonce = await this.signer.getTransactionCount('pending');
+        if (this.currentNonce && this.currentNonce > networkNonce) {
+          console.log(chalk.yellow(`⚠️ Timeout detected nonce mismatch. Recovering...`));
+          await this.recoverNonce();
+        }
         throw new Error(`Transaction ${tx.hash} timed out after ${timeoutMs/1000} seconds`);
       }
       throw error;
@@ -842,9 +864,12 @@ class DeFiTestRunner {
 
     // Create the pair only if not already created (cached)
     if (!this.pairCreated) {
+      let nonceUsed = null;
       try {
         const createPairOverrides = await this.getTxOverrides('simple');
-        createPairOverrides.nonce = await this.getNextNonce();
+        nonceUsed = await this.getNextNonce();
+        createPairOverrides.nonce = nonceUsed;
+        console.log(chalk.gray(`  Creating DEX pair with nonce ${nonceUsed}...`));
         const createPairTx = await this.contracts.dex.createPair(
           this.contracts.tokenA.address,
           this.contracts.tokenB.address,
@@ -854,6 +879,21 @@ class DeFiTestRunner {
         this.pairCreated = true;
         console.log('  ℹ️ Created DEX pair');
       } catch (error) {
+        console.log(chalk.yellow(`  ⚠️ Create pair failed: ${error.message}. Assuming pair exists.`));
+        // Check if transaction was actually sent
+        if (nonceUsed !== null) {
+          try {
+            const txCount = await this.signer.getTransactionCount('pending');
+            if (txCount <= nonceUsed) {
+              // Transaction wasn't mined, decrement our counter
+              this.currentNonce = nonceUsed;
+              console.log(chalk.gray(`  Reverted nonce to ${this.currentNonce}`));
+            }
+          } catch (e) {
+            // If we can't check, recover nonce
+            await this.recoverNonce();
+          }
+        }
         // Pair might already exist, continue
         this.pairCreated = true;
       }
