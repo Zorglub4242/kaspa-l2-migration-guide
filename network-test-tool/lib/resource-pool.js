@@ -26,8 +26,8 @@ class ResourcePool {
 
   async getProvider(networkConfig, options = {}) {
     const networkId = networkConfig.chainId;
-    // Try WebSocket first if available and not disabled
-    const useWebSocket = options.preferWebSocket !== false && networkConfig.wsRpc;
+    // Try WebSocket only if explicitly enabled (disabled by default for now)
+    const useWebSocket = options.preferWebSocket === true && networkConfig.wsRpc;
     const providerType = useWebSocket ? 'websocket' : 'jsonrpc';
     const providerId = `${networkId}-${providerType}-${options.preferredProvider || 'default'}`;
 
@@ -79,16 +79,23 @@ class ResourcePool {
         name: networkConfig.name
       };
 
-      // Support different provider types
+      // Support different provider types with fallback
       if (options.providerType === 'websocket' && networkConfig.wsRpc) {
-        provider = new ethers.providers.WebSocketProvider(networkConfig.wsRpc, network);
+        try {
+          provider = new ethers.providers.WebSocketProvider(networkConfig.wsRpc, network);
+          // WebSocket providers don't need polling - they push updates instantly
+          console.log(chalk.gray(`🔍 WebSocket provider configured: timeout=${providerOptions.timeout}ms (instant updates, no polling)`));
+        } catch (wsError) {
+          console.log(chalk.yellow(`⚠️ WebSocket connection failed, falling back to JsonRPC: ${wsError.message}`));
+          provider = new ethers.providers.JsonRpcProvider(networkConfig.rpc, network);
+          provider.pollingInterval = providerOptions.pollingInterval;
+        }
       } else {
         provider = new ethers.providers.JsonRpcProvider(networkConfig.rpc, network);
+        // Set the polling interval on JsonRPC provider (critical for fast confirmations!)
+        provider.pollingInterval = providerOptions.pollingInterval;
+        console.log(chalk.gray(`🔍 JsonRPC provider configured: timeout=${providerOptions.timeout}ms, polling=${provider.pollingInterval}ms`));
       }
-
-      // Set the polling interval on the provider (critical for fast confirmations!)
-      provider.pollingInterval = providerOptions.pollingInterval;
-      console.log(chalk.gray(`🔍 Provider configured: timeout=${providerOptions.timeout}ms, polling=${provider.pollingInterval}ms`));
 
       // Override detectNetwork to return our known network immediately
       provider.detectNetwork = () => Promise.resolve(network);
