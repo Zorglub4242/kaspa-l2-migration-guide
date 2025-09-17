@@ -26,12 +26,15 @@ class ResourcePool {
 
   async getProvider(networkConfig, options = {}) {
     const networkId = networkConfig.chainId;
-    const providerId = `${networkId}-${options.preferredProvider || 'default'}`;
-    
+    // Try WebSocket first if available and not disabled
+    const useWebSocket = options.preferWebSocket !== false && networkConfig.wsRpc;
+    const providerType = useWebSocket ? 'websocket' : 'jsonrpc';
+    const providerId = `${networkId}-${providerType}-${options.preferredProvider || 'default'}`;
+
     // Check if we have a cached provider
     if (this.providers.has(providerId)) {
       const provider = this.providers.get(providerId);
-      
+
       // Verify provider is still healthy
       if (await this.isProviderHealthy(provider)) {
         this.updateConnectionStats(networkId, 'hit');
@@ -42,15 +45,20 @@ class ResourcePool {
         console.log(chalk.yellow(`⚠️ Removed unhealthy provider for ${networkConfig.name}`));
       }
     }
-    
-    // Create new provider
-    const provider = await this.createProvider(networkConfig, options);
-    
+
+    // Create new provider with WebSocket preference
+    const providerOptions = {
+      ...options,
+      providerType: useWebSocket ? 'websocket' : 'jsonrpc'
+    };
+    const provider = await this.createProvider(networkConfig, providerOptions);
+
     // Store in pool
     this.providers.set(providerId, provider);
     this.updateConnectionStats(networkId, 'miss');
-    
-    console.log(chalk.green(`✅ Created new provider for ${networkConfig.name}`));
+
+    const typeLabel = useWebSocket ? 'WebSocket' : 'JsonRPC';
+    console.log(chalk.green(`✅ Created new ${typeLabel} provider for ${networkConfig.name}`));
     return provider;
   }
 
@@ -58,7 +66,7 @@ class ResourcePool {
     console.log(chalk.gray(`🔍 createProvider called for: ${networkConfig.name} (${networkConfig.chainId})`));
     const providerOptions = {
       timeout: options.timeout || this.options.connectionTimeout,
-      pollingInterval: networkConfig.timeouts?.finality || 4000,
+      pollingInterval: networkConfig.timeouts?.finality || 500, // Reduced to 500ms for faster detection
       ...options.providerOptions
     };
     

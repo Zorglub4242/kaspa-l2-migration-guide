@@ -32,6 +32,7 @@ const NETWORKS = {
     chainId: 167012,
     symbol: 'KAS',
     rpc: 'https://rpc.kasplextest.xyz',
+    wsRpc: 'wss://rpc.kasplextest.xyz', // WebSocket endpoint if available
     explorer: {
       base: 'https://explorer.testnet.kasplextest.xyz',
       tx: (hash) => `https://explorer.testnet.kasplextest.xyz/tx/${hash}`,
@@ -48,7 +49,7 @@ const NETWORKS = {
     timeouts: {
       transaction: 120000,
       deployment: 300000,
-      finality: 1000,  // Reduced from 15000ms to 1000ms for faster polling
+      finality: 500,  // Reduced to 500ms for ultra-fast polling
       confirmation: 20000  // Transaction confirmation timeout (some txs need 15-20s)
     }
   },
@@ -58,6 +59,7 @@ const NETWORKS = {
     chainId: 19416,
     symbol: 'IKAS',
     rpc: 'https://caravel.igralabs.com:8545',
+    wsRpc: 'wss://caravel.igralabs.com:8546', // WebSocket endpoint if available
     explorer: {
       base: 'https://explorer.caravel.igralabs.com',
       tx: (hash) => `https://explorer.caravel.igralabs.com/tx/${hash}`,

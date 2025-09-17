@@ -115,26 +115,46 @@ class DeFiTestRunner {
   async waitForTransaction(tx, confirmations = 1) {
     // Use network-specific confirmation timeout from config
     const timeoutMs = this.network.timeouts?.confirmation || 30000;
+    const startTime = Date.now();
 
-    // Add debugging to understand why transactions are timing out
+    // Track transaction lifecycle timing
     console.log(chalk.gray(`⏳ Waiting for tx ${tx.hash.slice(0, 10)}... (timeout: ${timeoutMs/1000}s)`));
+
+    let mempoolTime = null;
+    let miningStartTime = null;
+    let blocksSinceSubmission = 0;
 
     // Start monitoring interval to check transaction status
     const checkInterval = setInterval(async () => {
       try {
+        const currentTime = Date.now();
+        const elapsed = ((currentTime - startTime) / 1000).toFixed(1);
+
         const txReceipt = await this.signer.provider.getTransactionReceipt(tx.hash);
         if (txReceipt) {
-          console.log(chalk.gray(`📦 Tx ${tx.hash.slice(0, 10)} mined in block ${txReceipt.blockNumber}`));
+          if (!miningStartTime) miningStartTime = currentTime;
+          console.log(chalk.gray(`📦 Tx ${tx.hash.slice(0, 10)} mined in block ${txReceipt.blockNumber} (${elapsed}s)`));
         } else {
           const pendingTx = await this.signer.provider.getTransaction(tx.hash);
           if (pendingTx) {
-            console.log(chalk.gray(`⏳ Tx ${tx.hash.slice(0, 10)} still pending (nonce: ${pendingTx.nonce})`));
+            if (!mempoolTime) {
+              mempoolTime = currentTime;
+              console.log(chalk.gray(`🔄 Tx ${tx.hash.slice(0, 10)} in mempool (${elapsed}s)`));
+            }
+            // Count blocks while waiting
+            const currentBlock = await this.signer.provider.getBlockNumber();
+            const newBlocks = currentBlock - (this.lastSeenBlock || currentBlock);
+            if (newBlocks > 0) {
+              blocksSinceSubmission += newBlocks;
+              console.log(chalk.gray(`⏳ Still pending after ${blocksSinceSubmission} blocks (${elapsed}s)`));
+            }
+            this.lastSeenBlock = currentBlock;
           }
         }
       } catch (e) {
         // Ignore errors in monitoring
       }
-    }, 1000); // Check every 1 second for faster detection
+    }, 500); // Check every 500ms for even faster detection
 
     try {
       // Simple, reliable polling-based waiting
@@ -144,7 +164,14 @@ class DeFiTestRunner {
         timeoutMs
       );
       clearInterval(checkInterval);
-      console.log(chalk.green(`✅ Tx ${tx.hash.slice(0, 10)} confirmed`));
+      const totalTime = Date.now() - startTime;
+      const mempoolDelay = mempoolTime ? (mempoolTime - startTime) : 0;
+      const miningDelay = miningStartTime ? (miningStartTime - mempoolTime || startTime) : 0;
+
+      console.log(chalk.green(`✅ Tx ${tx.hash.slice(0, 10)} confirmed in ${(totalTime/1000).toFixed(1)}s`));
+      if (mempoolDelay > 1000) {
+        console.log(chalk.yellow(`   ⚠️ Mempool delay: ${(mempoolDelay/1000).toFixed(1)}s, Mining delay: ${(miningDelay/1000).toFixed(1)}s, Blocks waited: ${blocksSinceSubmission}`));
+      }
       return receipt;
     } catch (error) {
       clearInterval(checkInterval);
@@ -184,9 +211,16 @@ class DeFiTestRunner {
   /**
    * Get transaction overrides with gas price and limits
    */
-  async getTxOverrides(operationType = 'simple') {
+  async getTxOverrides(operationType = 'simple', priorityBoost = false) {
     // Use the gas manager for all networks (now supports dynamic pricing)
-    const gasPrice = await this.gasManager.getGasPrice();
+    let gasPrice = await this.gasManager.getGasPrice();
+
+    // Apply priority boost for faster inclusion (10% increase)
+    if (priorityBoost && (this.network.chainId === 19416 || this.network.chainId === 167012)) {
+      const boostFactor = 1.1; // 10% boost
+      gasPrice = gasPrice.mul(Math.floor(boostFactor * 100)).div(100);
+      console.log(chalk.gray(`   ⚡ Gas boosted for priority: ${ethers.utils.formatUnits(gasPrice, 'gwei')} gwei`));
+    }
 
     // Network-specific gas limits
     if (this.network.chainId === 19416 || this.network.chainId === 167012) {
