@@ -2,6 +2,46 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("dotenv").config();
 
+// Load external network configurations with proper error handling
+let externalNetworks = {};
+let networkLoader;
+
+try {
+  const { NetworkConfigLoader } = require('./lib/network-config-loader');
+  networkLoader = new NetworkConfigLoader();
+
+  // Function to build Hardhat network configs from external configs
+  async function buildNetworkConfigs() {
+    try {
+      await networkLoader.loadAll();
+      const configs = {};
+
+      // Convert external configs to Hardhat format
+      for (const [id, config] of Object.entries(networkLoader.networks)) {
+        try {
+          configs[id] = networkLoader.getHardhatConfig(id);
+        } catch (err) {
+          console.warn(`Warning: Could not convert network config for ${id}:`, err.message);
+        }
+      }
+
+      return configs;
+    } catch (error) {
+      console.warn('Warning: Could not load external network configs:', error.message);
+      return {};
+    }
+  }
+
+  // Load external configs (synchronously for module.exports)
+  (async () => {
+    externalNetworks = await buildNetworkConfigs();
+  })();
+
+} catch (error) {
+  // Fallback if network-config-loader is not available
+  console.warn('External network configuration system not available, using hardcoded networks only');
+}
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -13,84 +53,15 @@ module.exports = {
       },
     },
   },
-  
+
   networks: {
-    // Local development network
+    // Local development network (keep this hardcoded for convenience)
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 1337,
     },
-
-    // Kasplex L2 Testnet (optimized for load testing)
-    kasplex: {
-      url: "https://rpc.kasplextest.xyz",
-      chainId: 167012,
-      gasPrice: 2000000000000, // 2000 Gwei - matches working hello world example
-      gas: 10000000, // 10M gas limit
-      timeout: 600000, // 10 minutes for load testing
-      pollingInterval: 5000, // 5 second polling for more reliability
-      allowUnlimitedContractSize: true,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    },
-
-    // Kasplex L2 via Relayer (if available)
-    kasplex_relayer: {
-      url: "http://localhost:8546",
-      chainId: 167012,
-      gasPrice: 2000000000000,
-      gas: 10000000,
-      timeout: 600000,
-      allowUnlimitedContractSize: true,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    },
-
-    // Ethereum Sepolia for comparison (using Alchemy)
-    sepolia: {
-      url: process.env.ALCHEMY_API_KEY ? 
-        `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}` :
-        "https://rpc.sepolia.org", // Fallback public RPC
-      chainId: 11155111,
-      gasPrice: 500000000, // 0.5 Gwei - conservative for testnet
-      gas: 10000000,
-      timeout: 600000,
-      pollingInterval: 8000, // 8 second polling for Ethereum
-      allowUnlimitedContractSize: true,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    },
-
-    // Ethereum Holesky testnet (alternative)
-    holesky: {
-      url: "https://ethereum-holesky-rpc.publicnode.com",
-      chainId: 17000,
-      gasPrice: 15000000000, // 15 Gwei
-      gas: 10000000,
-      timeout: 600000,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    },
-
-    // Igra Caravel L2 Network 
-    igra: {
-      url: "https://caravel.igralabs.com:8545",
-      chainId: 19416,
-      gasPrice: 2000000000000, // 2000 Gwei - required for EVM compatibility
-      gas: 10000000,
-      timeout: 600000,
-      pollingInterval: 3000, // 3 second polling for fast L2
-      allowUnlimitedContractSize: true,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    },
-
-    // Ethereum Goerli (if still available)
-    goerli: {
-      url: process.env.ALCHEMY_API_KEY ? 
-        `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}` :
-        "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // Public Infura
-      chainId: 5,
-      gasPrice: 25000000000, // 25 Gwei
-      gas: 10000000,
-      timeout: 600000,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    },
+    // All other networks loaded from external configuration files
+    ...externalNetworks
   },
 
   // Gas reporting for load testing analysis

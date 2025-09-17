@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema.json",
+  "id": "base-sepolia",
+  "name": "Base Sepolia",
+  "chainId": 84532,
+  "symbol": "ETH",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://sepolia.base.org",
+      "https://base-sepolia.blockpi.network/v1/rpc/public"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "0.001",
+    "maxPriorityFeePerGas": "0.001",
+    "fallback": "0.001"
+  },
+  "explorer": {
+    "name": "BaseScan Sepolia",
+    "url": "https://sepolia.basescan.org",
+    "api": "https://api-sepolia.basescan.org/api"
+  },
+  "faucet": {
+    "url": "https://www.coinbase.com/faucets/base-ethereum-goerli-faucet",
+    "amount": "0.1 ETH",
+    "cooldown": "24 hours"
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Base Sepolia",
+      "rpcUrl": "https://sepolia.base.org",
+      "chainId": "0x14a34",
+      "symbol": "ETH",
+      "blockExplorerUrl": "https://sepolia.basescan.org"
+    }
+  },
+  "performance": {
+    "blockTime": 2000,
+    "tps": 2000,
+    "finality": "optimistic"
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true
+    },
+    "rollup": "optimistic"
+  }
+}

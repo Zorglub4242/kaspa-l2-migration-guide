@@ -1,0 +1,59 @@
+{
+  "$schema": "../schema.json",
+  "id": "polygon-mumbai",
+  "name": "Polygon Mumbai",
+  "chainId": 80001,
+  "symbol": "MATIC",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+      "https://rpc-mumbai.maticvigil.com",
+      "https://rpc.ankr.com/polygon_mumbai"
+    ],
+    "websocket": [
+      "wss://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "40",
+    "maxPriorityFeePerGas": "30",
+    "fallback": "30"
+  },
+  "explorer": {
+    "name": "PolygonScan Mumbai",
+    "url": "https://mumbai.polygonscan.com",
+    "api": "https://api-testnet.polygonscan.com/api"
+  },
+  "faucet": {
+    "url": "https://faucet.polygon.technology",
+    "amount": "0.2 MATIC",
+    "cooldown": "24 hours"
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Polygon Mumbai",
+      "rpcUrl": "https://rpc-mumbai.maticvigil.com",
+      "chainId": "0x13881",
+      "symbol": "MATIC",
+      "blockExplorerUrl": "https://mumbai.polygonscan.com"
+    }
+  },
+  "performance": {
+    "blockTime": 2000,
+    "tps": 65000,
+    "finality": "probabilistic"
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true
+    }
+  }
+}

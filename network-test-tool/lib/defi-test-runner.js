@@ -34,6 +34,7 @@ class DeFiTestRunner {
     this.currentNonce = null; // Track nonce for manual management
     this.pairCreated = false; // Cache DEX pair creation status
     this.marketsInitialized = false; // Cache lending market status
+    this.aggressiveGas = options.aggressiveGas || false; // Enable aggressive gas pricing
   }
 
   generateTestId() {
@@ -215,11 +216,21 @@ class DeFiTestRunner {
     // Use the gas manager for all networks (now supports dynamic pricing)
     let gasPrice = await this.gasManager.getGasPrice();
 
-    // Apply priority boost for faster inclusion (10% increase)
+    // Apply priority boost for faster inclusion
     if (priorityBoost && (this.network.chainId === 19416 || this.network.chainId === 167012)) {
-      const boostFactor = 1.1; // 10% boost
+      // Based on testing: Igra needs 5x gas (10,000 gwei) for optimal speed (10s vs 15s)
+      // Kasplex is more responsive to modest increases
+      let boostFactor;
+      if (this.network.chainId === 19416) { // Igra
+        boostFactor = this.aggressiveGas ? 5.0 : 1.1; // 5x for aggressive (10k gwei), 10% for normal
+      } else { // Kasplex
+        boostFactor = this.aggressiveGas ? 1.5 : 1.1; // 50% boost for aggressive, 10% normal
+      }
+
       gasPrice = gasPrice.mul(Math.floor(boostFactor * 100)).div(100);
-      console.log(chalk.gray(`   ⚡ Gas boosted for priority: ${ethers.utils.formatUnits(gasPrice, 'gwei')} gwei`));
+      const boostLabel = this.aggressiveGas ? 'AGGRESSIVE' : 'priority';
+      const boostPercent = Math.floor((boostFactor - 1) * 100);
+      console.log(chalk.yellow(`   ⚡ Gas ${boostLabel}: ${ethers.utils.formatUnits(gasPrice, 'gwei')} gwei (+${boostPercent}%)`));
     }
 
     // Network-specific gas limits
@@ -849,7 +860,7 @@ class DeFiTestRunner {
   async testTokenTransfer() {
     const amount = ethers.utils.parseEther('10');
     const recipient = ethers.Wallet.createRandom().address;
-    const txOverrides = await this.getTxOverrides();
+    const txOverrides = await this.getTxOverrides('simple', true); // Use priority gas
 
     const tx = await this.contracts.tokenA.transfer(recipient, amount, txOverrides);
     const receipt = await this.waitForTransaction(tx, 1);
@@ -863,7 +874,7 @@ class DeFiTestRunner {
   async testTokenApproval() {
     const amount = ethers.utils.parseEther('100');
     const spender = this.contracts.dex.address;
-    const txOverrides = await this.getTxOverrides();
+    const txOverrides = await this.getTxOverrides('simple', true); // Use priority gas
 
     const tx = await this.contracts.tokenA.approve(spender, amount, txOverrides);
     const receipt = await this.waitForTransaction(tx, 1);
@@ -915,7 +926,7 @@ class DeFiTestRunner {
     if (!this.pairCreated) {
       let nonceUsed = null;
       try {
-        const createPairOverrides = await this.getTxOverrides('simple');
+        const createPairOverrides = await this.getTxOverrides('simple', true); // Priority gas for pair creation
         nonceUsed = await this.getNextNonce();
         createPairOverrides.nonce = nonceUsed;
         console.log(chalk.gray(`  Attempting to create DEX pair with nonce ${nonceUsed}...`));
@@ -988,7 +999,7 @@ class DeFiTestRunner {
     const amount = ethers.utils.parseEther('10');
 
     // Approve with manual nonce - but don't wait yet
-    const overridesApproval = await this.getTxOverrides('simple');
+    const overridesApproval = await this.getTxOverrides('simple', true); // Priority gas
     overridesApproval.nonce = await this.getNextNonce();
     console.log(chalk.gray(`  Approving for swap with nonce ${overridesApproval.nonce}...`));
     const approval = await this.contracts.tokenA.approve(
@@ -1041,7 +1052,7 @@ class DeFiTestRunner {
     const amount = ethers.utils.parseEther('50');
 
     // Approve with manual nonce
-    const overridesApproval = await this.getTxOverrides('simple');
+    const overridesApproval = await this.getTxOverrides('simple', true); // Priority gas
     overridesApproval.nonce = await this.getNextNonce();
     console.log(chalk.gray(`  Approving for deposit with nonce ${overridesApproval.nonce}...`));
     const approval = await this.contracts.tokenA.approve(
@@ -1089,7 +1100,7 @@ class DeFiTestRunner {
     const repayAmount = ethers.utils.parseEther('25');
 
     // Get overrides first to prevent simultaneous calls
-    const overridesApproval = await this.getTxOverrides('simple');
+    const overridesApproval = await this.getTxOverrides('simple', true); // Priority gas
     const approval = await this.contracts.tokenB.approve(
       this.contracts.lending.address,
       repayAmount,
@@ -1122,7 +1133,7 @@ class DeFiTestRunner {
     const amount = ethers.utils.parseEther('100');
 
     // Get overrides first to prevent simultaneous calls
-    const overridesApproval = await this.getTxOverrides('simple');
+    const overridesApproval = await this.getTxOverrides('simple', true); // Priority gas
     const approval = await this.contracts.tokenA.approve(
       this.contracts.yieldFarm.address,
       amount,

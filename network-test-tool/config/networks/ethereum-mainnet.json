@@ -1,0 +1,76 @@
+{
+  "$schema": "../schema.json",
+  "id": "ethereum",
+  "name": "Ethereum Mainnet",
+  "chainId": 1,
+  "symbol": "ETH",
+  "type": "mainnet",
+  "rpc": {
+    "public": [
+      "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+      "https://mainnet.infura.io/v3/${INFURA_API_KEY}",
+      "https://ethereum.publicnode.com",
+      "https://eth.llamarpc.com"
+    ],
+    "websocket": [
+      "wss://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+      "wss://mainnet.infura.io/ws/v3/${INFURA_API_KEY}"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "apis": [
+      {
+        "name": "etherscan",
+        "url": "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${ETHERSCAN_API_KEY}"
+      },
+      {
+        "name": "blocknative",
+        "url": "https://api.blocknative.com/gasprices/blockprices"
+      }
+    ]
+  },
+  "explorer": {
+    "name": "Etherscan",
+    "url": "https://etherscan.io",
+    "api": "https://api.etherscan.io/api",
+    "key": "${ETHERSCAN_API_KEY}"
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Ethereum Mainnet",
+      "rpcUrl": "https://ethereum.publicnode.com",
+      "chainId": "0x1",
+      "symbol": "ETH",
+      "blockExplorerUrl": "https://etherscan.io"
+    }
+  },
+  "performance": {
+    "blockTime": 12000,
+    "tps": 15,
+    "finality": "probabilistic"
+  },
+  "costs": {
+    "estimatedGasPrice": {
+      "low": "15",
+      "medium": "25",
+      "high": "40"
+    },
+    "warning": "⚠️ This is mainnet - real money transactions!"
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": true,
+      "ecmul": true,
+      "ecpairing": true,
+      "blake2f": true
+    }
+  }
+}

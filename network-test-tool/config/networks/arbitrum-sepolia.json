@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema.json",
+  "id": "arbitrum-sepolia",
+  "name": "Arbitrum Sepolia",
+  "chainId": 421614,
+  "symbol": "ETH",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://sepolia-rollup.arbitrum.io/rpc",
+      "https://arbitrum-sepolia.blockpi.network/v1/rpc/public"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "0.1",
+    "maxPriorityFeePerGas": "0.01",
+    "fallback": "0.1"
+  },
+  "explorer": {
+    "name": "Arbiscan Sepolia",
+    "url": "https://sepolia.arbiscan.io",
+    "api": "https://api-sepolia.arbiscan.io/api"
+  },
+  "faucet": {
+    "url": "https://faucet.arbitrum.io",
+    "amount": "0.001 ETH",
+    "cooldown": "24 hours"
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Arbitrum Sepolia",
+      "rpcUrl": "https://sepolia-rollup.arbitrum.io/rpc",
+      "chainId": "0x66eee",
+      "symbol": "ETH",
+      "blockExplorerUrl": "https://sepolia.arbiscan.io"
+    }
+  },
+  "performance": {
+    "blockTime": 250,
+    "tps": 40000,
+    "finality": "optimistic"
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true
+    },
+    "rollup": "optimistic"
+  }
+}

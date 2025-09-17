@@ -1,12 +1,12 @@
 {
-  "id": "igra-l2",
+  "id": "igra",
   "name": "Igra L2",
   "chainId": 19416,
   "symbol": "IKAS",
   "type": "mainnet",
   "rpc": {
     "public": [
-      "https://rpc.igra.services"
+      "https://caravel.igralabs.com:8545"
     ],
     "websocket": []
   },
@@ -16,7 +16,7 @@
     "fallback": "2000"
   },
   "explorer": {
-    "url": "https://scan.igra.services",
+    "url": "https://explorer.caravel.igralabs.com",
     "api": "",
     "apiKey": ""
   },

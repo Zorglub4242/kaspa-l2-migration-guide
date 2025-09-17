@@ -1,5 +1,5 @@
 {
-  "id": "ethereum-sepolia",
+  "id": "sepolia",
   "name": "Ethereum Sepolia",
   "chainId": 11155111,
   "symbol": "ETH",

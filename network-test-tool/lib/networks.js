@@ -1,111 +1,136 @@
 const ethers = require('ethers');
+const { NetworkConfigLoader } = require('./network-config-loader');
+const path = require('path');
+const fs = require('fs');
 
-const NETWORKS = {
-  sepolia: {
-    name: 'Ethereum Sepolia',
-    chainId: 11155111,
-    symbol: 'ETH',
-    rpc: process.env.ALCHEMY_API_KEY ? 
-      `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}` :
-      'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-    explorer: {
-      base: 'https://sepolia.etherscan.io',
-      tx: (hash) => `https://sepolia.etherscan.io/tx/${hash}`,
-      address: (address) => `https://sepolia.etherscan.io/address/${address}`
-    },
-    faucet: 'https://sepoliafaucet.com',
-    gasConfig: {
-      strategy: 'dynamic',
-      fallback: ethers.utils.parseUnits('20', 'gwei'),
-      maxGasPrice: ethers.utils.parseUnits('50', 'gwei')
-    },
-    timeouts: {
-      transaction: 60000,
-      deployment: 120000,
-      finality: 30000,
-      confirmation: 30000  // Standard confirmation timeout for Ethereum testnets
+// Initialize network config loader
+const networkLoader = new NetworkConfigLoader();
+let externalNetworks = {};
+let networksLoaded = false;
+
+// Function to load networks synchronously on first use
+function loadNetworksSync() {
+  if (networksLoaded) return;
+
+  try {
+    const configDir = path.join(__dirname, '..', 'config', 'networks');
+
+    // Load all JSON files in the config/networks directory synchronously
+    if (fs.existsSync(configDir)) {
+      const files = fs.readdirSync(configDir);
+
+      for (const file of files) {
+        if (file.endsWith('.json') && file !== 'schema.json') {
+          try {
+            const filePath = path.join(configDir, file);
+            const content = fs.readFileSync(filePath, 'utf8');
+            const config = JSON.parse(content);
+
+            // Convert to internal format
+            externalNetworks[config.id] = {
+              name: config.name,
+              chainId: config.chainId,
+              symbol: config.symbol,
+              rpc: config.rpc.public[0],
+              wsRpc: config.rpc.websocket ? config.rpc.websocket[0] : null,
+              explorer: {
+                base: config.explorer.url,
+                tx: (hash) => `${config.explorer.url}/tx/${hash}`,
+                address: (address) => `${config.explorer.url}/address/${address}`
+              },
+              faucet: config.faucet ? config.faucet.url : null,
+              gasConfig: {
+                strategy: config.gasConfig.strategy,
+                base: ethers.utils.parseUnits(config.gasConfig.fallback || '20', 'gwei'),
+                fallback: ethers.utils.parseUnits(config.gasConfig.fallback || '20', 'gwei'),
+                maxGasPrice: ethers.utils.parseUnits(config.gasConfig.maxFeePerGas || '100', 'gwei'),
+                tolerance: 0.1
+              },
+              timeouts: {
+                transaction: 60000,
+                deployment: 120000,
+                finality: config.performance ? config.performance.blockTime : 2000,
+                confirmation: 30000
+              }
+            };
+          } catch (err) {
+            console.warn(`Warning: Could not load network config from ${file}:`, err.message);
+          }
+        }
+      }
     }
-  },
-  
-  kasplex: {
-    name: 'Kasplex L2',
-    chainId: 167012,
-    symbol: 'KAS',
-    rpc: 'https://rpc.kasplextest.xyz',
-    wsRpc: 'wss://rpc.kasplextest.xyz', // WebSocket endpoint if available
-    explorer: {
-      base: 'https://explorer.testnet.kasplextest.xyz',
-      tx: (hash) => `https://explorer.testnet.kasplextest.xyz/tx/${hash}`,
-      address: (address) => `https://explorer.testnet.kasplextest.xyz/address/${address}`
-    },
-    faucet: 'https://faucet.kasplextest.xyz',
-    gasConfig: {
-      strategy: 'dynamic', // Changed from 'adaptive' to use network suggested prices
-      base: ethers.utils.parseUnits('10', 'gwei'), // Reduced from 2001 to reasonable testnet price
-      fallback: ethers.utils.parseUnits('50', 'gwei'), // Fallback if network query fails
-      maxGasPrice: ethers.utils.parseUnits('2001', 'gwei'), // Cap at network's typical price
-      tolerance: 0.1
-    },
-    timeouts: {
-      transaction: 120000,
-      deployment: 300000,
-      finality: 500,  // Reduced to 500ms for ultra-fast polling
-      confirmation: 20000  // Transaction confirmation timeout (some txs need 15-20s)
-    }
-  },
-  
-  igra: {
-    name: 'Igra L2',
-    chainId: 19416,
-    symbol: 'IKAS',
-    rpc: 'https://caravel.igralabs.com:8545',
-    wsRpc: 'wss://caravel.igralabs.com:8546', // WebSocket endpoint if available
-    explorer: {
-      base: 'https://explorer.caravel.igralabs.com',
-      tx: (hash) => `https://explorer.caravel.igralabs.com/tx/${hash}`,
-      address: (address) => `https://explorer.caravel.igralabs.com/address/${address}`
-    },
-    faucet: 'https://faucet.caravel.igralabs.com/',
-    gasConfig: {
-      strategy: 'dynamic', // Changed from 'fixed' to allow dynamic pricing
-      base: ethers.utils.parseUnits('10', 'gwei'), // Start with reasonable testnet price
-      fallback: ethers.utils.parseUnits('2000', 'gwei'), // Use 2000 gwei if network suggests it
-      maxGasPrice: ethers.utils.parseUnits('2000', 'gwei'), // Cap at previously required price
-      tolerance: 0.1
-    },
-    timeouts: {
-      transaction: 60000,
-      deployment: 180000,
-      finality: 1000,  // Reduced from 2000ms to 1000ms for faster polling
-      confirmation: 20000  // Transaction confirmation timeout for Igra
-    }
+
+    networksLoaded = true;
+  } catch (error) {
+    console.warn('Warning: Could not load external network configs:', error.message);
+    networksLoaded = true; // Prevent repeated attempts
   }
-};
+}
+
+// Load networks synchronously on module import
+loadNetworksSync();
+
+// No more hardcoded NETWORKS - all networks come from external configs
+const NETWORKS = {};
+
+function getAllNetworks() {
+  loadNetworksSync(); // Ensure networks are loaded
+  // Only return external networks
+  return Object.keys(externalNetworks);
+}
 
 function getNetworkByChainId(chainId) {
-  return Object.values(NETWORKS).find(network => network.chainId === chainId);
+  loadNetworksSync(); // Ensure networks are loaded
+  // Check external networks
+  return Object.values(externalNetworks).find(network => network.chainId === chainId);
 }
 
 function getNetworkByName(name) {
-  return NETWORKS[name.toLowerCase()];
-}
-
-function getAllNetworks() {
-  return Object.keys(NETWORKS);
+  loadNetworksSync(); // Ensure networks are loaded
+  // Check external networks (external configs are the only source)
+  return externalNetworks[name.toLowerCase()];
 }
 
 function getNetworkConfig(networkOrChainId) {
+  loadNetworksSync(); // Ensure networks are loaded
   if (typeof networkOrChainId === 'number') {
     return getNetworkByChainId(networkOrChainId);
   }
   return getNetworkByName(networkOrChainId);
 }
 
+// Function to get merged networks (now only external)
+function getMergedNetworks() {
+  loadNetworksSync(); // Ensure networks are loaded
+  return { ...externalNetworks };
+}
+
+// Function to refresh external networks (async version for backward compatibility)
+async function refreshNetworks() {
+  try {
+    // Reset to force reload
+    networksLoaded = false;
+    externalNetworks = {};
+
+    // Load synchronously
+    loadNetworksSync();
+
+    return true;
+  } catch (error) {
+    console.warn('Failed to refresh networks:', error.message);
+    return false;
+  }
+}
+
 module.exports = {
-  networks: NETWORKS,
-  NETWORKS,
+  networks: externalNetworks, // Backward compatibility - but now only external networks
+  NETWORKS, // Empty for backward compatibility
+  externalNetworks,
+  getMergedNetworks,
   getNetworkByChainId,
   getNetworkByName,
   getAllNetworks,
-  getNetworkConfig
+  getNetworkConfig,
+  refreshNetworks,
+  networkLoader
 };

@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema.json",
+  "id": "optimism-sepolia",
+  "name": "Optimism Sepolia",
+  "chainId": 11155420,
+  "symbol": "ETH",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://sepolia.optimism.io",
+      "https://optimism-sepolia.blockpi.network/v1/rpc/public"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "0.001",
+    "maxPriorityFeePerGas": "0.001",
+    "fallback": "0.001"
+  },
+  "explorer": {
+    "name": "Optimism Sepolia Explorer",
+    "url": "https://sepolia-optimism.etherscan.io",
+    "api": "https://api-sepolia-optimism.etherscan.io/api"
+  },
+  "faucet": {
+    "url": "https://app.optimism.io/faucet",
+    "amount": "0.05 ETH",
+    "cooldown": "24 hours"
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Optimism Sepolia",
+      "rpcUrl": "https://sepolia.optimism.io",
+      "chainId": "0xaa37dc",
+      "symbol": "ETH",
+      "blockExplorerUrl": "https://sepolia-optimism.etherscan.io"
+    }
+  },
+  "performance": {
+    "blockTime": 2000,
+    "tps": 2000,
+    "finality": "optimistic"
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true
+    },
+    "rollup": "optimistic"
+  }
+}

@@ -6,7 +6,7 @@ const { program } = require('commander');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 const { TestRunner } = require('./lib/test-runner');
-const { getAllNetworks } = require('./lib/networks');
+const { getAllNetworks, refreshNetworks } = require('./lib/networks');
 const { DashboardManager } = require('./lib/dashboard');
 
 const pkg = require('./package.json');
@@ -112,7 +112,10 @@ program
 async function runTests(options) {
   console.log(chalk.cyan.bold('🚀 Blockchain Test Suite'));
   console.log(chalk.gray('=' .repeat(50)));
-  
+
+  // Ensure networks are loaded before running tests
+  await refreshNetworks();
+
   if (options.dryRun) {
     await showDryRun(options);
     return;
@@ -137,6 +140,9 @@ async function runTests(options) {
 }
 
 async function runInteractiveMode() {
+  // Ensure networks are loaded before interactive mode
+  await refreshNetworks();
+
   console.log(chalk.cyan.bold('🚀 Blockchain Test Suite - Interactive Menu'));
   console.log(chalk.gray('Select what you want to do and get the exact command to run\n'));
 
@@ -623,6 +629,9 @@ async function runDeployment(options) {
   console.log(chalk.yellow.bold('🏗️  Contract Deployment'));
   console.log(chalk.gray('=' .repeat(30)));
 
+  // Ensure networks are loaded before deployment
+  await refreshNetworks();
+
   const runner = new TestRunner({
     networks: parseList(options.networks),
     deployOnly: true,
@@ -647,7 +656,10 @@ async function launchDashboard(options) {
 
 async function checkStatus(options) {
   console.log(chalk.blue.bold('📡 Network Status Check'));
-  
+
+  // Ensure networks are loaded before status check
+  await refreshNetworks();
+
   const runner = new TestRunner({
     networks: parseList(options.networks),
     statusOnly: true
@@ -675,6 +687,9 @@ async function manageContracts(options) {
 
   const { ContractRegistry } = require('./lib/contract-registry');
   const { getNetworkConfig } = require('./lib/networks');
+
+  // Ensure networks are loaded before contract management
+  await refreshNetworks();
 
   const registry = new ContractRegistry();
   await registry.initialize();
