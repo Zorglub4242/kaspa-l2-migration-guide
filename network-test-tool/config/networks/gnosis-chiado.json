@@ -1,0 +1,79 @@
+{
+  "id": "gnosis-chiado",
+  "name": "Gnosis Chiado Testnet",
+  "chainId": 10200,
+  "symbol": "xDAI",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://rpc.chiadochain.net",
+      "https://rpc.chiado.gnosis.gateway.fm",
+      "https://gnosis-chiado.publicnode.com"
+    ],
+    "websocket": [
+      "wss://rpc.chiadochain.net/wss"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "3.5",
+    "maxPriorityFeePerGas": "1",
+    "fallback": "2"
+  },
+  "explorer": {
+    "url": "https://blockscout.chiadochain.net",
+    "api": "https://blockscout.chiadochain.net/api",
+    "apiKey": ""
+  },
+  "faucet": {
+    "url": "https://faucet.chiadochain.net/",
+    "amount": "0.1 xDAI",
+    "cooldown": "24 hours",
+    "requirements": [
+      "No requirements",
+      "Simple captcha verification"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Chiado Testnet",
+      "rpcUrl": "https://rpc.chiadochain.net",
+      "chainId": "0x27D8",
+      "symbol": "xDAI",
+      "blockExplorerUrl": "https://blockscout.chiadochain.net/"
+    }
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": true,
+      "ecmul": true,
+      "ecpairing": true,
+      "blake2f": true
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "2 gwei",
+      "avgCostUsd": 0.00004
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "2 gwei",
+      "avgCostUsd": 0.0003
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "2 gwei",
+      "avgCostUsd": 0.003
+    }
+  },
+  "notes": "Gnosis Chain (formerly xDai) is a stable payments EVM chain with very low transaction costs. Chiado is the official testnet."
+}

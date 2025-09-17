@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Network Configuration Schema",
+  "description": "Schema for defining EVM-compatible blockchain network configurations",
+  "type": "object",
+  "required": ["id", "name", "chainId", "symbol", "type", "rpc", "gasConfig"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the network",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the network"
+    },
+    "chainId": {
+      "type": "integer",
+      "description": "EVM chain ID"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Native token symbol (e.g., ETH, AVAX)"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["mainnet", "testnet", "local"],
+      "description": "Network type"
+    },
+    "rpc": {
+      "type": "object",
+      "required": ["public"],
+      "properties": {
+        "public": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Public RPC endpoints"
+        },
+        "websocket": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "WebSocket endpoints for real-time data"
+        },
+        "archive": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Archive node endpoints for historical data"
+        }
+      }
+    },
+    "gasConfig": {
+      "type": "object",
+      "required": ["strategy"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["dynamic", "fixed", "legacy"],
+          "description": "Gas pricing strategy"
+        },
+        "fixed": {
+          "type": "string",
+          "description": "Fixed gas price (in gwei) for 'fixed' strategy"
+        },
+        "maxFeePerGas": {
+          "type": "string",
+          "description": "Maximum fee per gas for EIP-1559 (in gwei)"
+        },
+        "maxPriorityFeePerGas": {
+          "type": "string",
+          "description": "Maximum priority fee for EIP-1559 (in gwei)"
+        },
+        "fallback": {
+          "type": "string",
+          "description": "Fallback gas price (in gwei)"
+        }
+      }
+    },
+    "explorer": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Block explorer URL"
+        },
+        "api": {
+          "type": "string",
+          "description": "Block explorer API endpoint"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "Environment variable name for API key"
+        }
+      }
+    },
+    "faucet": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Faucet URL for obtaining test tokens"
+        },
+        "amount": {
+          "type": "string",
+          "description": "Typical faucet amount"
+        },
+        "cooldown": {
+          "type": "string",
+          "description": "Cooldown period between requests"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Requirements for using faucet (e.g., 'GitHub account')"
+        }
+      }
+    },
+    "wallet": {
+      "type": "object",
+      "description": "Wallet configuration instructions",
+      "properties": {
+        "metamask": {
+          "type": "object",
+          "properties": {
+            "networkName": {"type": "string"},
+            "rpcUrl": {"type": "string"},
+            "chainId": {"type": "string"},
+            "symbol": {"type": "string"},
+            "blockExplorerUrl": {"type": "string"}
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "description": "Network feature support",
+      "properties": {
+        "eip1559": {"type": "boolean"},
+        "create2": {"type": "boolean"},
+        "precompiles": {
+          "type": "object",
+          "properties": {
+            "ecrecover": {"type": "boolean"},
+            "sha256": {"type": "boolean"},
+            "ripemd160": {"type": "boolean"},
+            "identity": {"type": "boolean"},
+            "modexp": {"type": "boolean"},
+            "ecadd": {"type": "boolean"},
+            "ecmul": {"type": "boolean"},
+            "ecpairing": {"type": "boolean"},
+            "blake2f": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "costEstimates": {
+      "type": "object",
+      "description": "Cost estimates for transactions",
+      "properties": {
+        "transfer": {
+          "type": "object",
+          "properties": {
+            "gas": {"type": "integer"},
+            "avgGasPrice": {"type": "string"},
+            "avgCostUsd": {"type": "number"}
+          }
+        },
+        "swap": {
+          "type": "object",
+          "properties": {
+            "gas": {"type": "integer"},
+            "avgGasPrice": {"type": "string"},
+            "avgCostUsd": {"type": "number"}
+          }
+        },
+        "deploy": {
+          "type": "object",
+          "properties": {
+            "gas": {"type": "integer"},
+            "avgGasPrice": {"type": "string"},
+            "avgCostUsd": {"type": "number"}
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or special considerations"
+    }
+  }
+}

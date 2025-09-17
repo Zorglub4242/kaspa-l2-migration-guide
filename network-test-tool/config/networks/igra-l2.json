@@ -1,0 +1,74 @@
+{
+  "id": "igra-l2",
+  "name": "Igra L2",
+  "chainId": 19416,
+  "symbol": "IKAS",
+  "type": "mainnet",
+  "rpc": {
+    "public": [
+      "https://rpc.igra.services"
+    ],
+    "websocket": []
+  },
+  "gasConfig": {
+    "strategy": "fixed",
+    "fixed": "2000",
+    "fallback": "2000"
+  },
+  "explorer": {
+    "url": "https://scan.igra.services",
+    "api": "",
+    "apiKey": ""
+  },
+  "faucet": {
+    "url": "",
+    "amount": "",
+    "cooldown": "",
+    "requirements": [
+      "No public testnet faucet",
+      "Request test tokens from team"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Igra L2",
+      "rpcUrl": "https://rpc.igra.services",
+      "chainId": "0x4BD8",
+      "symbol": "IKAS",
+      "blockExplorerUrl": "https://scan.igra.services/"
+    }
+  },
+  "features": {
+    "eip1559": false,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": false,
+      "ecmul": false,
+      "ecpairing": false,
+      "blake2f": false
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "2000 gwei",
+      "avgCostUsd": 0.013
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "2000 gwei",
+      "avgCostUsd": 0.09
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "2000 gwei",
+      "avgCostUsd": 0.9
+    }
+  },
+  "notes": "Igra is a Layer 2 solution built on Kaspa. Requires exactly 2000 gwei gas price for all operations."
+}

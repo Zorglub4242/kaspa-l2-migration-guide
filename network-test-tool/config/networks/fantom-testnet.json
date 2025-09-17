@@ -1,0 +1,79 @@
+{
+  "id": "fantom-testnet",
+  "name": "Fantom Testnet",
+  "chainId": 4002,
+  "symbol": "FTM",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://rpc.testnet.fantom.network",
+      "https://fantom-testnet.publicnode.com",
+      "https://rpc.ankr.com/fantom_testnet"
+    ],
+    "websocket": [
+      "wss://wsapi.testnet.fantom.network"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "3.5",
+    "maxPriorityFeePerGas": "2.5",
+    "fallback": "3"
+  },
+  "explorer": {
+    "url": "https://testnet.ftmscan.com",
+    "api": "https://api-testnet.ftmscan.com/api",
+    "apiKey": "FTMSCAN_API_KEY"
+  },
+  "faucet": {
+    "url": "https://faucet.fantom.network/",
+    "amount": "10 FTM",
+    "cooldown": "24 hours",
+    "requirements": [
+      "No requirements",
+      "Simple request form"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Fantom Testnet",
+      "rpcUrl": "https://rpc.testnet.fantom.network",
+      "chainId": "0xFA2",
+      "symbol": "FTM",
+      "blockExplorerUrl": "https://testnet.ftmscan.com/"
+    }
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": true,
+      "ecmul": true,
+      "ecpairing": true,
+      "blake2f": true
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "3 gwei",
+      "avgCostUsd": 0.00001
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "3 gwei",
+      "avgCostUsd": 0.00008
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "3 gwei",
+      "avgCostUsd": 0.0008
+    }
+  },
+  "notes": "Fantom is a high-performance, scalable EVM-compatible blockchain with near-instant transaction finality and very low fees."
+}

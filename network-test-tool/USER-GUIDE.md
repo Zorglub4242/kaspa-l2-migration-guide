@@ -35,10 +35,106 @@ npm run db:init
 ```
 
 ### Network Configuration
-The tool supports three networks out-of-the-box:
+
+#### Pre-configured Networks
+The tool comes with 7+ networks pre-configured:
+- **Ethereum Sepolia** (Chain ID: 11155111)
 - **Kasplex L2** (Chain ID: 167012)
 - **Igra L2** (Chain ID: 19416)
-- **Ethereum Sepolia** (Chain ID: 11155111)
+- **Avalanche Fuji** (Chain ID: 43113)
+- **Fantom Testnet** (Chain ID: 4002)
+- **Gnosis Chiado** (Chain ID: 10200)
+- **Neon EVM DevNet** (Chain ID: 245022926)
+
+#### Adding Custom Networks
+You can easily add any EVM-compatible network:
+
+1. **Create a network configuration file** (`my-network.json`):
+```json
+{
+  "id": "my-network",
+  "name": "My Network Name",
+  "chainId": 12345,
+  "symbol": "MYN",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://rpc.mynetwork.com",
+      "https://backup-rpc.mynetwork.com"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "30",
+    "maxPriorityFeePerGas": "2",
+    "fallback": "20"
+  },
+  "explorer": {
+    "url": "https://explorer.mynetwork.com"
+  },
+  "faucet": {
+    "url": "https://faucet.mynetwork.com",
+    "amount": "1 MYN",
+    "cooldown": "24 hours"
+  }
+}
+```
+
+2. **Add the network to the tool**:
+```bash
+npm run network:add my-network.json
+```
+
+3. **Verify the network was added**:
+```bash
+npm run network:list
+npm run network:show my-network
+```
+
+4. **Use the network for testing**:
+```bash
+npm run test:evm -- --network my-network
+```
+
+#### Network Management Commands
+```bash
+# List all available networks
+npm run network:list
+
+# Show details for a specific network
+npm run network:show <network-id>
+
+# Add a new network
+npm run network:add <config-file>
+
+# Validate a network configuration
+npm run network:validate <config-file>
+
+# Export all network configurations
+npm run network:export
+
+# Get network statistics
+npm run network:stats
+```
+
+#### Using Environment Variables
+Networks can use environment variables for sensitive data:
+```json
+{
+  "rpc": {
+    "public": [
+      "https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+      "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
+    ]
+  }
+}
+```
+
+Set these in your `.env` file:
+```bash
+ALCHEMY_API_KEY=your_alchemy_key
+INFURA_API_KEY=your_infura_key
+```
 
 ## Basic Usage
 
@@ -173,6 +269,54 @@ node cli.js contracts --action list
 #### Update Contract Health
 ```bash
 node cli.js contracts --action health --networks all
+```
+
+## Gas Pricing & Cost Analysis
+
+### Real-time Gas Prices
+Get current gas prices for any network:
+```bash
+# Get gas prices for a specific network
+npm run gas:prices ethereum
+npm run gas:prices avalanche
+
+# Get historical gas prices
+node scripts/network-cli.js gas ethereum --historical
+```
+
+### Transaction Cost Calculation
+Calculate costs before running tests:
+```bash
+# Calculate cost for a specific network
+npm run gas:cost ethereum-sepolia 1000000
+
+# Compare costs across all networks
+node scripts/network-cli.js cost ethereum-sepolia 1000000 --compare
+```
+
+### Cost Comparison
+Compare mainnet vs testnet costs:
+```bash
+# Generate cost comparison report
+node scripts/network-cli.js cost kasplex-l2 1000000 --compare
+```
+
+Output shows:
+- Gas price in gwei
+- Cost in native tokens
+- Cost in USD
+- Network comparison ranking
+
+### Setting Up Gas Price APIs
+For accurate real-time pricing, add API keys to `.env`:
+```bash
+# Ethereum gas prices
+ETHERSCAN_API_KEY=your_etherscan_key
+BLOCKNATIVE_API_KEY=your_blocknative_key
+
+# Other networks
+FTMSCAN_API_KEY=your_ftmscan_key
+SNOWTRACE_API_KEY=your_snowtrace_key
 ```
 
 ## Report Generation
@@ -372,6 +516,44 @@ npm run test:comprehensive -- --retry-failed-only
 
 ### Custom Networks
 
+#### Method 1: External Configuration (Recommended)
+Create a JSON file in `config/networks/`:
+```json
+{
+  "id": "my-custom-network",
+  "name": "My Custom Network",
+  "chainId": 12345,
+  "symbol": "MCN",
+  "type": "testnet",
+  "rpc": {
+    "public": ["https://rpc.mynetwork.com"],
+    "websocket": ["wss://ws.mynetwork.com"]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "fallback": "20"
+  },
+  "explorer": {
+    "url": "https://explorer.mynetwork.com"
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "My Custom Network",
+      "rpcUrl": "https://rpc.mynetwork.com",
+      "chainId": "0x3039",
+      "symbol": "MCN",
+      "blockExplorerUrl": "https://explorer.mynetwork.com"
+    }
+  }
+}
+```
+
+Then add it:
+```bash
+npm run network:add config/networks/my-custom-network.json
+```
+
+#### Method 2: Direct Hardhat Configuration (Legacy)
 Add to `hardhat.config.js`:
 ```javascript
 networks: {
@@ -408,8 +590,17 @@ Complete list in `.env`:
 # Required
 PRIVATE_KEY=your_key_here
 
-# Optional
-ALCHEMY_API_KEY=for_sepolia_redundancy
+# Optional - RPC Providers (for better reliability)
+ALCHEMY_API_KEY=your_alchemy_key
+INFURA_API_KEY=your_infura_key
+
+# Optional - Gas Price APIs (for real-time pricing)
+ETHERSCAN_API_KEY=your_etherscan_key
+BLOCKNATIVE_API_KEY=your_blocknative_key
+FTMSCAN_API_KEY=your_ftmscan_key
+SNOWTRACE_API_KEY=your_snowtrace_key
+
+# Optional - Testing Configuration
 TEST_LABEL=my_test_campaign
 MAX_RETRIES=10
 TIMEOUT_MS=60000

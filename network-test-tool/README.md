@@ -180,6 +180,19 @@ npm run clean                # Clean cache/artifacts
 npm run clean:all            # Clean everything
 ```
 
+### Network Management
+```bash
+npm run network:list         # List all configured networks
+npm run network:show <id>    # Show network details
+npm run network:stats        # Network configuration statistics
+npm run network:export       # Export network configurations
+npm run network:add <file>   # Add new network from JSON file
+npm run network:validate     # Validate network configuration
+
+npm run gas:prices [network] # Get current gas prices
+npm run gas:cost <net> <gas> # Calculate transaction cost
+```
+
 ## 💡 Key Features
 
 ### ✅ **Production-Ready Testing**
@@ -245,6 +258,71 @@ npm run contracts:verify     # Verify contract deployments
 
 ## 🔧 Configuration
 
+### 🌐 External Network Configuration (NEW)
+
+The tool now supports **external network configuration**, allowing you to add any EVM-compatible network without modifying code!
+
+#### Quick Example: Add a New Network
+```bash
+# 1. Create your network config file (e.g., my-network.json)
+{
+  "id": "my-network",
+  "name": "My Custom Network",
+  "chainId": 12345,
+  "symbol": "MYN",
+  "type": "testnet",
+  "rpc": {
+    "public": ["https://rpc.mynetwork.com"]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "fallback": "20"
+  }
+}
+
+# 2. Add it to the tool
+npm run network:add my-network.json
+
+# 3. Use it for testing
+npm run test:evm -- --network my-network
+```
+
+#### Pre-configured Networks
+The tool comes with 7+ networks pre-configured:
+- **Ethereum Sepolia** - Primary Ethereum testnet
+- **Kasplex L2** - Kaspa Layer 2 solution
+- **Igra L2** - Alternative Kaspa L2
+- **Avalanche Fuji** - Avalanche C-Chain testnet
+- **Fantom Testnet** - High-speed EVM chain
+- **Gnosis Chiado** - Stable payments chain
+- **Neon DevNet** - Solana EVM compatibility
+
+#### Managing Networks
+```bash
+# View all available networks
+npm run network:list
+
+# Get detailed info about a network
+npm run network:show avalanche-fuji
+
+# Check current gas prices
+npm run gas:prices ethereum
+
+# Calculate transaction costs
+npm run gas:cost kasplex-l2 1000000 --compare
+```
+
+#### Network Configuration Files
+All network configs are stored in `config/networks/` as JSON files. Each config includes:
+- RPC endpoints (with environment variable support)
+- Gas pricing strategies
+- Block explorer URLs
+- Faucet information
+- MetaMask settings
+- Feature support flags
+
+See `config/networks/schema.json` for the complete configuration structure.
+
 ### Network Settings (Optimized)
 **Kasplex L2**:
 - Gas Price: ~2001 Gwei (dynamic with fallbacks)
@@ -285,8 +363,17 @@ SEPOLIA_PRECOMPILE_TEST=0x...
 SEPOLIA_CREATE2_FACTORY=0x...
 SEPOLIA_ASSEMBLY_TEST=0x...
 
-# Optional
+# Optional - RPC Providers
 ALCHEMY_API_KEY=your_api_key
+INFURA_API_KEY=your_infura_key
+
+# Optional - Gas Price APIs (for real-time pricing)
+ETHERSCAN_API_KEY=your_etherscan_key
+BLOCKNATIVE_API_KEY=your_blocknative_key
+FTMSCAN_API_KEY=your_ftmscan_key
+SNOWTRACE_API_KEY=your_snowtrace_key
+
+# Optional - Testing
 TEST_LABEL=custom_test_name  # For labeled test runs
 ```
 

@@ -97,8 +97,28 @@ class DeFiTestRunner {
    * Optimized transaction wait with network-specific timeouts
    */
   async waitForTransaction(tx, confirmations = 1) {
-    // Use longer timeout for Kasplex (60s) as it can be slower
-    const timeoutMs = this.network.chainId === 167012 ? 60000 : 30000;
+    // Back to 30 second timeout for all networks as requested
+    const timeoutMs = 30000;
+
+    // Add debugging to understand why transactions are timing out
+    console.log(chalk.gray(`⏳ Waiting for tx ${tx.hash.slice(0, 10)}... (timeout: ${timeoutMs/1000}s)`));
+
+    // Start monitoring interval to check transaction status
+    const checkInterval = setInterval(async () => {
+      try {
+        const txReceipt = await this.signer.provider.getTransactionReceipt(tx.hash);
+        if (txReceipt) {
+          console.log(chalk.gray(`📦 Tx ${tx.hash.slice(0, 10)} mined in block ${txReceipt.blockNumber}`));
+        } else {
+          const pendingTx = await this.signer.provider.getTransaction(tx.hash);
+          if (pendingTx) {
+            console.log(chalk.gray(`⏳ Tx ${tx.hash.slice(0, 10)} still pending (nonce: ${pendingTx.nonce})`));
+          }
+        }
+      } catch (e) {
+        // Ignore errors in monitoring
+      }
+    }, 5000); // Check every 5 seconds
 
     try {
       // Simple, reliable polling-based waiting
@@ -107,8 +127,31 @@ class DeFiTestRunner {
         confirmations,
         timeoutMs
       );
+      clearInterval(checkInterval);
+      console.log(chalk.green(`✅ Tx ${tx.hash.slice(0, 10)} confirmed`));
       return receipt;
     } catch (error) {
+      clearInterval(checkInterval);
+
+      // Check if transaction exists and its status before failing
+      try {
+        const txReceipt = await this.signer.provider.getTransactionReceipt(tx.hash);
+        if (txReceipt) {
+          console.log(chalk.yellow(`⚠️ Tx was mined but waitForTransaction timed out. Using receipt anyway.`));
+          return txReceipt; // Return the receipt if it exists
+        }
+
+        const pendingTx = await this.signer.provider.getTransaction(tx.hash);
+        if (pendingTx) {
+          console.log(chalk.red(`❌ Tx ${tx.hash} still pending after ${timeoutMs/1000}s`));
+          console.log(chalk.red(`   Nonce: ${pendingTx.nonce}, Gas: ${pendingTx.gasLimit.toString()}, GasPrice: ${ethers.utils.formatUnits(pendingTx.gasPrice, 'gwei')} gwei`));
+        } else {
+          console.log(chalk.red(`❌ Tx ${tx.hash} not found on chain`));
+        }
+      } catch (debugError) {
+        console.log(chalk.red(`❌ Error checking tx status:`, debugError.message));
+      }
+
       if (error.code === 'TIMEOUT') {
         throw new Error(`Transaction ${tx.hash} timed out after ${timeoutMs/1000} seconds`);
       }
@@ -816,26 +859,25 @@ class DeFiTestRunner {
       }
     }
 
-    // Execute both approvals in parallel with manual nonces
+    // Sequential approvals to avoid nonce conflicts on slower networks
+    // First approval
     const overridesA = await this.getTxOverrides('simple');
     overridesA.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Approving TokenA with nonce ${overridesA.nonce}...`));
+    const approvalA = await this.contracts.tokenA.approve(this.contracts.dex.address, amountA, overridesA);
+    await this.waitForTransaction(approvalA, 1);
 
+    // Second approval after first is confirmed
     const overridesB = await this.getTxOverrides('simple');
     overridesB.nonce = await this.getNextNonce();
-
-    const [approvalA, approvalB] = await Promise.all([
-      this.contracts.tokenA.approve(this.contracts.dex.address, amountA, overridesA),
-      this.contracts.tokenB.approve(this.contracts.dex.address, amountB, overridesB)
-    ]);
-
-    // Wait for both approvals to be mined
-    await Promise.all([this.waitForTransaction(approvalA, 1), this.waitForTransaction(approvalB, 1)]);
-
-    // Removed delay - no longer needed with optimized polling
+    console.log(chalk.gray(`  Approving TokenB with nonce ${overridesB.nonce}...`));
+    const approvalB = await this.contracts.tokenB.approve(this.contracts.dex.address, amountB, overridesB);
+    await this.waitForTransaction(approvalB, 1);
 
     // Add liquidity after approvals are confirmed
     const overridesLiquidity = await this.getTxOverrides('complex');
     overridesLiquidity.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Adding liquidity with nonce ${overridesLiquidity.nonce}...`));
     const tx = await this.contracts.dex.addLiquidity(
       this.contracts.tokenA.address,
       this.contracts.tokenB.address,
@@ -857,6 +899,7 @@ class DeFiTestRunner {
     // Approve with manual nonce
     const overridesApproval = await this.getTxOverrides('simple');
     overridesApproval.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Approving for swap with nonce ${overridesApproval.nonce}...`));
     const approval = await this.contracts.tokenA.approve(
       this.contracts.dex.address,
       amount,
@@ -864,11 +907,10 @@ class DeFiTestRunner {
     );
     await this.waitForTransaction(approval, 1);
 
-    // Removed delay - no longer needed with optimized polling
-
     // Swap with manual nonce
     const overridesSwap = await this.getTxOverrides('complex');
     overridesSwap.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Executing swap with nonce ${overridesSwap.nonce}...`));
     const tx = await this.contracts.dex.swapTokens(
       this.contracts.tokenA.address,
       this.contracts.tokenB.address,
@@ -905,19 +947,21 @@ class DeFiTestRunner {
   async testDeposit() {
     const amount = ethers.utils.parseEther('50');
 
-    // Get overrides first to prevent simultaneous calls
+    // Approve with manual nonce
     const overridesApproval = await this.getTxOverrides('simple');
+    overridesApproval.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Approving for deposit with nonce ${overridesApproval.nonce}...`));
     const approval = await this.contracts.tokenA.approve(
       this.contracts.lending.address,
       amount,
       overridesApproval
     );
-    await this.waitForTransaction(approval, 1); // Optimized wait
-
-    // Removed delay - no longer needed with optimized polling
+    await this.waitForTransaction(approval, 1);
 
     // Deposit after approval is confirmed
     const overridesDeposit = await this.getTxOverrides('complex');
+    overridesDeposit.nonce = await this.getNextNonce();
+    console.log(chalk.gray(`  Depositing collateral with nonce ${overridesDeposit.nonce}...`));
     const tx = await this.contracts.lending.deposit(
       this.contracts.tokenA.address,
       amount,

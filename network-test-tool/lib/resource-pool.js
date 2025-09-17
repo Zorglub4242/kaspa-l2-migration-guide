@@ -61,7 +61,6 @@ class ResourcePool {
       pollingInterval: networkConfig.timeouts?.finality || 4000,
       ...options.providerOptions
     };
-    console.log(chalk.gray(`🔍 Provider options timeout: ${providerOptions.timeout}ms, polling: ${providerOptions.pollingInterval}ms`));
     
     try {
       let provider;
@@ -81,7 +80,7 @@ class ResourcePool {
 
       // Set the polling interval on the provider (critical for fast confirmations!)
       provider.pollingInterval = providerOptions.pollingInterval;
-      console.log(chalk.gray(`🔍 Provider polling interval set to: ${provider.pollingInterval}ms`));
+      console.log(chalk.gray(`🔍 Provider configured: timeout=${providerOptions.timeout}ms, polling=${provider.pollingInterval}ms`));
 
       // Override detectNetwork to return our known network immediately
       provider.detectNetwork = () => Promise.resolve(network);

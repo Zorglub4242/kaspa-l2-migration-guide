@@ -1,0 +1,76 @@
+{
+  "id": "neon-devnet",
+  "name": "Neon EVM Devnet (Solana)",
+  "chainId": 245022926,
+  "symbol": "NEON",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://devnet.neonevm.org",
+      "https://proxy.devnet.neonlabs.org/solana"
+    ],
+    "websocket": []
+  },
+  "gasConfig": {
+    "strategy": "fixed",
+    "fixed": "20",
+    "fallback": "20"
+  },
+  "explorer": {
+    "url": "https://devnet.neonscan.org",
+    "api": "",
+    "apiKey": ""
+  },
+  "faucet": {
+    "url": "https://neonfaucet.org/",
+    "amount": "10 NEON",
+    "cooldown": "24 hours",
+    "requirements": [
+      "Connect wallet",
+      "Complete captcha",
+      "Note: Also need SOL for Solana fees"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Neon EVM DevNet",
+      "rpcUrl": "https://devnet.neonevm.org",
+      "chainId": "0xE9AC0CE",
+      "symbol": "NEON",
+      "blockExplorerUrl": "https://devnet.neonscan.org/"
+    }
+  },
+  "features": {
+    "eip1559": false,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": false,
+      "ecmul": false,
+      "ecpairing": false,
+      "blake2f": false
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "20 gwei",
+      "avgCostUsd": 0.0001
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "20 gwei",
+      "avgCostUsd": 0.001
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "20 gwei",
+      "avgCostUsd": 0.01
+    }
+  },
+  "notes": "Neon EVM allows Ethereum dApps to run on Solana. It bridges the Ethereum and Solana ecosystems. Note: requires both NEON tokens for EVM gas and SOL for Solana transaction fees."
+}

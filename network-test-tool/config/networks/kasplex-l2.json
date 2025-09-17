@@ -1,0 +1,75 @@
+{
+  "id": "kasplex-l2",
+  "name": "Kasplex L2",
+  "chainId": 167012,
+  "symbol": "KAS",
+  "type": "mainnet",
+  "rpc": {
+    "public": [
+      "https://user:pass@kasplex.org"
+    ],
+    "websocket": []
+  },
+  "gasConfig": {
+    "strategy": "fixed",
+    "fixed": "2000",
+    "fallback": "2001"
+  },
+  "explorer": {
+    "url": "https://scan.kasplex.org",
+    "api": "",
+    "apiKey": ""
+  },
+  "faucet": {
+    "url": "https://faucet.kasplex.org/",
+    "amount": "10 KAS",
+    "cooldown": "24 hours",
+    "requirements": [
+      "Visit faucet page",
+      "Enter wallet address",
+      "Complete verification"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Kasplex L2",
+      "rpcUrl": "https://user:pass@kasplex.org",
+      "chainId": "0x28C64",
+      "symbol": "KAS",
+      "blockExplorerUrl": "https://scan.kasplex.org/"
+    }
+  },
+  "features": {
+    "eip1559": false,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": false,
+      "ecmul": false,
+      "ecpairing": false,
+      "blake2f": false
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "2000 gwei",
+      "avgCostUsd": 0.013
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "2000 gwei",
+      "avgCostUsd": 0.09
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "2000 gwei",
+      "avgCostUsd": 0.9
+    }
+  },
+  "notes": "Kasplex is a Layer 2 solution built on Kaspa. Requires exactly 2000 gwei gas price for all transactions."
+}

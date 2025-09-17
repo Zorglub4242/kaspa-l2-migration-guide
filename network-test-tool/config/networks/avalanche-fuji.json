@@ -1,0 +1,79 @@
+{
+  "id": "avalanche-fuji",
+  "name": "Avalanche Fuji Testnet",
+  "chainId": 43113,
+  "symbol": "AVAX",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://api.avax-test.network/ext/bc/C/rpc",
+      "https://rpc.ankr.com/avalanche_fuji",
+      "https://avalanche-fuji.infura.io/v3/${INFURA_API_KEY}"
+    ],
+    "websocket": [
+      "wss://api.avax-test.network/ext/bc/C/ws"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "30",
+    "maxPriorityFeePerGas": "2",
+    "fallback": "25"
+  },
+  "explorer": {
+    "url": "https://testnet.snowtrace.io",
+    "api": "https://api-testnet.snowtrace.io/api",
+    "apiKey": "SNOWTRACE_API_KEY"
+  },
+  "faucet": {
+    "url": "https://faucet.avax.network/",
+    "amount": "2 AVAX",
+    "cooldown": "24 hours",
+    "requirements": [
+      "No requirements",
+      "Instant faucet"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Avalanche Fuji C-Chain",
+      "rpcUrl": "https://api.avax-test.network/ext/bc/C/rpc",
+      "chainId": "0xA869",
+      "symbol": "AVAX",
+      "blockExplorerUrl": "https://testnet.snowtrace.io/"
+    }
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": true,
+      "ecmul": true,
+      "ecpairing": true,
+      "blake2f": true
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "25 gwei",
+      "avgCostUsd": 0.001
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "25 gwei",
+      "avgCostUsd": 0.007
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "25 gwei",
+      "avgCostUsd": 0.075
+    }
+  },
+  "notes": "Avalanche C-Chain is EVM-compatible with high throughput and sub-second finality. The testnet provides generous faucet amounts."
+}

@@ -1,0 +1,82 @@
+{
+  "id": "ethereum-sepolia",
+  "name": "Ethereum Sepolia",
+  "chainId": 11155111,
+  "symbol": "ETH",
+  "type": "testnet",
+  "rpc": {
+    "public": [
+      "https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+      "https://sepolia.infura.io/v3/${INFURA_API_KEY}",
+      "https://ethereum-sepolia.publicnode.com",
+      "https://rpc.sepolia.org"
+    ],
+    "websocket": [
+      "wss://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}",
+      "wss://sepolia.infura.io/ws/v3/${INFURA_API_KEY}"
+    ]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "maxFeePerGas": "30",
+    "maxPriorityFeePerGas": "2",
+    "fallback": "20"
+  },
+  "explorer": {
+    "url": "https://sepolia.etherscan.io",
+    "api": "https://api-sepolia.etherscan.io/api",
+    "apiKey": "ETHERSCAN_API_KEY"
+  },
+  "faucet": {
+    "url": "https://sepoliafaucet.com/",
+    "amount": "0.5 ETH",
+    "cooldown": "24 hours",
+    "requirements": [
+      "Alchemy account required",
+      "Alternative: https://www.infura.io/faucet/sepolia",
+      "Alternative: https://faucet.quicknode.com/ethereum/sepolia"
+    ]
+  },
+  "wallet": {
+    "metamask": {
+      "networkName": "Sepolia",
+      "rpcUrl": "https://sepolia.infura.io/v3/YOUR-PROJECT-ID",
+      "chainId": "0xAA36A7",
+      "symbol": "ETH",
+      "blockExplorerUrl": "https://sepolia.etherscan.io/"
+    }
+  },
+  "features": {
+    "eip1559": true,
+    "create2": true,
+    "precompiles": {
+      "ecrecover": true,
+      "sha256": true,
+      "ripemd160": true,
+      "identity": true,
+      "modexp": true,
+      "ecadd": true,
+      "ecmul": true,
+      "ecpairing": true,
+      "blake2f": true
+    }
+  },
+  "costEstimates": {
+    "transfer": {
+      "gas": 21000,
+      "avgGasPrice": "20 gwei",
+      "avgCostUsd": 0.001
+    },
+    "swap": {
+      "gas": 150000,
+      "avgGasPrice": "20 gwei",
+      "avgCostUsd": 0.0075
+    },
+    "deploy": {
+      "gas": 1500000,
+      "avgGasPrice": "20 gwei",
+      "avgCostUsd": 0.075
+    }
+  },
+  "notes": "Sepolia is the primary Ethereum testnet, fully compatible with mainnet features including all precompiles and EIP-1559."
+}
