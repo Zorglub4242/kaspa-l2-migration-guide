@@ -49,7 +49,7 @@ const NETWORKS = {
       transaction: 120000,
       deployment: 300000,
       finality: 1000,  // Reduced from 15000ms to 1000ms for faster polling
-      confirmation: 15000  // Transaction confirmation timeout (most confirm in 5-10s)
+      confirmation: 20000  // Transaction confirmation timeout (some txs need 15-20s)
     }
   },
   

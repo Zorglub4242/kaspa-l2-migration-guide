@@ -47,7 +47,7 @@ class DeFiTestRunner {
    */
   async getNextNonce() {
     if (this.currentNonce === null) {
-      this.currentNonce = await this.signer.getTransactionCount();
+      this.currentNonce = await this.signer.getTransactionCount('pending');
     }
     // Double-check nonce is still in sync with network
     const networkNonce = await this.signer.getTransactionCount('pending');
@@ -854,67 +854,37 @@ class DeFiTestRunner {
     const amountA = ethers.utils.parseEther('100');
     const amountB = ethers.utils.parseEther('100');
 
-    // Check if pair exists before attempting to create
+    // Create the pair if not already created (cached)
     if (!this.pairCreated) {
+      let nonceUsed = null;
       try {
-        // Try to get the pair address - if it exists, skip creation
-        const pairAddress = await this.contracts.dex.getPair(
+        const createPairOverrides = await this.getTxOverrides('simple');
+        nonceUsed = await this.getNextNonce();
+        createPairOverrides.nonce = nonceUsed;
+        console.log(chalk.gray(`  Attempting to create DEX pair with nonce ${nonceUsed}...`));
+
+        const createPairTx = await this.contracts.dex.createPair(
           this.contracts.tokenA.address,
-          this.contracts.tokenB.address
+          this.contracts.tokenB.address,
+          createPairOverrides
         );
-
-        if (pairAddress && pairAddress !== ethers.constants.AddressZero) {
-          console.log(chalk.gray(`  ℹ️ DEX pair already exists at ${pairAddress.slice(0, 10)}...`));
-          this.pairCreated = true;
-        } else {
-          // Pair doesn't exist, create it
-          const createPairOverrides = await this.getTxOverrides('simple');
-          const nonce = await this.getNextNonce();
-          createPairOverrides.nonce = nonce;
-          console.log(chalk.gray(`  Creating DEX pair with nonce ${nonce}...`));
-
-          const createPairTx = await this.contracts.dex.createPair(
-            this.contracts.tokenA.address,
-            this.contracts.tokenB.address,
-            createPairOverrides
-          );
-          await this.waitForTransaction(createPairTx, 1);
-          this.pairCreated = true;
-          console.log('  ✅ Created DEX pair');
-        }
+        await this.waitForTransaction(createPairTx, 1);
+        this.pairCreated = true;
+        console.log('  ✅ Created DEX pair');
       } catch (error) {
-        // If getPair fails, try to create the pair
-        if (error.message.includes('getPair')) {
-          console.log(chalk.gray('  DEX does not have getPair method, attempting creation...'));
-        }
+        // Most likely the pair already exists
+        console.log(chalk.gray(`  ℹ️ Create pair skipped: ${error.message.slice(0, 50)}... (pair likely exists)`));
 
-        let nonceUsed = null;
-        try {
-          const createPairOverrides = await this.getTxOverrides('simple');
-          nonceUsed = await this.getNextNonce();
-          createPairOverrides.nonce = nonceUsed;
-
-          const createPairTx = await this.contracts.dex.createPair(
-            this.contracts.tokenA.address,
-            this.contracts.tokenB.address,
-            createPairOverrides
-          );
-          await this.waitForTransaction(createPairTx, 1);
-          this.pairCreated = true;
-          console.log('  ✅ Created DEX pair');
-        } catch (createError) {
-          console.log(chalk.yellow(`  ⚠️ Create pair failed: ${createError.message}. Assuming pair exists.`));
-
-          // Recover nonce if needed
-          if (nonceUsed !== null) {
-            const txCount = await this.signer.getTransactionCount('pending');
-            if (txCount <= nonceUsed) {
-              this.currentNonce = nonceUsed;
-              console.log(chalk.gray(`  Reverted nonce to ${this.currentNonce}`));
-            }
+        // Recover nonce if transaction wasn't sent
+        if (nonceUsed !== null) {
+          const txCount = await this.signer.getTransactionCount('pending');
+          if (txCount <= nonceUsed) {
+            // Transaction wasn't mined, reset our counter
+            this.currentNonce = nonceUsed;
+            console.log(chalk.gray(`  Reverted nonce to ${this.currentNonce}`));
           }
-          this.pairCreated = true;
         }
+        this.pairCreated = true;
       }
     }
 
