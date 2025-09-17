@@ -192,9 +192,9 @@ class DeFiTestRunner {
     if (this.network.chainId === 19416 || this.network.chainId === 167012) {
       // Higher gas limits for Igra and Kasplex L2s
       const gasLimits = {
-        simple: 500000,     // 500k for simple operations (transfers, approvals)
-        complex: 1000000,   // 1M for complex operations (DEX, lending)
-        veryComplex: 1500000 // 1.5M for very complex operations
+        simple: 150000,     // Optimized: most simple ops use ~100k
+        complex: 300000,    // Optimized: most complex ops use ~200k
+        veryComplex: 500000 // Optimized: reduced from 1.5M
       };
 
       return {
@@ -347,10 +347,24 @@ class DeFiTestRunner {
    * Mint test tokens for the signer
    */
   async mintTestTokens() {
-    console.log(chalk.cyan('💰 Minting test tokens in parallel...'));
-
     const signerAddress = await this.signer.getAddress();
     const mintAmount = ethers.utils.parseEther('10000'); // Mint 10,000 tokens for testing
+    const minBalance = ethers.utils.parseEther('1000'); // Consider minted if balance > 1000
+
+    // Check existing balances first
+    const [balanceA, balanceB] = await Promise.all([
+      this.contracts.tokenA.balanceOf(signerAddress),
+      this.contracts.tokenB.balanceOf(signerAddress)
+    ]);
+
+    // Skip minting if we already have sufficient tokens
+    if (balanceA.gte(minBalance) && balanceB.gte(minBalance)) {
+      console.log(chalk.gray('  ℹ️ Tokens already minted, skipping...'));
+      console.log(chalk.gray(`  💼 TokenA: ${ethers.utils.formatEther(balanceA)}, TokenB: ${ethers.utils.formatEther(balanceB)}`));
+      return;
+    }
+
+    console.log(chalk.cyan('💰 Minting test tokens in parallel...'));
 
     try {
       // Prepare all mint transactions with manual nonces
@@ -412,14 +426,21 @@ class DeFiTestRunner {
       return;
     }
 
-    console.log(chalk.cyan('🏦 Initializing lending markets...'));
-
     try {
       // Check if markets are already initialized in parallel
       const [marketA, marketB] = await Promise.all([
         this.contracts.lending.markets(this.contracts.tokenA.address),
         this.contracts.lending.markets(this.contracts.tokenB.address)
       ]);
+
+      // Skip if both markets are already initialized
+      if (marketA.token !== ethers.constants.AddressZero && marketB.token !== ethers.constants.AddressZero) {
+        console.log(chalk.gray('  ℹ️ Lending markets already initialized, skipping...'));
+        this.marketsInitialized = true;
+        return;
+      }
+
+      console.log(chalk.cyan('🏦 Initializing lending markets...'));
 
       const initTxs = [];
 
@@ -545,6 +566,8 @@ class DeFiTestRunner {
 
     const testSuites = this.getTestSuites(mode);
 
+    // For now, keep sequential execution to avoid nonce conflicts
+    // TODO: Implement proper nonce isolation for true parallel execution
     for (const suite of testSuites) {
       await this.runTestSuite(suite);
     }
@@ -930,7 +953,7 @@ class DeFiTestRunner {
   async testSwapTokens() {
     const amount = ethers.utils.parseEther('10');
 
-    // Approve with manual nonce
+    // Approve with manual nonce - but don't wait yet
     const overridesApproval = await this.getTxOverrides('simple');
     overridesApproval.nonce = await this.getNextNonce();
     console.log(chalk.gray(`  Approving for swap with nonce ${overridesApproval.nonce}...`));
@@ -939,11 +962,13 @@ class DeFiTestRunner {
       amount,
       overridesApproval
     );
-    await this.waitForTransaction(approval, 1);
 
-    // Swap with manual nonce
+    // Prepare swap while approval is pending
     const overridesSwap = await this.getTxOverrides('complex');
     overridesSwap.nonce = await this.getNextNonce();
+
+    // Now wait for approval before executing swap
+    await this.waitForTransaction(approval, 1);
     console.log(chalk.gray(`  Executing swap with nonce ${overridesSwap.nonce}...`));
     const tx = await this.contracts.dex.swapTokens(
       this.contracts.tokenA.address,
