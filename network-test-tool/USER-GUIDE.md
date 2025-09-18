@@ -273,6 +273,44 @@ node cli.js contracts --action health --networks all
 
 ## Gas Pricing & Cost Analysis
 
+### Cost Dashboard
+Access the interactive cost comparison dashboard:
+```bash
+# Start the dashboard server
+npm run dashboard
+# or
+PORT=3001 node cost-dashboard.js
+
+# Access the dashboard at:
+# http://localhost:3001 (main dashboard)
+# http://localhost:3001/comparison.html (cost comparison page)
+```
+
+Dashboard features:
+- Real-time cost comparison across all networks
+- Testnet vs Mainnet gas price comparison
+- Interactive sorting and filtering
+- Export to CSV/PDF
+- Run-specific cost analysis
+
+### Network Gas Configurations
+Current gas price settings (stored in config/networks/*.json):
+
+**Kasplex L2**:
+- Testnet: ~2001 Gwei (dynamic)
+- Mainnet: 50 Gwei (estimated)
+
+**Igra L2**:
+- Testnet: Exactly 2000 Gwei (required)
+- Mainnet: 50 Gwei (estimated)
+
+**Ethereum Sepolia**:
+- Testnet: ~5 Gwei (dynamic)
+- Mainnet: 40 Gwei (current average)
+
+**Ethereum Mainnet**:
+- Gas Price: 40 Gwei (average)
+
 ### Real-time Gas Prices
 Get current gas prices for any network:
 ```bash
@@ -302,10 +340,11 @@ node scripts/network-cli.js cost kasplex-l2 1000000 --compare
 ```
 
 Output shows:
-- Gas price in gwei
+- Gas price in gwei (testnet and mainnet)
 - Cost in native tokens
 - Cost in USD
 - Network comparison ranking
+- Percentage vs ETH mainnet
 
 ### Setting Up Gas Price APIs
 For accurate real-time pricing, add API keys to `.env`:

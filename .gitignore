@@ -105,3 +105,7 @@ network-test-tool/deployments/deployment-sepolia.json
 network-test-tool/data/test-results.db-wal
 network-test-tool/deployments/deployment-sepolia.json
 network-test-tool/test-gas-prices.js
+network-test-tool/docs/cost-dashboard-prd.md
+network-test-tool/metabase-data/metabase.db/metabase.db.mv.db
+network-test-tool/metabase-data/metabase.db/metabase.db.mv.db
+network-test-tool/docs/YAML_TEST_SYSTEM_PRD.md

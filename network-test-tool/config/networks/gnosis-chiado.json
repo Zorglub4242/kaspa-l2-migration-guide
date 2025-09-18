@@ -18,7 +18,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "3.5",
     "maxPriorityFeePerGas": "1",
-    "fallback": "2"
+    "fallback": "2",
+    "mainnetGasPrice": "3"
   },
   "explorer": {
     "url": "https://blockscout.chiadochain.net",

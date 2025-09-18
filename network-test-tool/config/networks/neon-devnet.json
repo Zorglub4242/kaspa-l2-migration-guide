@@ -14,7 +14,8 @@
   "gasConfig": {
     "strategy": "fixed",
     "fixed": "20",
-    "fallback": "20"
+    "fallback": "20",
+    "mainnetGasPrice": "20"
   },
   "explorer": {
     "url": "https://devnet.neonscan.org",

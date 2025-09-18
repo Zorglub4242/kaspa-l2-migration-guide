@@ -20,13 +20,17 @@ class PriceFetcher {
       'ethereum': 'ethereum',    // ETH mainnet
       'mainnet': 'ethereum',     // ETH mainnet
       'igra': 'kaspa',           // IKAS token (using KAS price as proxy)
+      'gnosis-chiado': 'xdai',   // xDAI token
+      'neon-devnet': 'neon',     // NEON token
 
       // Display names
       'kasplex l2': 'kaspa',
       'ethereum sepolia': 'ethereum',
       'igra l2': 'kaspa',
       'ethereum holesky': 'ethereum',
-      'ethereum goerli': 'ethereum'
+      'ethereum goerli': 'ethereum',
+      'gnosis chiado testnet': 'xdai',
+      'neon evm devnet (solana)': 'neon'
     };
 
     return mapping[network.toLowerCase()] || 'ethereum';
@@ -56,10 +60,25 @@ class PriceFetcher {
   }
 
   // Fetch current price from CoinGecko
-  async fetchPrice(coinGeckoId) {
+  async fetchPrice(tokenSymbolOrId) {
+    // Convert token symbol to CoinGecko ID if needed
+    const symbolToId = {
+      'ETH': 'ethereum',
+      'KAS': 'kaspa',
+      'IKAS': 'kaspa',  // Use KAS price for IKAS
+      'BNB': 'binancecoin',
+      'MATIC': 'matic-network',
+      'AVAX': 'avalanche-2',
+      'FTM': 'fantom',
+      'xDAI': 'xdai',
+      'XDAI': 'xdai',
+      'NEON': 'neon'
+    };
+
+    const coinGeckoId = symbolToId[tokenSymbolOrId.toUpperCase()] || this.getCoinGeckoId(tokenSymbolOrId);
     const cacheKey = coinGeckoId;
     const cachedData = this.cache.get(cacheKey);
-    
+
     // Return cached data if still valid
     if (cachedData && Date.now() - cachedData.timestamp < this.cacheTimeout) {
       return cachedData.price;
@@ -78,9 +97,9 @@ class PriceFetcher {
       );
 
       const price = response.data[coinGeckoId]?.usd;
-      
+
       if (!price) {
-        throw new Error(`Price not found for ${coinGeckoId}`);
+        throw new Error(`Price not found for ${tokenSymbolOrId}`);
       }
 
       // Cache the result
@@ -91,22 +110,29 @@ class PriceFetcher {
 
       return price;
     } catch (error) {
-      logger.warning(`⚠️ Failed to fetch price for ${coinGeckoId}: ${error.message}`);
-      
+      logger.warning(`⚠️ Failed to fetch price for ${tokenSymbolOrId}: ${error.message}`);
+
       // Return cached data if available, otherwise fallback prices
       if (cachedData) {
-        logger.info(`📊 Using cached price for ${coinGeckoId}`);
+        logger.info(`📊 Using cached price for ${tokenSymbolOrId}`);
         return cachedData.price;
       }
-      
-      // Fallback prices (approximate)
+
+      // Fallback prices (approximate - more realistic values)
       const fallbackPrices = {
-        'kaspa': 0.15,      // Approximate KAS price
-        'ethereum': 2500    // Approximate ETH price
+        'kaspa': 0.15,           // Approximate KAS price
+        'ethereum': 2500,        // Approximate ETH price
+        'binancecoin': 300,      // Approximate BNB price
+        'matic-network': 0.80,   // Approximate MATIC price
+        'avalanche-2': 35,       // Approximate AVAX price
+        'fantom': 0.40,          // Approximate FTM price
+        'xdai': 1.00,            // xDAI is a stablecoin pegged to $1
+        'neon': 0.1429           // Current NEON price
       };
-      
-      logger.warning(`📊 Using fallback price for ${coinGeckoId}: $${fallbackPrices[coinGeckoId] || 2500}`);
-      return fallbackPrices[coinGeckoId] || 2500;
+
+      const fallbackPrice = fallbackPrices[coinGeckoId] || 2500;
+      logger.warning(`📊 Using fallback price for ${tokenSymbolOrId}: $${fallbackPrice}`);
+      return fallbackPrice;
     }
   }
 

@@ -20,7 +20,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "30",
     "maxPriorityFeePerGas": "2",
-    "fallback": "20"
+    "fallback": "5",
+    "mainnetGasPrice": "40"
   },
   "explorer": {
     "url": "https://sepolia.etherscan.io",

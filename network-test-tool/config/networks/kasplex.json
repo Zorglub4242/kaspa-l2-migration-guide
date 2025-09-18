@@ -13,7 +13,8 @@
   "gasConfig": {
     "strategy": "fixed",
     "fixed": "2000",
-    "fallback": "2001"
+    "fallback": "2001",
+    "mainnetGasPrice": "50"
   },
   "explorer": {
     "url": "https://explorer.testnet.kasplextest.xyz",

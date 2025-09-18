@@ -28,7 +28,9 @@
         "name": "blocknative",
         "url": "https://api.blocknative.com/gasprices/blockprices"
       }
-    ]
+    ],
+    "mainnetGasPrice": "40",
+    "fallback": "40"
   },
   "explorer": {
     "name": "Etherscan",

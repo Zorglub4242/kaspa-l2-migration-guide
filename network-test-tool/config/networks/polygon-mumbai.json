@@ -19,7 +19,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "40",
     "maxPriorityFeePerGas": "30",
-    "fallback": "30"
+    "fallback": "30",
+    "mainnetGasPrice": "50"
   },
   "explorer": {
     "name": "PolygonScan Mumbai",

@@ -3,7 +3,7 @@
   "name": "Igra L2",
   "chainId": 19416,
   "symbol": "IKAS",
-  "type": "mainnet",
+  "type": "testnet",
   "rpc": {
     "public": [
       "https://caravel.igralabs.com:8545"
@@ -13,7 +13,8 @@
   "gasConfig": {
     "strategy": "fixed",
     "fixed": "2000",
-    "fallback": "2000"
+    "fallback": "2000",
+    "mainnetGasPrice": "50"
   },
   "explorer": {
     "url": "https://explorer.caravel.igralabs.com",

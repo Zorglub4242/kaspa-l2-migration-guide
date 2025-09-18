@@ -18,7 +18,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "30",
     "maxPriorityFeePerGas": "2",
-    "fallback": "25"
+    "fallback": "25",
+    "mainnetGasPrice": "27"
   },
   "explorer": {
     "url": "https://testnet.snowtrace.io",

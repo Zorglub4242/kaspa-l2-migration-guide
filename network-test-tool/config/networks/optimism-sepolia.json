@@ -15,7 +15,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "0.001",
     "maxPriorityFeePerGas": "0.001",
-    "fallback": "0.001"
+    "fallback": "0.001",
+    "mainnetGasPrice": "0.005"
   },
   "explorer": {
     "name": "Optimism Sepolia Explorer",

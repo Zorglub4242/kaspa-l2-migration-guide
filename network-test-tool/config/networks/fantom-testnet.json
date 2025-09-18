@@ -18,7 +18,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "3.5",
     "maxPriorityFeePerGas": "2.5",
-    "fallback": "3"
+    "fallback": "3",
+    "mainnetGasPrice": "35"
   },
   "explorer": {
     "url": "https://testnet.ftmscan.com",

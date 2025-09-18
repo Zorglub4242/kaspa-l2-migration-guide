@@ -15,7 +15,8 @@
     "strategy": "dynamic",
     "maxFeePerGas": "0.1",
     "maxPriorityFeePerGas": "0.01",
-    "fallback": "0.1"
+    "fallback": "0.1",
+    "mainnetGasPrice": "0.3"
   },
   "explorer": {
     "name": "Arbiscan Sepolia",

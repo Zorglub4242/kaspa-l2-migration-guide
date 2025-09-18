@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Cost Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 150px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background: #e9ecef;
+        }
+
+        th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 10px;
+            opacity: 0.3;
+        }
+
+        th.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        th.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .cheapest {
+            background: #d4edda !important;
+        }
+
+        .expensive {
+            background: #f8d7da !important;
+        }
+
+        .current-network {
+            background: #cfe2ff !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .legend {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+
+        .info-box {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-text {
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Network Cost Comparison</h1>
+            <div class="subtitle">Compare transaction costs across all configured blockchain networks</div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="gasAmount">Gas Amount:</label>
+                <input type="number" id="gasAmount" value="1000000" min="21000">
+            </div>
+            <button class="btn btn-primary" onclick="updateComparison()">Update Comparison</button>
+            <button class="btn btn-success" onclick="exportComparison('csv')">Export CSV</button>
+            <button class="btn btn-success" onclick="exportComparison('pdf')">Export PDF</button>
+        </div>
+
+        <div class="info-box">
+            <div class="info-text">
+                <strong>Note:</strong> This comparison shows the cost for executing the same amount of gas across different networks.
+                Prices are fetched in real-time and cached for 60 minutes. Kasplex and Igra networks use 50 Gwei gas price for comparison.
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div id="loadingIndicator" class="loading">Loading network comparison...</div>
+            <table id="comparisonTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-column="network">Network</th>
+                        <th class="sortable" data-column="type">Type</th>
+                        <th class="sortable" data-column="token">Token</th>
+                        <th class="sortable" data-column="tokenPrice">Price/Token ($)</th>
+                        <th class="sortable" data-column="gasPrice">Testnet Gas (Gwei)</th>
+                        <th class="sortable" data-column="usdCost">Testnet USD Cost</th>
+                        <th class="sortable" data-column="mainnetGasPrice">Mainnet Gas (Gwei)</th>
+                        <th class="sortable" data-column="mainnetUsdCost">Mainnet USD Cost</th>
+                        <th class="sortable" data-column="percentVsEth">% vs ETH</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="legend">
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-box cheapest"></div>
+                    <span>Cheapest Network</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box expensive"></div>
+                    <span>Most Expensive</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box current-network"></div>
+                    <span>Currently Selected</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="comparison.js"></script>
+</body>
+</html>

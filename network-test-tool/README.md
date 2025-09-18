@@ -325,22 +325,31 @@ See `config/networks/schema.json` for the complete configuration structure.
 
 ### Network Settings (Optimized)
 **Kasplex L2**:
-- Gas Price: ~2001 Gwei (dynamic with fallbacks)
+- Testnet Gas Price: ~2001 Gwei (dynamic with fallbacks)
+- Mainnet Gas Price: 50 Gwei (estimated)
 - Chain ID: 167012
 - RPC: https://rpc.kasplextest.xyz
 - Explorer: https://explorer.testnet.kasplextest.xyz
 
 **Igra L2** (Recommended):
-- Gas Price: Exactly 2000 Gwei (required)
+- Testnet Gas Price: Exactly 2000 Gwei (required)
+- Mainnet Gas Price: 50 Gwei (estimated)
 - Chain ID: 19416
 - RPC: https://rpc.testnet.igra.network
 - Explorer: https://explorer.caravel.igralabs.com/
 
 **Ethereum Sepolia**:
-- Gas Price: ~0.5 Gwei (dynamic)
+- Testnet Gas Price: ~5 Gwei (dynamic)
+- Mainnet Gas Price: 40 Gwei (current average)
 - Chain ID: 11155111
 - RPC: Multiple providers supported
 - Explorer: https://sepolia.etherscan.io
+
+**Ethereum Mainnet**:
+- Gas Price: 40 Gwei (average)
+- Chain ID: 1
+- RPC: Multiple providers supported
+- Explorer: https://etherscan.io
 
 ### Environment Variables
 ```bash
