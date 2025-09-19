@@ -1,0 +1,45 @@
+# Simple Load Testing Example
+# Generate load without complex scripting
+
+test: Simple Load Test
+description: Generate transaction load to measure network performance
+network: kasplex
+
+variables:
+  users: 50
+  transactions_per_user: 100
+  batch_size: 10
+
+setup:
+  accounts:
+    funder: 1000 ETH
+
+scenario:
+  # Create test users
+  - loop:
+      times: users
+      actions:
+        - set:
+            user_{_index}: Account()
+        - transfer: funder -> user_{_index}, 2 ETH
+
+  # Generate load in batches
+  - loop:
+      times: transactions_per_user / batch_size
+      actions:
+        - log: "Batch {_iteration} of {transactions_per_user / batch_size}"
+
+        - measure:
+            name: "Batch {_iteration} TPS"
+            metric: time
+            start:
+              parallel:
+                - loop:
+                    times: batch_size
+                    actions:
+                      - transfer: user_{_index % users} -> user_{(_index + 1) % users}, 0.001 ETH
+            end:
+              log: "Batch complete"
+
+  # Report results
+  - log: "Load test complete. Total transactions: {users * transactions_per_user}"

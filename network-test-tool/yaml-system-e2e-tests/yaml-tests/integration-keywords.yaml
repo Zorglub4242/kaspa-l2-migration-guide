@@ -1,0 +1,31 @@
+
+keywords:
+  check-and-fund:
+    description: "Check balance and fund if needed"
+    params: [account, threshold, amount]
+    steps:
+      - get: "balance = balance({{account}})"
+      - if: "{{balance}} < {{threshold}}"
+        then:
+          - transfer: "funder -> {{account}}, {{amount}}"
+          - log: "Funded {{account}} with {{amount}}"
+          - return: true
+        else:
+          - log: "{{account}} has sufficient funds"
+          - return: false
+
+  batch-token-distribution:
+    description: "Distribute tokens to multiple accounts"
+    params: [token, accounts, amountEach]
+    steps:
+      - set:
+          distributed: 0
+      - parallel:
+          forEach:
+            item: account
+            in: "{{accounts}}"
+          do:
+            - token.transfer: "deployer -> {{account}}, {{amountEach}}"
+            - set:
+                distributed: "{{distributed}} + {{amountEach}}"
+      - return: "{{distributed}}"

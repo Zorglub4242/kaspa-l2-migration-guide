@@ -1,0 +1,53 @@
+# Simple Example: User Testing Their Own Smart Contract
+# This shows the simplest way to test a custom contract
+
+test: My NFT Contract Test
+description: Testing my custom NFT marketplace contract
+network: kasplex
+
+setup:
+  accounts:
+    owner: 10 ETH
+    buyer1: 5 ETH
+    buyer2: 5 ETH
+
+  contracts:
+    # Simply provide the path to your compiled contract
+    # The tool will read the ABI and bytecode automatically
+    nftMarketplace:
+      type: ./my-contracts/NFTMarketplace.json
+      args: ["My NFT Collection", "MNFT"]
+      from: owner
+
+scenario:
+  # Mint NFTs
+  - call:
+      contract: nftMarketplace
+      method: mint
+      args: [owner, "ipfs://token1"]
+      from: owner
+
+  - call:
+      contract: nftMarketplace
+      method: mint
+      args: [owner, "ipfs://token2"]
+      from: owner
+
+  # List NFT for sale
+  - call:
+      contract: nftMarketplace
+      method: listForSale
+      args: [1, "0.5 ETH"]
+      from: owner
+
+  # Buy NFT
+  - call:
+      contract: nftMarketplace
+      method: buy
+      args: [1]
+      from: buyer1
+      value: 0.5 ETH
+
+  # Verify ownership transferred
+  - check: "nftMarketplace.ownerOf(1) == buyer1"
+    message: "NFT should be owned by buyer1"

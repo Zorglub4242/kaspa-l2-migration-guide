@@ -1,0 +1,169 @@
+# Wallet Operations Example
+# Demonstrates programmatic wallet management without browser automation
+
+test: Wallet Management Demo
+network: kasplex
+report: detailed
+
+# Define wallets
+wallets:
+  alice: "${ALICE_KEY}"  # From environment variable
+  bob: "0x..."  # Direct private key
+  charlie: "mnemonic: abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+  dave: generate  # Generate new random wallet
+  eve:
+    mnemonic: "${SEED_PHRASE}"
+    path: "m/44'/60'/0'/0/1"  # Custom derivation path
+
+scenario:
+  # Create additional wallets dynamically
+  - wallet:
+      action: create
+      name: frank
+      config: generate
+
+  # Sign a message
+  - signMessage:
+      wallet: alice
+      message: "Hello, blockchain!"
+    returns: signature
+
+  - log: "Message signed: {{signature.signature}}"
+  - log: "Signer: {{signature.signer}}"
+
+  # Sign typed data (EIP-712)
+  - wallet:
+      action: sign
+      wallet: bob
+      typedData:
+        domain:
+          name: "Test Contract"
+          version: "1"
+          chainId: 167012
+        types:
+          Message:
+            - {name: "content", type: "string"}
+            - {name: "timestamp", type: "uint256"}
+        value:
+          content: "Test message"
+          timestamp: 1234567890
+    returns: typedSignature
+
+  # Sign and send transaction
+  - signTransaction:
+      wallet: charlie
+      transaction:
+        to: "{{bob.address}}"
+        value: "0.1"
+        data: "0x"
+    returns: signedTx
+
+  - log: "Transaction signed: {{signedTx.hash}}"
+
+  # Send transaction directly
+  - wallet:
+      action: send
+      wallet: dave
+      to: eve
+      value: "0.5"
+      wait: true  # Wait for confirmation
+    returns: txReceipt
+
+  - log: "Transaction confirmed in block {{txReceipt.blockNumber}}"
+
+  # Fund wallets
+  - wallet:
+      action: fund
+      wallet: frank
+      from: alice
+      amount: "2"
+
+  # Check balances
+  - wallet:
+      action: balance
+      wallet: frank
+    returns: frankBalance
+
+  - assert: "{{frankBalance}} >= 2"
+
+  # Multi-signature operation (simulated)
+  - set:
+      multiSigTx:
+        to: charlie
+        value: "1"
+        data: "0x"
+
+  # Collect signatures from multiple wallets
+  - parallel:
+      - signTransaction:
+          wallet: alice
+          transaction: "{{multiSigTx}}"
+        returns: sig1
+      - signTransaction:
+          wallet: bob
+          transaction: "{{multiSigTx}}"
+        returns: sig2
+      - signTransaction:
+          wallet: charlie
+          transaction: "{{multiSigTx}}"
+        returns: sig3
+
+  - log: "Collected {{3}} signatures for multi-sig"
+
+  # HD wallet generation
+  - wallet:
+      action: generateHD
+      mnemonic: "${MASTER_SEED}"
+      count: 5
+    returns: hdWallets
+
+  - foreach:
+      item: hdWallet
+      in: "{{hdWallets}}"
+    do:
+      - log: "HD Wallet {{hdWallet.index}}: {{hdWallet.address}}"
+
+  # Deterministic wallet from seed
+  - wallet:
+      action: createDeterministic
+      name: predictable
+      seed: "my-secret-seed-phrase"
+
+  # Export and import wallet
+  - wallet:
+      action: export
+      wallet: alice
+      password: "supersecret"
+    returns: encryptedJson
+
+  - wallet:
+      action: import
+      name: aliceImported
+      json: "{{encryptedJson}}"
+      password: "supersecret"
+
+  # Batch wallet operations
+  - parallel:
+      forEach:
+        item: wallet
+        in: [alice, bob, charlie, dave, eve]
+      do:
+        - wallet:
+            action: balance
+            wallet: "{{wallet}}"
+          returns: "balance_{{wallet}}"
+        - log: "{{wallet}} balance: {{balance_{{wallet}}}}"
+
+  # Wallet validation
+  - if: exists(wallets.frank)
+    then:
+      - log: "Frank's wallet was created successfully"
+      - wallet:
+          action: balance
+          wallet: frank
+        returns: finalBalance
+      - log: "Frank's final balance: {{finalBalance}}"
+
+cleanup:
+  # Clean up test wallets (except those from env vars)
+  - log: "Wallet operations completed"

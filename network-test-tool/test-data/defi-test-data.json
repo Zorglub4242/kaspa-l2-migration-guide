@@ -1,0 +1,125 @@
+{
+  "testCases": [
+    {
+      "name": "Basic Swap",
+      "tokenA": "USDC",
+      "tokenB": "DAI",
+      "amountIn": 1000,
+      "minAmountOut": 990,
+      "slippage": 0.01
+    },
+    {
+      "name": "Large Swap",
+      "tokenA": "WETH",
+      "tokenB": "USDC",
+      "amountIn": 10,
+      "minAmountOut": 15000,
+      "slippage": 0.03
+    },
+    {
+      "name": "Liquidity Addition",
+      "tokenA": "USDC",
+      "tokenB": "DAI",
+      "amountA": 5000,
+      "amountB": 5000,
+      "minLiquidity": 4900
+    },
+    {
+      "name": "Liquidity Removal",
+      "lpTokenAmount": 1000,
+      "minTokenA": 950,
+      "minTokenB": 950
+    },
+    {
+      "name": "Lending Deposit",
+      "token": "DAI",
+      "amount": 10000,
+      "expectedAPY": 0.05
+    },
+    {
+      "name": "Borrow Against Collateral",
+      "collateralToken": "WETH",
+      "collateralAmount": 5,
+      "borrowToken": "USDC",
+      "borrowAmount": 7500,
+      "collateralRatio": 1.5
+    },
+    {
+      "name": "Yield Farming",
+      "stakingToken": "LP-USDC-DAI",
+      "stakingAmount": 1000,
+      "rewardToken": "FARM",
+      "expectedRewardRate": 100
+    },
+    {
+      "name": "Flash Loan Arbitrage",
+      "loanToken": "USDC",
+      "loanAmount": 100000,
+      "profitTarget": 100,
+      "gasLimit": 500000
+    },
+    {
+      "name": "NFT Mint",
+      "collection": "TestNFT",
+      "tokenId": 1,
+      "price": 0.1,
+      "metadata": "ipfs://QmTest"
+    },
+    {
+      "name": "NFT Transfer",
+      "collection": "TestNFT",
+      "tokenId": 1,
+      "from": "alice",
+      "to": "bob"
+    }
+  ],
+  "pools": [
+    {
+      "pair": "USDC-DAI",
+      "reserve0": 1000000,
+      "reserve1": 1000000,
+      "fee": 0.003
+    },
+    {
+      "pair": "WETH-USDC",
+      "reserve0": 100,
+      "reserve1": 150000,
+      "fee": 0.003
+    },
+    {
+      "pair": "WBTC-WETH",
+      "reserve0": 10,
+      "reserve1": 150,
+      "fee": 0.003
+    }
+  ],
+  "users": [
+    {
+      "name": "alice",
+      "initialBalance": "10 ETH",
+      "tokens": {
+        "USDC": 10000,
+        "DAI": 10000,
+        "WETH": 5
+      }
+    },
+    {
+      "name": "bob",
+      "initialBalance": "5 ETH",
+      "tokens": {
+        "USDC": 5000,
+        "DAI": 5000,
+        "WETH": 2
+      }
+    },
+    {
+      "name": "charlie",
+      "initialBalance": "20 ETH",
+      "tokens": {
+        "USDC": 20000,
+        "DAI": 20000,
+        "WETH": 10
+      }
+    }
+  ]
+}

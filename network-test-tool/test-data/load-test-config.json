@@ -1,0 +1,92 @@
+{
+  "profiles": {
+    "light": {
+      "users": 10,
+      "transactionsPerUser": 10,
+      "batchSize": 5,
+      "targetTPS": 10,
+      "duration": 30
+    },
+    "standard": {
+      "users": 50,
+      "transactionsPerUser": 100,
+      "batchSize": 10,
+      "targetTPS": 100,
+      "duration": 60
+    },
+    "heavy": {
+      "users": 100,
+      "transactionsPerUser": 500,
+      "batchSize": 20,
+      "targetTPS": 500,
+      "duration": 120
+    },
+    "stress": {
+      "users": 500,
+      "transactionsPerUser": 1000,
+      "batchSize": 50,
+      "targetTPS": 1000,
+      "duration": 300
+    },
+    "burst": {
+      "users": 1000,
+      "transactionsPerUser": 10,
+      "batchSize": 100,
+      "targetTPS": 5000,
+      "duration": 10
+    }
+  },
+  "patterns": {
+    "steady": {
+      "type": "constant",
+      "rate": 100
+    },
+    "rampUp": {
+      "type": "linear",
+      "startRate": 10,
+      "endRate": 1000,
+      "rampTime": 60
+    },
+    "spike": {
+      "type": "spike",
+      "baseRate": 50,
+      "spikeRate": 500,
+      "spikeInterval": 30,
+      "spikeDuration": 5
+    },
+    "wave": {
+      "type": "sine",
+      "minRate": 10,
+      "maxRate": 200,
+      "period": 60
+    },
+    "random": {
+      "type": "random",
+      "minRate": 10,
+      "maxRate": 500
+    }
+  },
+  "transactions": {
+    "simple": {
+      "type": "transfer",
+      "amount": "0.001 ETH"
+    },
+    "token": {
+      "type": "erc20Transfer",
+      "amount": 100
+    },
+    "swap": {
+      "type": "dexSwap",
+      "amountIn": 100,
+      "minAmountOut": 95
+    },
+    "complex": {
+      "type": "multiStep",
+      "steps": [
+        "approve",
+        "swap",
+        "transfer"
+      ]
+    }
+  }
+}

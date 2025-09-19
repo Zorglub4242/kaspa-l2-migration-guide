@@ -1,0 +1,123 @@
+# Basic Load Test with ForEach and Batch Processing
+test: Basic Load Test
+description: Load testing with foreach loops and batch operations
+
+variables:
+  accounts: [alice, bob, charlie, dave, eve]
+  amounts: [0.001, 0.002, 0.003, 0.004, 0.005]
+  iterations: 10
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+
+scenario:
+  - log: "Starting basic load test"
+
+  # Create accounts dynamically using foreach
+  - foreach:
+      item: account
+      in: accounts
+      do:
+        - set:
+            "{account}": Account()
+        - transfer: deployer -> {account}, 5 ETH
+        - log: "Created and funded {account}"
+
+  # Warm-up with foreach
+  - log: "Warm-up phase"
+  - foreach:
+      item: amount
+      in: amounts
+      do:
+        - transfer: alice -> bob, {amount} ETH
+        - wait: 200ms
+
+  # Batch processing with nested foreach
+  - log: "Starting batch processing"
+  - foreach:
+      item: iteration
+      in: range(1, iterations)
+      do:
+        - log: "Iteration {iteration}"
+
+        # Parallel batch within foreach
+        - parallel:
+            batch:
+              size: 3
+              delay: 500
+            actions:
+              - foreach:
+                  item: sender
+                  index: i
+                  in: accounts
+                  do:
+                    - set:
+                        receiver: accounts[(i + 1) % accounts.length]
+                    - transfer: {sender} -> {receiver}, amounts[i % amounts.length] ETH
+
+        # Measure batch performance
+        - measure:
+            name: "batch_{iteration}"
+            start: timestamp()
+
+        - foreach:
+            item: account
+            in: accounts
+            do:
+              - call: balance({account})
+                returns: bal_{account}
+
+        - measure:
+            name: "batch_{iteration}"
+            end: timestamp()
+
+        - log: "Batch {iteration} took {batch_{iteration}} ms"
+
+  # Complex foreach with conditionals
+  - foreach:
+      item: account
+      index: idx
+      in: accounts
+      do:
+        - if: idx % 2 == 0
+          then:
+            - transfer: {account} -> deployer, 0.1 ETH
+            - log: "Even index {idx}: {account} returned funds"
+          else:
+            - transfer: {account} -> deployer, 0.05 ETH
+            - log: "Odd index {idx}: {account} returned partial funds"
+
+  # Parallel foreach execution
+  - parallel:
+      forEach:
+        item: pair
+        in: [[alice, bob], [bob, charlie], [charlie, dave], [dave, eve], [eve, alice]]
+      do:
+        - transfer: pair[0] -> pair[1], 0.001 ETH
+        - log: "Transferred from {pair[0]} to {pair[1]}"
+
+  # Map operation with foreach
+  - foreach:
+      map: amounts
+      transform: "amount * 2"
+      returns: doubledAmounts
+
+  - log: "Doubled amounts: {doubledAmounts}"
+
+  # Filter operation
+  - foreach:
+      filter: accounts
+      condition: "balance({item}) > 1 ETH"
+      returns: wealthyAccounts
+
+  - log: "Wealthy accounts: {wealthyAccounts}"
+
+cleanup:
+  - log: "Cleaning up"
+  - foreach:
+      item: account
+      in: accounts
+      do:
+        - transfer: {account} -> deployer, balance({account}) - 0.01 ETH

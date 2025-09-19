@@ -1,0 +1,156 @@
+# Example: Testing a Custom Smart Contract
+# This shows how users can bring their own contracts and test them
+
+test: Custom DeFi Protocol Test
+description: Testing a custom yield farming contract with complex interactions
+network: [kasplex, igra]
+
+variables:
+  initial_supply: 1000000
+  reward_rate: 100
+  staking_duration: 86400  # 1 day in seconds
+
+setup:
+  # Create test accounts with initial balances
+  accounts:
+    deployer: 10 ETH
+    alice: 5 ETH
+    bob: 5 ETH
+    charlie: 5 ETH
+
+  # Deploy your custom contracts
+  # Option 1: Load from compiled artifact
+  contracts:
+    # Path to your compiled contract JSON (from Hardhat, Truffle, etc.)
+    yieldFarm:
+      type: ./contracts/YieldFarmingProtocol.json
+      args: [reward_rate, staking_duration]
+      from: deployer
+
+    # Option 2: Deploy a custom token for testing
+    rewardToken:
+      type: ./contracts/CustomToken.json
+      args: ["Reward Token", "RWD", 18, initial_supply]
+      from: deployer
+
+    # Option 3: Load existing deployed contract with ABI
+    # existingProtocol:
+    #   type: Contract
+    #   address: "0x123..."
+    #   abi: ./abis/ExistingProtocol.json
+
+scenario:
+  # Initialize the yield farm with reward tokens
+  - log: "Setting up yield farming protocol"
+
+  - call:
+      contract: rewardToken
+      method: transfer
+      args: [yieldFarm.address, 100000]
+      from: deployer
+
+  - call:
+      contract: yieldFarm
+      method: setRewardToken
+      args: [rewardToken.address]
+      from: deployer
+
+  # Test staking functionality
+  - log: "Testing staking operations"
+
+  - call:
+      contract: rewardToken
+      method: transfer
+      args: [alice, 1000]
+      from: deployer
+
+  - call:
+      contract: rewardToken
+      method: approve
+      args: [yieldFarm.address, 1000]
+      from: alice
+
+  - call:
+      contract: yieldFarm
+      method: stake
+      args: [500]
+      from: alice
+
+  - check: "yieldFarm.balanceOf(alice) == 500"
+    message: "Alice should have 500 staked tokens"
+
+  # Test reward calculation
+  - wait: 10s  # Wait for rewards to accumulate
+
+  - call:
+      contract: yieldFarm
+      method: earned
+      args: [alice]
+      expect: "> 0"
+
+  # Test withdrawal
+  - call:
+      contract: yieldFarm
+      method: withdraw
+      args: [250]
+      from: alice
+
+  - check: "yieldFarm.balanceOf(alice) == 250"
+    message: "Alice should have 250 tokens remaining"
+
+  # Complex interaction test
+  - log: "Testing complex multi-user interactions"
+
+  - parallel:
+    - call:
+        contract: rewardToken
+        method: transfer
+        args: [bob, 1000]
+        from: deployer
+    - call:
+        contract: rewardToken
+        method: transfer
+        args: [charlie, 1000]
+        from: deployer
+
+  # Measure performance metrics
+  - measure:
+      name: "Staking Gas Cost"
+      metric: gas
+      start:
+        call:
+          contract: rewardToken
+          method: approve
+          args: [yieldFarm.address, 1000]
+          from: bob
+      end:
+        call:
+          contract: yieldFarm
+          method: stake
+          args: [1000]
+          from: bob
+
+  # Test emergency functions
+  - if:
+      condition: "network == 'kasplex'"
+      then:
+        - log: "Testing emergency pause on Kasplex"
+        - call:
+            contract: yieldFarm
+            method: pause
+            from: deployer
+        - call:
+            contract: yieldFarm
+            method: isPaused
+            expect: true
+
+cleanup:
+  - log: "Cleaning up test data"
+  - call:
+      contract: yieldFarm
+      method: emergencyWithdraw
+      from: alice
+  - call:
+      contract: yieldFarm
+      method: emergencyWithdraw
+      from: bob

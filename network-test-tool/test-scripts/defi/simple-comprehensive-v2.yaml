@@ -1,0 +1,36 @@
+# Simplified Comprehensive DeFi Test for Igra
+# Reduced operations for faster testing
+
+test: Simplified DeFi Test Suite
+description: Comprehensive DeFi operations with reduced complexity
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+    alice: 0.1 ETH
+    bob: 0.1 ETH
+
+scenario:
+  # Phase 1: Initial funding
+  - log: "Starting test"
+  - transfer: deployer -> alice, 0.5 ETH
+  - transfer: deployer -> bob, 0.5 ETH
+
+  # Phase 2: Basic transfers
+  - log: "Basic transfers"
+  - transfer: alice -> bob, 0.1 ETH
+  - transfer: bob -> alice, 0.05 ETH
+
+  # Phase 3: Multiple transfers
+  - log: "Multiple transfers"
+  - transfer: alice -> bob, 0.01 ETH
+  - transfer: bob -> alice, 0.01 ETH
+  - transfer: alice -> bob, 0.01 ETH
+
+  # Phase 4: Final transfers
+  - log: "Final transfers"
+  - transfer: alice -> deployer, 0.1 ETH
+  - transfer: bob -> deployer, 0.1 ETH
+
+  - log: "Test completed"

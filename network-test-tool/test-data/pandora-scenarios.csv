@@ -1,0 +1,11 @@
+scenario_name,attack_type,intensity,target_address,amount,gas_multiplier,expected_outcome
+sandwich_attack_1,sandwich,high,0x1234567890abcdef,1000,2.0,success
+front_run_test,frontrun,medium,0xabcdef1234567890,500,1.5,success
+liquidation_cascade,liquidation,extreme,0xdeadbeef00000000,10000,3.0,cascade
+gas_war_simple,gaswar,low,0x0000000000000000,100,5.0,outbid
+mev_extraction,mev,high,0xfeedfeed00000000,5000,2.5,profit
+reentrancy_test,reentrancy,medium,0xbadc0de000000000,2000,1.0,blocked
+flash_loan_arb,flashloan,high,0xcafebabe00000000,50000,1.2,success
+dos_attack,dos,extreme,0x1111111111111111,1,10.0,timeout
+price_manipulation,oracle,medium,0x2222222222222222,3000,1.5,detected
+wash_trading,wash,low,0x3333333333333333,7500,1.1,flagged

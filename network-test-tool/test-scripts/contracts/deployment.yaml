@@ -1,0 +1,48 @@
+# Contract Deployment Test for Database Storage Verification
+test: Contract Deployment Test on Igra
+description: Test to verify contract deployments are stored in database
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+    alice:
+      balance: 0.05 ETH
+
+scenario:
+  - log: "Starting contract deployment test"
+
+  # Fund alice account
+  - transfer: deployer -> alice, 0.05 ETH
+
+  # Deploy a simple ERC20 token
+  - contract:
+      deploy:
+        type: ERC20
+        name: TestToken
+        from: deployer
+        args: ["Test Token", "TEST", 1000000]
+    returns: token_address
+
+  - log: "Token deployed at {{token_address}}"
+
+  # Call token to verify it works
+  - contract:
+      call:
+        address: "{{token_address}}"
+        method: balanceOf
+        args: ["{{deployer_address}}"]
+        from: deployer
+    returns: deployer_balance
+
+  - log: "Deployer token balance: {{deployer_balance}}"
+
+  # Transfer some tokens
+  - contract:
+      call:
+        address: "{{token_address}}"
+        method: transfer
+        args: ["{{alice_address}}", 1000]
+        from: deployer
+
+  - log: "Contract deployment test completed"

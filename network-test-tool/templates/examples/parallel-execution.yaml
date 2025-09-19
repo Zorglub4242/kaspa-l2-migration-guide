@@ -1,0 +1,149 @@
+# Parallel Execution Example
+# Demonstrates parallel operations for performance
+
+test: Parallel Operations Demo
+network: kasplex
+report: detailed
+
+setup:
+  # Create multiple accounts
+  alice: 10 ETH
+  bob: 10 ETH
+  charlie: 10 ETH
+  dave: 10 ETH
+  eve: 10 ETH
+
+  contracts:
+    token: ERC20("TestToken", "TEST", 1000000)
+
+scenario:
+  # Simple parallel transfers
+  - parallel:
+      - transfer: alice -> bob, 1 ETH
+      - transfer: bob -> charlie, 1 ETH
+      - transfer: charlie -> dave, 1 ETH
+      - transfer: dave -> eve, 1 ETH
+      - transfer: eve -> alice, 1 ETH
+
+  # Parallel token operations
+  - parallel:
+      maxConcurrency: 3  # Limit to 3 concurrent operations
+      actions:
+        - token.transfer: deployer -> alice, 1000
+        - token.transfer: deployer -> bob, 1000
+        - token.transfer: deployer -> charlie, 1000
+        - token.transfer: deployer -> dave, 1000
+        - token.transfer: deployer -> eve, 1000
+
+  # Parallel with different operation types
+  - parallel:
+      failFast: false  # Continue even if one fails
+      actions:
+        - call: token.balanceOf(alice)
+          returns: aliceBalance
+        - call: token.balanceOf(bob)
+          returns: bobBalance
+        - get: ethBalanceAlice = balance(alice)
+        - get: ethBalanceBob = balance(bob)
+        - measure:
+            name: blockNumber
+            value: block.number
+
+  - log: "Balances retrieved in parallel"
+
+  # Parallel forEach
+  - parallel:
+      forEach:
+        item: account
+        in: [alice, bob, charlie, dave, eve]
+      do:
+        - token.approve: "{{account}}", 500
+        - log: "Approved 500 tokens for {{account}}"
+
+  # Batch operations in parallel
+  - parallel:
+      batch:
+        size: 2  # Process in batches of 2
+        delay: 1000  # 1 second delay between batches
+      actions:
+        - transfer: alice -> bob, 0.1 ETH
+        - transfer: bob -> charlie, 0.1 ETH
+        - transfer: charlie -> dave, 0.1 ETH
+        - transfer: dave -> eve, 0.1 ETH
+        - transfer: eve -> alice, 0.1 ETH
+
+  # Race condition - first to complete wins
+  - parallel:
+      race: true
+      timeout: 5000
+      actions:
+        - wait: 1000
+          then: {set: {winner: "operation1"}}
+        - wait: 500
+          then: {set: {winner: "operation2"}}
+        - wait: 2000
+          then: {set: {winner: "operation3"}}
+
+  - log: "Race winner: {{winner}}"
+
+  # Map operation in parallel
+  - set:
+      amounts: [100, 200, 300, 400, 500]
+
+  - parallel:
+      map: "{{amounts}}"
+      transform: "item * 2"
+      returns: doubledAmounts
+
+  - log: "Doubled amounts: {{doubledAmounts}}"
+
+  # Filter operation in parallel
+  - parallel:
+      filter: [alice, bob, charlie, dave, eve]
+      condition: "balance(item) > 9 ETH"
+      returns: richAccounts
+
+  - log: "Rich accounts: {{richAccounts}}"
+
+  # Complex parallel scenario
+  - parallel:
+      maxConcurrency: 5
+      failFast: false
+      actions:
+        # Deploy multiple contracts
+        - deploy: token2 = ERC20("Token2", "TK2", 500000)
+        - deploy: token3 = ERC20("Token3", "TK3", 500000)
+
+        # Multiple transfers
+        - parallel:
+            actions:
+              - transfer: alice -> bob, 0.5 ETH
+              - transfer: bob -> alice, 0.5 ETH
+
+        # Check multiple conditions
+        - if: balance(alice) > 8 ETH
+          then:
+            - log: "Alice still has enough ETH"
+
+  # Performance measurement
+  - measure:
+      name: "parallelPerformance"
+      start: timestamp()
+
+  - parallel:
+      actions:
+        - repeat: 10
+          do: token.transfer: alice -> bob, 1
+        - repeat: 10
+          do: token.transfer: bob -> charlie, 1
+        - repeat: 10
+          do: token.transfer: charlie -> alice, 1
+
+  - measure:
+      name: "parallelPerformance"
+      end: timestamp()
+
+  - log: "Parallel execution time: {{parallelPerformance}} ms"
+
+cleanup:
+  - log: "Parallel test completed"

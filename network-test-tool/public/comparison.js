@@ -70,7 +70,7 @@ function displayComparison(data) {
     const table = document.getElementById('comparisonTable');
 
     if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No data available</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No data available</td></tr>';
         table.style.display = 'table';
         return;
     }
@@ -113,7 +113,6 @@ function displayComparison(data) {
             <td><strong>$${item.usdCost}</strong></td>
             <td>${formatGasPrice(item.mainnetGasPrice)}</td>
             <td><strong>$${item.mainnetUsdCost || item.usdCost}</strong></td>
-            <td>${item.percentVsEth}%</td>
         `;
 
         tbody.appendChild(row);
@@ -155,7 +154,7 @@ function sortData(data, column, direction) {
         let valueB = b[column];
 
         // Handle numeric values
-        if (['tokenPrice', 'gasPrice', 'mainnetGasPrice', 'tokenCost', 'usdCost', 'mainnetUsdCost', 'percentVsEth'].includes(column)) {
+        if (['tokenPrice', 'gasPrice', 'mainnetGasPrice', 'tokenCost', 'usdCost', 'mainnetUsdCost'].includes(column)) {
             valueA = parseFloat(valueA) || 0;
             valueB = parseFloat(valueB) || 0;
         }
@@ -198,7 +197,7 @@ async function exportComparison(format) {
 
 // Export to CSV
 function exportToCSV(data, gasAmount) {
-    const headers = ['Network', 'Type', 'Token', 'Price/Token', 'Testnet Gas', 'Testnet USD', 'Mainnet Gas', 'Mainnet USD', '% vs ETH'];
+    const headers = ['Network', 'Type', 'Token', 'Price/Token', 'Testnet Gas', 'Testnet USD', 'Mainnet Gas', 'Mainnet USD'];
     const rows = data.map(item => [
         item.network,
         item.type || 'testnet',
@@ -207,8 +206,7 @@ function exportToCSV(data, gasAmount) {
         item.gasPrice,
         item.usdCost,
         item.mainnetGasPrice || item.gasPrice,
-        item.mainnetUsdCost || item.usdCost,
-        item.percentVsEth
+        item.mainnetUsdCost || item.usdCost
     ]);
 
     const csvContent = [
@@ -257,7 +255,6 @@ function exportToPDF(data, gasAmount) {
                 <th>Testnet USD</th>
                 <th>Mainnet Gas</th>
                 <th>Mainnet USD</th>
-                <th>% vs ETH</th>
             </tr>
         </thead>
         <tbody>
@@ -277,7 +274,6 @@ function exportToPDF(data, gasAmount) {
                     <td><strong>$${item.usdCost}</strong></td>
                     <td>${item.mainnetGasPrice || item.gasPrice} Gwei</td>
                     <td><strong>$${item.mainnetUsdCost || item.usdCost}</strong></td>
-                    <td>${item.percentVsEth}%</td>
                 </tr>`;
             }).join('')}
         </tbody>

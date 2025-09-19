@@ -1,0 +1,26 @@
+# Simple DeFi Test for Igra
+# Basic test to verify YAML system works
+
+test: Simple DeFi Test
+description: Basic DeFi operations test
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+    alice: 10 ETH
+    bob: 10 ETH
+
+scenario:
+  # Simple transfer test
+  - log: "Starting simple DeFi test on Igra"
+
+  # Fund alice from deployer
+  - transfer: deployer -> alice, 0.2 ETH
+
+  # Now alice can transfer to bob
+  - transfer: alice -> bob, 0.1 ETH
+
+  - log: "Transfer completed"
+
+  - log: "Test completed successfully"

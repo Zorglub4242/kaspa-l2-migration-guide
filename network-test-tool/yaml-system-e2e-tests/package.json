@@ -1,0 +1,30 @@
+{
+  "name": "yaml-system-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end test suite for YAML testing system",
+  "scripts": {
+    "test": "jest",
+    "test:core": "jest core-functionality",
+    "test:contracts": "jest bring-your-own-contract",
+    "test:keywords": "jest keyword-system",
+    "test:control": "jest control-flow",
+    "test:wallets": "jest wallet-operations",
+    "test:data": "jest data-driven",
+    "test:kasplex": "NETWORK=kasplex jest",
+    "test:igra": "NETWORK=igra jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "report": "jest --coverage --coverageReporters=html",
+    "clean": "rm -rf coverage test-results"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "jest": "^29.7.0",
+    "jest-html-reporter": "^3.10.2"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7"
+  }
+}

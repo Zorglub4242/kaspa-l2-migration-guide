@@ -1,0 +1,389 @@
+# Complete DeFi Protocol Test
+# Replaces the JavaScript DeFi test suite
+
+test: Complete DeFi Protocol Suite
+description: Full DeFi protocol testing including DEX, lending, and yield farming
+network: [kasplex, igra, sepolia]
+
+variables:
+  initial_liquidity: 100000
+  loan_amount: 1000
+  collateral_ratio: 1.5
+
+setup:
+  accounts:
+    deployer: 100 ETH
+    alice: 10 ETH
+    bob: 10 ETH
+    charlie: 10 ETH
+    liquidator: 10 ETH
+
+  contracts:
+    # Deploy tokens
+    usdc:
+      type: ERC20
+      args: ["USD Coin", "USDC", 10000000, 6]
+      from: deployer
+
+    dai:
+      type: ERC20
+      args: ["Dai Stablecoin", "DAI", 10000000, 18]
+      from: deployer
+
+    weth:
+      type: WETH9
+      args: []
+      from: deployer
+
+    # Deploy DEX
+    factory:
+      type: UniswapV2Factory
+      args: [deployer]
+      from: deployer
+
+    router:
+      type: UniswapV2Router
+      args: [factory.address, weth.address]
+      from: deployer
+
+    # Deploy lending protocol
+    lending:
+      type: ./contracts/SimpleLending.json
+      args: []
+      from: deployer
+
+    # Deploy yield farming
+    farming:
+      type: ./contracts/YieldFarm.json
+      args: [dai.address, 100]  # 100 DAI per block reward
+      from: deployer
+
+scenario:
+  # =====================================
+  # Part 1: Token Distribution
+  # =====================================
+  - log: "=== Token Distribution ==="
+
+  - parallel:
+    - call:
+        contract: usdc
+        method: transfer
+        args: [alice, 10000]
+        from: deployer
+    - call:
+        contract: dai
+        method: transfer
+        args: [alice, 10000]
+        from: deployer
+    - call:
+        contract: usdc
+        method: transfer
+        args: [bob, 10000]
+        from: deployer
+    - call:
+        contract: dai
+        method: transfer
+        args: [bob, 10000]
+        from: deployer
+
+  # =====================================
+  # Part 2: DEX Operations
+  # =====================================
+  - log: "=== DEX: Creating Liquidity Pool ==="
+
+  # Approve tokens for router
+  - call:
+      contract: usdc
+      method: approve
+      args: [router.address, initial_liquidity]
+      from: deployer
+
+  - call:
+      contract: dai
+      method: approve
+      args: [router.address, initial_liquidity]
+      from: deployer
+
+  # Add liquidity
+  - call:
+      contract: router
+      method: addLiquidity
+      args: [
+        usdc.address,
+        dai.address,
+        50000,
+        50000,
+        0,
+        0,
+        deployer,
+        timestamp + 3600
+      ]
+      from: deployer
+
+  - log: "=== DEX: Token Swaps ==="
+
+  # Alice swaps USDC for DAI
+  - call:
+      contract: usdc
+      method: approve
+      args: [router.address, 1000]
+      from: alice
+
+  - measure:
+      name: "Swap Gas Cost"
+      metric: gas
+      start:
+        call:
+          contract: router
+          method: swapExactTokensForTokens
+          args: [
+            1000,
+            900,  # Accept 10% slippage
+            [usdc.address, dai.address],
+            alice,
+            timestamp + 3600
+          ]
+          from: alice
+
+  # Bob provides liquidity
+  - call:
+      contract: usdc
+      method: approve
+      args: [router.address, 5000]
+      from: bob
+
+  - call:
+      contract: dai
+      method: approve
+      args: [router.address, 5000]
+      from: bob
+
+  - call:
+      contract: router
+      method: addLiquidity
+      args: [
+        usdc.address,
+        dai.address,
+        5000,
+        5000,
+        0,
+        0,
+        bob,
+        timestamp + 3600
+      ]
+      from: bob
+
+  # =====================================
+  # Part 3: Lending Protocol
+  # =====================================
+  - log: "=== Lending: Deposits and Borrows ==="
+
+  # Alice deposits DAI as collateral
+  - call:
+      contract: dai
+      method: approve
+      args: [lending.address, 5000]
+      from: alice
+
+  - call:
+      contract: lending
+      method: deposit
+      args: [dai.address, 5000]
+      from: alice
+
+  # Alice borrows USDC against DAI collateral
+  - call:
+      contract: lending
+      method: borrow
+      args: [usdc.address, loan_amount]
+      from: alice
+
+  - check: "lending.getBorrowBalance(alice, usdc.address) == loan_amount"
+    message: "Borrow balance should match loan amount"
+
+  # Bob deposits USDC to earn interest
+  - call:
+      contract: usdc
+      method: approve
+      args: [lending.address, 3000]
+      from: bob
+
+  - call:
+      contract: lending
+      method: deposit
+      args: [usdc.address, 3000]
+      from: bob
+
+  # Wait for interest to accrue
+  - wait: 10s
+
+  # Check interest earned
+  - call:
+      contract: lending
+      method: getDepositBalance
+      args: [bob, usdc.address]
+      expect: "> 3000"
+
+  # Alice repays loan
+  - call:
+      contract: usdc
+      method: approve
+      args: [lending.address, loan_amount * 1.1]  # Include interest
+      from: alice
+
+  - call:
+      contract: lending
+      method: repay
+      args: [usdc.address, loan_amount]
+      from: alice
+
+  # =====================================
+  # Part 4: Yield Farming
+  # =====================================
+  - log: "=== Yield Farming: Staking and Rewards ==="
+
+  # Setup farming pool
+  - call:
+      contract: dai
+      method: transfer
+      args: [farming.address, 100000]  # Fund rewards
+      from: deployer
+
+  # Alice stakes LP tokens
+  - call:
+      contract: factory
+      method: getPair
+      args: [usdc.address, dai.address]
+      from: alice
+  - set:
+      lpToken: _lastResult
+
+  - call:
+      contract: lpToken
+      method: approve
+      args: [farming.address, lpToken.balanceOf(alice)]
+      from: alice
+
+  - call:
+      contract: farming
+      method: stake
+      args: [lpToken.balanceOf(alice)]
+      from: alice
+
+  # Farm for some blocks
+  - loop:
+      times: 5
+      actions:
+        - wait: 2s
+        - transfer: alice -> bob, 0.001 ETH  # Create blocks
+
+  # Check rewards
+  - call:
+      contract: farming
+      method: earned
+      args: [alice]
+      expect: "> 0"
+
+  # Harvest rewards
+  - call:
+      contract: farming
+      method: getReward
+      from: alice
+
+  # =====================================
+  # Part 5: Liquidation Scenario
+  # =====================================
+  - log: "=== Liquidation Test ==="
+
+  # Charlie takes risky loan
+  - call:
+      contract: dai
+      method: transfer
+      args: [charlie, 1000]
+      from: deployer
+
+  - call:
+      contract: dai
+      method: approve
+      args: [lending.address, 1000]
+      from: charlie
+
+  - call:
+      contract: lending
+      method: deposit
+      args: [dai.address, 1000]
+      from: charlie
+
+  - call:
+      contract: lending
+      method: borrow
+      args: [usdc.address, 666]  # Max borrow at 150% collateral ratio
+      from: charlie
+
+  # Simulate price drop (in real test, would use oracle)
+  - call:
+      contract: lending
+      method: updatePrice
+      args: [dai.address, 800]  # 20% drop
+      from: deployer
+
+  # Liquidator liquidates Charlie
+  - call:
+      contract: usdc
+      method: approve
+      args: [lending.address, 666]
+      from: liquidator
+
+  - call:
+      contract: lending
+      method: liquidate
+      args: [charlie, usdc.address, 666]
+      from: liquidator
+
+  - check: "lending.getBorrowBalance(charlie, usdc.address) == 0"
+    message: "Charlie's debt should be liquidated"
+
+  # =====================================
+  # Part 6: Flash Loan Arbitrage
+  # =====================================
+  - log: "=== Flash Loan Arbitrage ==="
+
+  - call:
+      contract: ./contracts/FlashLoanArbitrage.json
+      method: executeArbitrage
+      args: [
+        dai.address,
+        10000,
+        router.address,
+        [dai.address, usdc.address, dai.address]
+      ]
+      from: alice
+
+cleanup:
+  # Remove liquidity
+  - call:
+      contract: router
+      method: removeLiquidity
+      args: [
+        usdc.address,
+        dai.address,
+        lpToken.balanceOf(deployer),
+        0,
+        0,
+        deployer,
+        timestamp + 3600
+      ]
+      from: deployer
+
+  # Withdraw from farming
+  - call:
+      contract: farming
+      method: exit
+      from: alice
+
+  # Withdraw from lending
+  - call:
+      contract: lending
+      method: withdraw
+      args: [dai.address, lending.getDepositBalance(alice, dai.address)]
+      from: alice

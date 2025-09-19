@@ -1,0 +1,41 @@
+
+keywords:
+  outer-keyword:
+    description: "Outer keyword that calls inner"
+    params: [value]
+    steps:
+      - run: inner-keyword
+        params: ["{{value}} * 2"]
+        returns: doubled
+      - return: "{{doubled}}"
+
+  inner-keyword:
+    description: "Inner keyword"
+    params: [value]
+    steps:
+      - set:
+          result: "{{value}} + 10"
+      - return: "{{result}}"
+
+  complex-nested:
+    description: "Complex nested operations"
+    params: [accounts, amount]
+    steps:
+      - foreach:
+          item: account
+          in: "{{accounts}}"
+        do:
+          - run: process-account
+            params: ["{{account}}", "{{amount}}"]
+      - return: "processed"
+
+  process-account:
+    description: "Process single account"
+    params: [account, amount]
+    steps:
+      - log: "Processing {{account}} with {{amount}}"
+      - if: "balance({{account}}) > 5 ETH"
+        then:
+          - log: "{{account}} is wealthy"
+        else:
+          - log: "{{account}} needs funds"

@@ -95,7 +95,10 @@ function displayRuns(runs) {
             <td>${formatCost(run.testnetCost, getNetworkSymbol(run.network))}</td>
             <td>$${run.mainnetEstimate ? run.mainnetEstimate.toFixed(2) : 'N/A'}</td>
             <td>${formatDate(run.timestamp)}</td>
-            <td><button class="btn btn-sm btn-info" onclick="compareNetworks(${run.runId})">Compare</button></td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="viewDetails(${run.runId})" style="margin-right: 5px;">View Details</button>
+                <button class="btn btn-sm btn-info" onclick="compareNetworks(${run.runId})">Compare Costs</button>
+            </td>
         `;
         tbody.appendChild(row);
     });
@@ -158,6 +161,11 @@ function refreshData() {
         runId: document.getElementById('runIdSearch').value
     };
     loadRuns(filters);
+}
+
+// View test run details (transactions and contracts)
+function viewDetails(runId) {
+    window.open(`/transactions.html?runId=${runId}`, '_blank');
 }
 
 // Compare networks

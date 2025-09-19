@@ -1,0 +1,125 @@
+# Example E2E Test for YAML System
+# This test demonstrates various YAML system features
+
+test: Complete E2E Example Test
+network: kasplex
+report: detailed
+
+# Define test wallets
+wallets:
+  alice: generate
+  bob: generate
+
+# Setup initial state
+setup:
+  funder: 20 ETH
+
+# Deploy contracts
+contracts:
+  token: ERC20("ExampleToken", "EXT", 10000)
+  calc: file:../contracts/Calculator.sol#Calculator
+
+# Main test scenario
+scenario:
+  # Fund wallets
+  - log: "=== Setting up wallets ==="
+  - transfer: funder -> {{wallets.alice.address}}, 5 ETH
+  - transfer: funder -> {{wallets.bob.address}}, 5 ETH
+
+  # Test calculator contract
+  - log: "=== Testing Calculator contract ==="
+  - call: calc.add(10, 20)
+    returns: sum
+  - assert: sum == 30
+  - log: "Calculator test passed: 10 + 20 = {{sum}}"
+
+  # Test token operations
+  - log: "=== Testing Token operations ==="
+  - token.transfer: deployer -> {{wallets.alice.address}}, 1000
+  - call: token.balanceOf({{wallets.alice.address}})
+    returns: aliceBalance
+  - assert: aliceBalance == 1000
+
+  # Test wallet operations
+  - log: "=== Testing Wallet operations ==="
+  - signMessage:
+      wallet: alice
+      message: "Test message from E2E test"
+    returns: signature
+  - assert: exists(signature.signature)
+  - log: "Message signed: {{signature.signature}}"
+
+  # Test conditional flow
+  - log: "=== Testing Conditional flow ==="
+  - if: balance({{wallets.alice.address}}) > 3 ETH
+    then:
+      - log: "Alice has sufficient balance"
+      - transfer: {{wallets.alice.address}} -> {{wallets.bob.address}}, 1 ETH
+    else:
+      - log: "Alice needs more funds"
+
+  # Test parallel execution
+  - log: "=== Testing Parallel execution ==="
+  - parallel:
+      - token.transfer: {{wallets.alice.address}} -> {{wallets.bob.address}}, 100
+        from: {{wallets.alice.address}}
+      - call: calc.multiply(5, 6)
+        returns: product
+      - wallet:
+          action: balance
+          wallet: alice
+        returns: aliceETH
+
+  - assert: product == 30
+  - log: "Parallel operations completed successfully"
+
+  # Test data-driven approach with inline data
+  - log: "=== Testing Data-driven approach ==="
+  - set:
+      testData:
+        - {a: 10, b: 5, op: "add", expected: 15}
+        - {a: 10, b: 5, op: "subtract", expected: 5}
+        - {a: 10, b: 5, op: "multiply", expected: 50}
+
+  - foreach:
+      item: test
+      in: "{{testData}}"
+    do:
+      - if: test.op == "add"
+        then:
+          - call: calc.add({{test.a}}, {{test.b}})
+            returns: result
+      - if: test.op == "subtract"
+        then:
+          - call: calc.subtract({{test.a}}, {{test.b}})
+            returns: result
+      - if: test.op == "multiply"
+        then:
+          - call: calc.multiply({{test.a}}, {{test.b}})
+            returns: result
+      - assert: result == {{test.expected}}
+      - log: "✓ {{test.op}}: {{test.a}}, {{test.b}} = {{result}}"
+
+  # Final verification
+  - log: "=== Final Verification ==="
+  - call: token.balanceOf({{wallets.bob.address}})
+    returns: bobFinalBalance
+  - assert: bobFinalBalance == 100
+  - wallet:
+      action: balance
+      wallet: bob
+    returns: bobFinalETH
+  - assert: bobFinalETH > 5 ETH
+
+  - log: "🎉 All E2E tests passed successfully!"
+
+# Cleanup
+cleanup:
+  - log: "Test cleanup completed"
+
+# Return test results
+returns:
+  success: true
+  message: "E2E test completed successfully"
+  tokenAddress: contracts.token.address
+  calculatorAddress: contracts.calc.address

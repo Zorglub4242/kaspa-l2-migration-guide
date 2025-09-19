@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Script Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin: 15px 0 0 0;
+        }
+        .breadcrumb-item a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .breadcrumb-item a:hover {
+            text-decoration: underline;
+        }
+        .script-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .script-info h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            min-width: 120px;
+        }
+        .info-value {
+            color: #333;
+        }
+        .code-container {
+            position: relative;
+            background: #2d2d2d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .code-header {
+            background: #1e1e1e;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+        }
+        .code-title {
+            color: #fff;
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .copy-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+        .copy-button:hover {
+            background: #5a67d8;
+        }
+        .copy-button.copied {
+            background: #48bb78;
+        }
+        pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #2d2d2d !important;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .line-highlight {
+            background: rgba(255, 255, 0, 0.1);
+            display: block;
+            margin-right: -20px;
+            margin-left: -20px;
+            padding-right: 20px;
+            padding-left: 20px;
+            border-left: 3px solid #ffd700;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>YAML Script Viewer</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/transactions">Transactions</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Script Viewer</li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="content-card">
+            <div id="loading" class="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading YAML script...</p>
+            </div>
+
+            <div id="content" style="display: none;">
+                <div class="script-info">
+                    <h3>Script Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Filename:</span>
+                        <span class="info-value" id="filename">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Path:</span>
+                        <span class="info-value" id="filepath">-</span>
+                    </div>
+                    <div class="info-row" id="lineRow" style="display: none;">
+                        <span class="info-label">Highlighted Line:</span>
+                        <span class="info-value" id="lineNumber">-</span>
+                    </div>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <h6 class="code-title">YAML Test Script</h6>
+                        <button class="copy-button" onclick="copyCode()">Copy Script</button>
+                    </div>
+                    <pre><code id="codeContent" class="language-yaml"></code></pre>
+                </div>
+            </div>
+
+            <div id="error" class="error-message" style="display: none;">
+                <h4>Error Loading Script</h4>
+                <p id="errorMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
+    <script>
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const scriptFile = urlParams.get('script');
+        const highlightLine = urlParams.get('line');
+
+        async function loadScript() {
+            if (!scriptFile) {
+                showError('No script file specified');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/yaml-script/${encodeURIComponent(scriptFile)}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    showError(data.error || 'Failed to load script');
+                    return;
+                }
+
+                displayScript(data);
+            } catch (error) {
+                showError(`Failed to load script: ${error.message}`);
+            }
+        }
+
+        function displayScript(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Set script info
+            document.getElementById('filename').textContent = data.filename;
+            document.getElementById('filepath').textContent = data.path;
+
+            // Handle line highlighting
+            let content = data.content;
+            if (highlightLine) {
+                const lineNum = parseInt(highlightLine);
+                document.getElementById('lineRow').style.display = 'flex';
+                document.getElementById('lineNumber').textContent = lineNum;
+
+                // Add highlight to specific line
+                const lines = content.split('\n');
+                if (lineNum > 0 && lineNum <= lines.length) {
+                    lines[lineNum - 1] = `<span class="line-highlight">${lines[lineNum - 1]}</span>`;
+                    content = lines.join('\n');
+                }
+            }
+
+            // Display code with syntax highlighting
+            const codeElement = document.getElementById('codeContent');
+            codeElement.innerHTML = content;
+            Prism.highlightElement(codeElement);
+
+            // Scroll to highlighted line if specified
+            if (highlightLine) {
+                setTimeout(() => {
+                    const highlight = document.querySelector('.line-highlight');
+                    if (highlight) {
+                        highlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        function copyCode() {
+            const codeElement = document.getElementById('codeContent');
+            const text = codeElement.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const button = document.querySelector('.copy-button');
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+
+                setTimeout(() => {
+                    button.textContent = 'Copy Script';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Load script on page load
+        loadScript();
+    </script>
+</body>
+</html>

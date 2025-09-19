@@ -1,0 +1,8 @@
+
+keywords:
+  second-lib-keyword:
+    description: "Keyword from second library"
+    params: [message]
+    steps:
+      - log: "Second lib says: {{message}}"
+      - return: "second-lib-executed"

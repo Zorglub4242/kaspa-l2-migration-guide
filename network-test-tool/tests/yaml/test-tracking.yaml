@@ -1,0 +1,85 @@
+# Test YAML script for tracking functionality
+name: YAML Tracking Test
+description: Test script to verify YAML script tracking works correctly
+version: 1.0.0
+
+# Define the network to test
+network:
+  name: localhost
+  rpc: http://localhost:8545
+  chainId: 1337
+
+# Define test accounts
+accounts:
+  alice:
+    balance: 10 ETH
+  bob:
+    balance: 5 ETH
+  charlie:
+    balance: 2 ETH
+
+# Test steps
+tests:
+  - name: Test simple transfers
+    steps:
+      # Transfer from Alice to Bob
+      - action: transfer
+        from: alice
+        to: bob
+        amount: 0.5 ETH
+        description: Transfer half ETH from Alice to Bob
+
+      # Transfer from Bob to Charlie
+      - action: transfer
+        from: bob
+        to: charlie
+        amount: 0.25 ETH
+        description: Transfer quarter ETH from Bob to Charlie
+
+      # Transfer from Charlie back to Alice
+      - action: transfer
+        from: charlie
+        to: alice
+        amount: 0.1 ETH
+        description: Return some ETH to Alice
+
+  - name: Test multiple transfers
+    steps:
+      # Multiple small transfers
+      - action: transfer
+        from: alice
+        to: bob
+        amount: 0.01 ETH
+        description: Small transfer 1
+
+      - action: transfer
+        from: alice
+        to: charlie
+        amount: 0.01 ETH
+        description: Small transfer 2
+
+      - action: transfer
+        from: bob
+        to: charlie
+        amount: 0.01 ETH
+        description: Small transfer 3
+
+# Assertions to validate results
+assertions:
+  - type: balance
+    account: alice
+    operator: ">"
+    value: 9 ETH
+    description: Alice should have more than 9 ETH remaining
+
+  - type: balance
+    account: bob
+    operator: ">"
+    value: 5 ETH
+    description: Bob should have more than 5 ETH
+
+  - type: balance
+    account: charlie
+    operator: ">"
+    value: 2 ETH
+    description: Charlie should have more than 2 ETH

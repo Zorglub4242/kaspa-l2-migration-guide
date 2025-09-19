@@ -1,0 +1,270 @@
+name: Test Suite
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run unit tests with coverage
+      run: npm test -- --coverage --coverageReporters=json-summary,text,lcov
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unit
+        name: unit-coverage
+
+    - name: Check coverage threshold
+      run: |
+        COVERAGE=$(node -e "const cov = require('./coverage/coverage-summary.json'); console.log(cov.total.lines.pct)")
+        echo "Coverage: $COVERAGE%"
+        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+          echo "::error::Coverage is below 80% threshold"
+          exit 1
+        fi
+
+  e2e-tests:
+    name: E2E Tests - ${{ matrix.network }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        network: [kasplex, igra]
+        test-suite:
+          - core-functionality
+          - bring-your-own-contract
+          - keyword-system
+          - control-flow
+          - wallet-operations
+          - data-driven
+          - integration
+          - migrated-tests
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install main dependencies
+      run: npm ci
+
+    - name: Install E2E test dependencies
+      working-directory: yaml-system-e2e-tests
+      run: npm ci
+
+    - name: Run E2E test suite - ${{ matrix.test-suite }}
+      working-directory: yaml-system-e2e-tests
+      env:
+        NETWORK: ${{ matrix.network }}
+      run: npm test -- ${{ matrix.test-suite }}
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-results-${{ matrix.network }}-${{ matrix.test-suite }}
+        path: yaml-system-e2e-tests/test-results/
+
+  yaml-validation:
+    name: YAML Test Validation
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Validate YAML syntax
+      run: |
+        echo "Validating YAML files..."
+        find templates migrations -name "*.yaml" -type f | while read file; do
+          echo "Checking: $file"
+          node -e "const yaml = require('js-yaml'); const fs = require('fs'); yaml.load(fs.readFileSync('$file', 'utf8'));"
+        done
+
+    - name: Test YAML discovery
+      run: node cli.js yaml-discover --help
+
+  migration-validation:
+    name: Migration Validation
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Verify no old JavaScript test files
+      run: |
+        # Check that old test files have been removed
+        OLD_FILES=(
+          "scripts/complete-defi-suite.js"
+          "scripts/deploy-defi-suite.js"
+          "scripts/enhanced-defi-comprehensive.js"
+          "lib/defi-test-runner.js"
+          "utils/defi-metrics.js"
+        )
+
+        for file in "${OLD_FILES[@]}"; do
+          if [ -f "$file" ]; then
+            echo "::error::Old test file still exists: $file"
+            exit 1
+          fi
+        done
+
+        # Check for load test files
+        if ls scripts/load-test-*.js 2>/dev/null; then
+          echo "::error::Old load test files still exist"
+          exit 1
+        fi
+
+        echo "✅ All old JavaScript test files have been removed"
+
+    - name: Verify migrated YAML files exist
+      run: |
+        # Check that migration directories exist
+        if [ ! -d "migrations/defi" ]; then
+          echo "::error::DeFi migrations directory missing"
+          exit 1
+        fi
+
+        if [ ! -d "migrations/load" ]; then
+          echo "::error::Load test migrations directory missing"
+          exit 1
+        fi
+
+        # Count migrated files
+        DEFI_COUNT=$(find migrations/defi -name "*.yaml" | wc -l)
+        LOAD_COUNT=$(find migrations/load -name "*.yaml" | wc -l)
+
+        echo "Found $DEFI_COUNT DeFi YAML files"
+        echo "Found $LOAD_COUNT Load test YAML files"
+
+        if [ "$DEFI_COUNT" -lt 1 ] || [ "$LOAD_COUNT" -lt 1 ]; then
+          echo "::error::Missing migrated YAML files"
+          exit 1
+        fi
+
+        echo "✅ All migrations validated"
+
+  test-report:
+    name: Test Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests, yaml-validation, migration-validation]
+    if: always()
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Generate test summary
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        echo "### Unit Tests" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.unit-tests.result }}" = "success" ]; then
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        echo "### E2E Tests" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.e2e-tests.result }}" = "success" ]; then
+          echo "✅ All E2E tests passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Some E2E tests failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        echo "### YAML Validation" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.yaml-validation.result }}" = "success" ]; then
+          echo "✅ All YAML files valid" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ YAML validation failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        echo "### Migration Validation" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.migration-validation.result }}" = "success" ]; then
+          echo "✅ Migrations complete" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Migration issues detected" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const unitResult = '${{ needs.unit-tests.result }}';
+          const e2eResult = '${{ needs.e2e-tests.result }}';
+          const yamlResult = '${{ needs.yaml-validation.result }}';
+          const migrationResult = '${{ needs.migration-validation.result }}';
+
+          const passed = unitResult === 'success' &&
+                        e2eResult === 'success' &&
+                        yamlResult === 'success' &&
+                        migrationResult === 'success';
+
+          const emoji = passed ? '✅' : '❌';
+          const status = passed ? 'All tests passed!' : 'Some tests failed';
+
+          const comment = `## ${emoji} Test Results: ${status}
+
+          | Test Suite | Result |
+          |------------|--------|
+          | Unit Tests | ${unitResult === 'success' ? '✅ Passed' : '❌ Failed'} |
+          | E2E Tests | ${e2eResult === 'success' ? '✅ Passed' : '⚠️ Check details'} |
+          | YAML Validation | ${yamlResult === 'success' ? '✅ Valid' : '❌ Invalid'} |
+          | Migration Check | ${migrationResult === 'success' ? '✅ Complete' : '❌ Issues'} |
+
+          View the [full test report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

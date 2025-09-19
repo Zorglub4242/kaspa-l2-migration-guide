@@ -1,0 +1,57 @@
+# Data-Driven Testing Example
+# Run the same test with multiple data sets
+
+test: Token Transfer Data-Driven Test
+description: Testing token transfers with various amounts and recipients
+network: [kasplex, igra]
+
+# Load test data from CSV file
+# CSV format: sender,receiver,amount,expected_result
+data: ./test-data/transfer-test-cases.csv
+
+setup:
+  accounts:
+    treasury: 100 ETH
+
+  contracts:
+    token:
+      type: ERC20
+      args: ["Test Token", "TST", 1000000]
+      from: treasury
+
+scenario:
+  # This scenario runs once for each row in the CSV
+  # Data fields are available as variables
+
+  - log: "Test case: Transfer {amount} from {sender} to {receiver}"
+
+  # Create accounts if they don't exist
+  - if:
+      condition: "!exists({sender})"
+      then:
+        - set:
+            "{sender}": Account("1 ETH")
+
+  - if:
+      condition: "!exists({receiver})"
+      then:
+        - set:
+            "{receiver}": Account("0 ETH")
+
+  # Fund sender with tokens
+  - call:
+      contract: token
+      method: transfer
+      args: ["{sender}", "{amount}"]
+      from: treasury
+
+  # Execute transfer
+  - call:
+      contract: token
+      method: transfer
+      args: ["{receiver}", "{amount}"]
+      from: "{sender}"
+
+  # Verify result
+  - check: "token.balanceOf({receiver}) == {expected_result}"
+    message: "Balance mismatch for test case {_index}"

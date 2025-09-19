@@ -1,0 +1,88 @@
+# Simple Load Test with Advanced Features
+test: Simple Load Test
+description: Generate transaction load to measure network performance
+
+variables:
+  users: 10
+  transactions_per_user: 20
+  batch_size: 5
+
+setup:
+  accounts:
+    funder:
+      privateKey: env:PRIVATE_KEY
+
+scenario:
+  - log: "Starting load test with {users} users"
+
+  # Fund the funder account check
+  - log: "Setting up test environment"
+
+  # Create test users dynamically
+  - loop:
+      times: users
+      actions:
+        - set:
+            user_{_index}: Account()
+        - transfer: funder -> user_{_index}, 2 ETH
+        - log: "Created and funded user_{_index}"
+
+  # Warm-up phase
+  - log: "Starting warm-up phase"
+  - loop:
+      times: 3
+      actions:
+        - transfer: user_0 -> user_1, 0.001 ETH
+        - wait: 500ms
+
+  # Generate load in batches with measurements
+  - log: "Starting load generation"
+  - loop:
+      times: transactions_per_user / batch_size
+      actions:
+        - log: "Batch {_iteration} of {transactions_per_user / batch_size}"
+
+        - measure:
+            name: "Batch_{_iteration}_TPS"
+            metric: time
+            start:
+              parallel:
+                - loop:
+                    times: batch_size
+                    actions:
+                      - transfer: user_{_index % users} -> user_{(_index + 1) % users}, 0.001 ETH
+            end:
+              log: "Batch {_iteration} complete"
+
+        - wait: 1s
+
+  # Performance measurement section
+  - measure:
+      name: "final_burst"
+      start: timestamp()
+
+  - parallel:
+      maxConcurrency: 5
+      actions:
+        - transfer: user_0 -> user_1, 0.001 ETH
+        - transfer: user_1 -> user_2, 0.001 ETH
+        - transfer: user_2 -> user_3, 0.001 ETH
+        - transfer: user_3 -> user_4, 0.001 ETH
+        - transfer: user_4 -> user_0, 0.001 ETH
+
+  - measure:
+      name: "final_burst"
+      end: timestamp()
+
+  # Report results
+  - log: "Load test complete"
+  - log: "Total transactions: {users * transactions_per_user}"
+  - log: "Final burst time: {final_burst} ms"
+
+cleanup:
+  # Return funds to funder
+  - foreach:
+      item: i
+      in: range(0, users)
+      do:
+        - transfer: user_{i} -> funder, 0.5 ETH

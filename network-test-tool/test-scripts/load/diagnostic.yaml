@@ -1,0 +1,47 @@
+# Diagnostic Load Test
+test: Diagnostic Load Test
+description: Load test with diagnostic information
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+    alice: 0.1 ETH
+    bob: 0.1 ETH
+
+scenario:
+  - log: "Starting diagnostic load test"
+
+  # Initial funding
+  - transfer: deployer -> alice, 1 ETH
+  - transfer: deployer -> bob, 1 ETH
+
+  # Test phase 1 - Normal load
+  - log: "Phase 1 - Normal load"
+  - transfer: alice -> bob, 0.01 ETH
+  - wait: 1s
+  - transfer: bob -> alice, 0.01 ETH
+  - wait: 1s
+
+  # Test phase 2 - Increased load
+  - log: "Phase 2 - Increased load"
+  - transfer: alice -> bob, 0.02 ETH
+  - transfer: bob -> alice, 0.02 ETH
+  - transfer: alice -> bob, 0.02 ETH
+  - transfer: bob -> alice, 0.02 ETH
+
+  # Test phase 3 - Sustained load
+  - log: "Phase 3 - Sustained load"
+  - transfer: alice -> bob, 0.005 ETH
+  - transfer: bob -> alice, 0.005 ETH
+  - transfer: alice -> bob, 0.005 ETH
+  - transfer: bob -> alice, 0.005 ETH
+  - transfer: alice -> bob, 0.005 ETH
+  - transfer: bob -> alice, 0.005 ETH
+
+  # Final diagnostics
+  - log: "Running final diagnostics"
+  - transfer: alice -> deployer, 0.1 ETH
+  - transfer: bob -> deployer, 0.1 ETH
+
+  - log: "Diagnostic test completed"

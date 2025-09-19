@@ -1,0 +1,297 @@
+# Example: Testing a Solidity Contract (.sol file)
+# This shows how users can bring their own Solidity source code and test it
+
+test: Solidity Contract Direct Testing
+description: Compile and test a .sol contract file directly
+network: [kasplex, igra]
+
+variables:
+  initial_supply: 1000000
+  token_price: 0.01 ETH
+
+setup:
+  accounts:
+    owner: 100 ETH
+    investor1: 10 ETH
+    investor2: 10 ETH
+    attacker: 10 ETH
+
+  contracts:
+    # Option 1: Compile and deploy from Solidity source
+    # The tool will compile the .sol file automatically
+    crowdsale:
+      type: Solidity
+      source: ./my-contracts/Crowdsale.sol
+      contract: "Crowdsale"  # Contract name in the .sol file
+      args: [initial_supply, token_price]
+      from: owner
+      solc_version: "0.8.19"  # Optional: specify compiler version
+      optimizer: true         # Optional: enable optimizer
+      runs: 200               # Optional: optimizer runs
+
+    # Option 2: Deploy multiple contracts from same .sol file
+    token:
+      type: Solidity
+      source: ./my-contracts/TokenWithGovernance.sol
+      contract: "GovernanceToken"  # Specific contract from multi-contract file
+      args: ["My Token", "MTK", 18]
+      from: owner
+
+    governor:
+      type: Solidity
+      source: ./my-contracts/TokenWithGovernance.sol
+      contract: "Governor"  # Another contract from same file
+      args: [token.address, 7200]  # 1 day voting period
+      from: owner
+
+    # Option 3: Import and compile from GitHub/URL
+    # remoteDeFi:
+    #   type: Solidity
+    #   source: https://github.com/user/repo/contracts/DeFi.sol
+    #   contract: "DeFiProtocol"
+    #   args: []
+    #   from: owner
+
+    # Option 4: Compile with imports and libraries
+    # complexContract:
+    #   type: Solidity
+    #   source: ./my-contracts/ComplexSystem.sol
+    #   contract: "ComplexSystem"
+    #   imports:  # Specify import paths
+    #     - "@openzeppelin/contracts": ./node_modules/@openzeppelin/contracts
+    #     - "@chainlink/contracts": ./node_modules/@chainlink/contracts
+    #   libraries:  # Link libraries
+    #     SafeMath: "0x123..."  # Library address
+    #     StringUtils: "0x456..."
+    #   args: []
+    #   from: owner
+
+scenario:
+  # =====================================
+  # Test Crowdsale Contract Functionality
+  # =====================================
+  - log: "=== Testing Crowdsale Contract ==="
+
+  # Test: Buy tokens
+  - call:
+      contract: crowdsale
+      method: buyTokens
+      from: investor1
+      value: 1 ETH
+      expect: true
+
+  - call:
+      contract: crowdsale
+      method: balanceOf
+      args: [investor1]
+      expect: 100  # 1 ETH / 0.01 ETH per token = 100 tokens
+
+  # Test: Check total raised
+  - call:
+      contract: crowdsale
+      method: weiRaised
+      expect: "1 ETH"
+
+  # Test: Multiple investors
+  - parallel:
+    - call:
+        contract: crowdsale
+        method: buyTokens
+        from: investor2
+        value: 2 ETH
+
+    - call:
+        contract: crowdsale
+        method: buyTokens
+        from: investor1
+        value: 0.5 ETH
+
+  # Test: Ownership functions
+  - call:
+      contract: crowdsale
+      method: owner
+      expect: owner
+
+  - call:
+      contract: crowdsale
+      method: pause
+      from: owner
+      expect: true
+
+  # Test: Security - Should fail when paused
+  - call:
+      contract: crowdsale
+      method: buyTokens
+      from: attacker
+      value: 1 ETH
+      expect: REVERT  # Special keyword for expecting failure
+
+  - call:
+      contract: crowdsale
+      method: unpause
+      from: owner
+
+  # =====================================
+  # Test Governance Contract
+  # =====================================
+  - log: "=== Testing Governance Contract ==="
+
+  # Give voting power to investors
+  - call:
+      contract: token
+      method: delegate
+      args: [investor1]
+      from: investor1
+
+  - call:
+      contract: token
+      method: delegate
+      args: [investor2]
+      from: investor2
+
+  # Create a proposal
+  - call:
+      contract: governor
+      method: propose
+      args: [
+        [crowdsale.address],  # targets
+        [0],                   # values
+        ["pause()"],           # calldatas
+        "Pause the crowdsale"
+      ]
+      from: investor1
+
+  - set:
+      proposalId: _lastResult
+
+  # Wait for voting to start
+  - wait: 2 blocks
+
+  # Cast votes
+  - parallel:
+    - call:
+        contract: governor
+        method: castVote
+        args: [proposalId, 1]  # 1 = For
+        from: investor1
+
+    - call:
+        contract: governor
+        method: castVote
+        args: [proposalId, 1]  # 1 = For
+        from: investor2
+
+  # Check proposal state
+  - call:
+      contract: governor
+      method: state
+      args: [proposalId]
+      expect: 1  # 1 = Active
+
+  # =====================================
+  # Test Compilation Errors & Edge Cases
+  # =====================================
+  - log: "=== Testing Edge Cases ==="
+
+  # Test: Overflow protection
+  - if:
+      condition: "solc_version >= '0.8.0'"
+      then:
+        - log: "Testing automatic overflow protection"
+        - call:
+            contract: crowdsale
+            method: buyTokens
+            from: attacker
+            value: "115792089237316195423570985008687907853269984665640564039457584007913129639935 wei"  # uint256 max
+            expect: REVERT
+      else:
+        - log: "Testing SafeMath overflow protection"
+        - call:
+            contract: crowdsale
+            method: buyTokens
+            from: attacker
+            value: "115792089237316195423570985008687907853269984665640564039457584007913129639935 wei"
+            expect: REVERT
+
+  # Test: Reentrancy protection
+  - call:
+      contract: Solidity
+      source: ./attack-contracts/Reentrancy.sol
+      contract: "ReentrancyAttacker"
+      method: attack
+      args: [crowdsale.address]
+      from: attacker
+      value: 1 ETH
+      expect: REVERT
+
+  # =====================================
+  # Gas Optimization Testing
+  # =====================================
+  - log: "=== Gas Optimization Analysis ==="
+
+  - measure:
+      name: "Unoptimized Contract Gas"
+      metric: gas
+      start:
+        deploy:
+          name: unoptimized
+          contract: Solidity
+          source: ./my-contracts/Crowdsale.sol
+          contract_name: "Crowdsale"
+          args: [1000000, "0.01 ETH"]
+          from: owner
+          optimizer: false
+
+  - measure:
+      name: "Optimized Contract Gas"
+      metric: gas
+      start:
+        deploy:
+          name: optimized
+          contract: Solidity
+          source: ./my-contracts/Crowdsale.sol
+          contract_name: "Crowdsale"
+          args: [1000000, "0.01 ETH"]
+          from: owner
+          optimizer: true
+          runs: 1000
+
+  - log: "Deployment gas saved: {Unoptimized Contract Gas - Optimized Contract Gas}"
+
+  # =====================================
+  # Fuzzing Test
+  # =====================================
+  - log: "=== Fuzzing Tests ==="
+
+  # Generate random inputs for fuzzing
+  - loop:
+      times: 100
+      actions:
+        - set:
+            random_amount: random(0.001, 10) ETH
+            random_address: randomAddress()
+
+        - call:
+            contract: crowdsale
+            method: buyTokens
+            from: random_address
+            value: random_amount
+            continue_on_error: true  # Don't stop on failures
+
+        - if:
+            condition: "_lastError == null"
+            then:
+              - check: "crowdsale.balanceOf(random_address) == random_amount / token_price"
+
+cleanup:
+  # Finalize crowdsale
+  - call:
+      contract: crowdsale
+      method: finalize
+      from: owner
+
+  # Withdraw funds
+  - call:
+      contract: crowdsale
+      method: withdrawFunds
+      from: owner

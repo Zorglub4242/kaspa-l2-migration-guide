@@ -1,0 +1,168 @@
+# Parallel Operations Demo with Advanced Features
+test: Parallel Operations Demo
+description: Demonstrates parallel operations for performance
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+
+scenario:
+  - log: "Starting parallel operations demo"
+
+  # Create multiple accounts
+  - set:
+      accountNames: [alice, bob, charlie, dave, eve]
+
+  - foreach:
+      item: name
+      in: accountNames
+      do:
+        - set:
+            "{name}": Account()
+        - transfer: deployer -> {name}, 10 ETH
+
+  # Simple parallel transfers
+  - log: "Simple parallel transfers"
+  - parallel:
+      - transfer: alice -> bob, 1 ETH
+      - transfer: bob -> charlie, 1 ETH
+      - transfer: charlie -> dave, 1 ETH
+      - transfer: dave -> eve, 1 ETH
+      - transfer: eve -> alice, 1 ETH
+
+  # Parallel with maxConcurrency
+  - log: "Parallel with concurrency limit"
+  - parallel:
+      maxConcurrency: 3
+      actions:
+        - transfer: alice -> bob, 0.1 ETH
+        - transfer: bob -> charlie, 0.1 ETH
+        - transfer: charlie -> dave, 0.1 ETH
+        - transfer: dave -> eve, 0.1 ETH
+        - transfer: eve -> alice, 0.1 ETH
+
+  # Parallel with different operation types
+  - log: "Mixed parallel operations"
+  - parallel:
+      failFast: false
+      actions:
+        - call: balance(alice)
+          returns: aliceBalance
+        - call: balance(bob)
+          returns: bobBalance
+        - set:
+            ethBalanceAlice: balance(alice)
+        - set:
+            ethBalanceBob: balance(bob)
+        - measure:
+            name: blockNumber
+            value: block.number
+
+  - log: "Balances retrieved in parallel"
+
+  # Parallel forEach
+  - log: "Parallel forEach operations"
+  - parallel:
+      forEach:
+        item: account
+        in: [alice, bob, charlie, dave, eve]
+      do:
+        - call: balance({account})
+          returns: bal_{account}
+        - log: "Balance of {account}: {bal_{account}}"
+
+  # Batch operations in parallel
+  - log: "Batch parallel operations"
+  - parallel:
+      batch:
+        size: 2
+        delay: 1000
+      actions:
+        - transfer: alice -> bob, 0.01 ETH
+        - transfer: bob -> charlie, 0.01 ETH
+        - transfer: charlie -> dave, 0.01 ETH
+        - transfer: dave -> eve, 0.01 ETH
+        - transfer: eve -> alice, 0.01 ETH
+
+  # Race condition - first to complete wins
+  - log: "Race condition test"
+  - parallel:
+      race: true
+      timeout: 5000
+      actions:
+        - wait: 1000
+          then: {set: {winner: "operation1"}}
+        - wait: 500
+          then: {set: {winner: "operation2"}}
+        - wait: 2000
+          then: {set: {winner: "operation3"}}
+
+  - log: "Race winner: {winner}"
+
+  # Map operation in parallel
+  - set:
+      amounts: [100, 200, 300, 400, 500]
+
+  - parallel:
+      map: amounts
+      transform: "item * 2"
+      returns: doubledAmounts
+
+  - log: "Doubled amounts: {doubledAmounts}"
+
+  # Filter operation in parallel
+  - parallel:
+      filter: [alice, bob, charlie, dave, eve]
+      condition: "balance(item) > 9 ETH"
+      returns: richAccounts
+
+  - log: "Rich accounts: {richAccounts}"
+
+  # Complex nested parallel scenario
+  - log: "Complex nested parallel"
+  - parallel:
+      maxConcurrency: 5
+      failFast: false
+      actions:
+        # Multiple transfers
+        - parallel:
+            actions:
+              - transfer: alice -> bob, 0.5 ETH
+              - transfer: bob -> alice, 0.5 ETH
+
+        # Check conditions
+        - if: balance(alice) > 8 ETH
+          then:
+            - log: "Alice still has enough ETH"
+
+  # Performance measurement
+  - measure:
+      name: "parallelPerformance"
+      start: timestamp()
+
+  - parallel:
+      actions:
+        - repeat: 10
+          do:
+            - transfer: alice -> bob, 0.001 ETH
+        - repeat: 10
+          do:
+            - transfer: bob -> charlie, 0.001 ETH
+        - repeat: 10
+          do:
+            - transfer: charlie -> alice, 0.001 ETH
+
+  - measure:
+      name: "parallelPerformance"
+      end: timestamp()
+
+  - log: "Parallel execution time: {parallelPerformance} ms"
+
+cleanup:
+  - log: "Parallel test completed"
+  - foreach:
+      item: account
+      in: accountNames
+      do:
+        - transfer: "{account} -> deployer, balance({account}) - 0.01 ETH"

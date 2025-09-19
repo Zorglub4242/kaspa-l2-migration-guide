@@ -1,0 +1,154 @@
+# Stress Load Test with Advanced Features
+test: Stress Load Test
+description: High-intensity stress test with parallel execution and performance metrics
+
+variables:
+  stress_users: 20
+  transactions_per_wave: 100
+  waves: 5
+  max_concurrency: 15
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+
+scenario:
+  - log: "Starting stress test with {stress_users} users"
+
+  # Create stress test accounts
+  - loop:
+      times: stress_users
+      actions:
+        - set:
+            stress_user_{_index}: Account()
+        - transfer: deployer -> stress_user_{_index}, 5 ETH
+
+  # Warm-up phase
+  - log: "Warm-up phase"
+  - parallel:
+      maxConcurrency: 5
+      actions:
+        - loop:
+            times: 10
+            actions:
+              - transfer: stress_user_0 -> stress_user_1, 0.0001 ETH
+
+  # Main stress waves
+  - foreach:
+      item: wave
+      in: range(0, waves)
+      do:
+        - log: "Starting stress wave {wave + 1} of {waves}"
+
+        # Measure wave performance
+        - measure:
+            name: "wave_{wave}_duration"
+            start: timestamp()
+
+        # High concurrency stress pattern
+        - parallel:
+            maxConcurrency: max_concurrency
+            failFast: false
+            actions:
+              - loop:
+                  times: transactions_per_wave
+                  actions:
+                    - set:
+                        from_user: stress_user_{_index % stress_users}
+                        to_user: stress_user_{(_index + 1 + wave) % stress_users}
+                    - transfer: {from_user} -> {to_user}, 0.0001 ETH
+
+        - measure:
+            name: "wave_{wave}_duration"
+            end: timestamp()
+
+        - log: "Wave {wave + 1} completed in {wave_{wave}_duration} ms"
+        - set:
+            wave_tps: transactions_per_wave * 1000 / wave_{wave}_duration
+        - log: "Wave TPS: {wave_tps}"
+
+  # Extreme stress burst
+  - log: "Starting extreme stress burst"
+  - measure:
+      name: "extreme_burst"
+      start: timestamp()
+
+  # Maximum parallel execution
+  - parallel:
+      actions:
+        - foreach:
+            item: i
+            in: range(0, 50)
+            do:
+              - parallel:
+                  actions:
+                    - transfer: stress_user_{i % stress_users} -> stress_user_{(i + 1) % stress_users}, 0.00001 ETH
+                    - transfer: stress_user_{(i + 1) % stress_users} -> stress_user_{(i + 2) % stress_users}, 0.00001 ETH
+                    - transfer: stress_user_{(i + 2) % stress_users} -> stress_user_{i % stress_users}, 0.00001 ETH
+
+  - measure:
+      name: "extreme_burst"
+      end: timestamp()
+
+  - log: "Extreme burst completed in {extreme_burst} ms"
+
+  # Sustained stress pattern
+  - log: "Starting sustained stress pattern"
+  - while: stress_iterations < 100
+    do:
+      - parallel:
+          batch:
+            size: 10
+            delay: 50
+          actions:
+            - foreach:
+                item: pair
+                in: [[0,1], [2,3], [4,5], [6,7], [8,9]]
+                do:
+                  - transfer: stress_user_{pair[0]} -> stress_user_{pair[1]}, 0.00001 ETH
+                  - transfer: stress_user_{pair[1]} -> stress_user_{pair[0]}, 0.00001 ETH
+
+      - set:
+          stress_iterations: stress_iterations + 1
+
+  # Complex stress with mixed operations
+  - log: "Mixed operation stress"
+  - parallel:
+      actions:
+        # Regular transfers
+        - loop:
+            times: 20
+            actions:
+              - transfer: stress_user_{_index % stress_users} -> deployer, 0.0001 ETH
+
+        # Balance checks
+        - foreach:
+            item: user
+            in: range(0, stress_users)
+            do:
+              - call: balance(stress_user_{user})
+                returns: bal_{user}
+
+        # Conditional transfers
+        - foreach:
+            item: i
+            in: range(0, stress_users)
+            do:
+              - if: balance(stress_user_{i}) > 1 ETH
+                then:
+                  - transfer: stress_user_{i} -> deployer, 0.1 ETH
+
+  # Final statistics
+  - log: "Stress test completed"
+  - log: "Total users: {stress_users}"
+  - log: "Total waves: {waves}"
+  - log: "Transactions per wave: {transactions_per_wave}"
+
+cleanup:
+  - log: "Cleaning up stress test accounts"
+  - foreach:
+      item: i
+      in: range(0, stress_users)
+      do:
+        - transfer: stress_user_{i} -> deployer, balance(stress_user_{i}) - 0.01 ETH

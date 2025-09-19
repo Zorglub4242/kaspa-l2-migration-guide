@@ -1,0 +1,25 @@
+# Funded Transfers Test
+test: Funded Transfers Test
+description: Test transfers between funded accounts
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+    alice: 0.1 ETH
+    bob: 0.1 ETH
+
+scenario:
+  - log: "Starting funded transfers test"
+
+  # Fund test accounts from deployer
+  - transfer: deployer -> alice, 0.1 ETH
+  - transfer: deployer -> bob, 0.1 ETH
+
+  - log: "Test accounts funded"
+
+  # Simple transfers between accounts
+  - transfer: alice -> bob, 0.01 ETH
+  - transfer: bob -> alice, 0.005 ETH
+
+  - log: "Funded transfers test completed"

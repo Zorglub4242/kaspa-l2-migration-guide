@@ -1,0 +1,32 @@
+
+keywords:
+  distribute-conditionally:
+    description: "Distribute tokens based on conditions"
+    params: [token, accounts, threshold]
+    steps:
+      - foreach:
+          item: account
+          in: "{{accounts}}"
+        do:
+          - get: "bal = balance({{account}})"
+          - if: "{{bal}} > {{threshold}}"
+            then:
+              - token.transfer: "deployer -> {{account}}, 1000"
+              - log: "{{account}} received 1000 tokens (balance > threshold)"
+            else:
+              - token.transfer: "deployer -> {{account}}, 500"
+              - log: "{{account}} received 500 tokens (balance <= threshold)"
+
+  recursive-sum:
+    description: "Recursive-like sum calculation"
+    params: [numbers]
+    steps:
+      - set:
+          total: 0
+      - foreach:
+          item: num
+          in: "{{numbers}}"
+        do:
+          - set:
+              total: "{{total}} + {{num}}"
+      - return: "{{total}}"

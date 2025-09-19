@@ -1,0 +1,18 @@
+# Simple DeFi Test
+test: Simple DeFi Test
+description: Basic DeFi operations test
+
+setup:
+  accounts:
+    deployer:
+      privateKey: env:PRIVATE_KEY
+    alice: 0.1 ETH
+
+scenario:
+  - log: "Starting simple DeFi test"
+
+  - transfer: deployer -> alice, 0.1 ETH
+
+  - transfer: alice -> deployer, 0.01 ETH
+
+  - log: "Test completed"
