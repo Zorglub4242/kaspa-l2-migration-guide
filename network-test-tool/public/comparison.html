@@ -25,40 +25,30 @@
 
         .header {
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         h1 {
             color: #333;
-            margin-bottom: 8px;
-            font-size: 24px;
+            margin-bottom: 10px;
         }
 
         .subtitle {
             color: #666;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .header-note {
-            color: #555;
-            font-size: 12px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-            margin-top: 10px;
+            font-size: 14px;
         }
 
         .controls {
             background: white;
-            padding: 15px 20px;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -226,10 +216,6 @@
         <div class="header">
             <h1>Network Cost Comparison</h1>
             <div class="subtitle">Compare transaction costs across all configured blockchain networks</div>
-            <div class="header-note">
-                <strong>Note:</strong> This comparison shows the cost for executing the same amount of gas across different networks.
-                Prices are fetched in real-time and cached for 60 minutes.
-            </div>
         </div>
 
         <div class="controls">
@@ -240,6 +226,13 @@
             <button class="btn btn-primary" onclick="updateComparison()">Update Comparison</button>
             <button class="btn btn-success" onclick="exportComparison('csv')">Export CSV</button>
             <button class="btn btn-success" onclick="exportComparison('pdf')">Export PDF</button>
+        </div>
+
+        <div class="info-box">
+            <div class="info-text">
+                <strong>Note:</strong> This comparison shows the cost for executing the same amount of gas across different networks.
+                Prices are fetched in real-time and cached for 60 minutes. Kasplex and Igra networks use 50 Gwei gas price for comparison.
+            </div>
         </div>
 
         <div class="table-container">
@@ -255,6 +248,7 @@
                         <th class="sortable" data-column="usdCost">Testnet USD Cost</th>
                         <th class="sortable" data-column="mainnetGasPrice">Mainnet Gas (Gwei)</th>
                         <th class="sortable" data-column="mainnetUsdCost">Mainnet USD Cost</th>
+                        <th class="sortable" data-column="percentVsEth">% vs ETH</th>
                     </tr>
                 </thead>
                 <tbody id="comparisonTableBody">

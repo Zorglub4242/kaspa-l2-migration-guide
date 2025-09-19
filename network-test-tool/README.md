@@ -1,83 +1,622 @@
-# 🚀 Project Migrated to KYO-L2-Bench
+# 🔥 Network Test Tool - Comprehensive Blockchain Testing Suite
 
-## ⚠️ This Repository Has Been Moved
+## ⚠️ Security & Reliability Disclaimer
 
-This project has been rebranded and migrated to a new repository:
+**THIS TESTING TOOL WAS CREATED ENTIRELY THROUGH AI-ASSISTED DEVELOPMENT**
 
-### 📍 New Location: [KYO-L2-Bench](https://github.com/Zorglub4242/KYO-L2-Bench)
+### Important Limitations:
+- **Development Method**: Built using AI tools for rapid prototyping and exploration
+- **Author Experience**: General software development, not specialized in smart contract security
+- **Testing Scope**: Limited to basic functionality validation
+- **Security Status**: ⚠️ **NOT SECURITY AUDITED**
 
----
+### Known Risk Areas:
+- Private key handling and storage
+- Smart contract interaction patterns  
+- Error handling and edge cases
+- Network security assumptions
+- Gas estimation and transaction management
 
-## About the Migration
+### Recommended Usage:
+- ✅ **Educational/exploration purposes only**
+- ✅ **Use on testnets with test funds**
+- ✅ **Independent code review before use**
+- ❌ **DO NOT use with mainnet funds**
+- ❌ **DO NOT use in production environments**
 
-**Migration Date**: September 19, 2025
-
-### Why the Rebranding?
-
-The project has evolved from a simple network testing tool to a comprehensive Web3 benchmarking framework. The new name **KYO-L2-Bench** better reflects:
-
-- **Professional Focus**: Enterprise-grade benchmarking capabilities
-- **KYO Integration**: Powered by KYO technology for enhanced performance
-- **L2 Specialization**: Optimized for Layer 2 network testing
-- **Broader Scope**: Beyond testing to full performance analysis
-
-### What's New in KYO-L2-Bench?
-
-- ✅ **100% Test Success Rates** on Kasplex and Igra L2 networks
-- ✅ **Advanced YAML Testing Framework** with built-in functions
-- ✅ **Parallel Execution** and keyword system
-- ✅ **Comprehensive Documentation** and user guides
-- ✅ **Professional Branding** aligned with KYO ecosystem
+**Always audit code yourself and understand what it does before running.**
 
 ---
 
-## Migration Instructions
+A comprehensive blockchain testing framework featuring **EVM compatibility testing**, **DeFi protocol testing**, **finality measurement**, **load testing**, and **multi-network performance comparison** for Kasplex L2, Igra L2, and Ethereum testnets.
 
-### For Users
 
-1. **Clone the new repository**:
-   ```bash
-   git clone https://github.com/Zorglub4242/KYO-L2-Bench.git
-   cd KYO-L2-Bench
-   ```
+## 🎯 Testing Approaches
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+Choose your testing strategy:
 
-3. **Copy your `.env` file** from this directory to the new location
+### 1. **Quick Testing** ⚡
+```bash
+npm run test:quick              # Fast parallel tests
+npm start                       # Interactive CLI mode
+```
+**Use for**: Rapid validation, development testing  
+**Features**: Parallel execution, database storage
 
-4. **Run tests** using the same CLI commands:
-   ```bash
-   node cli.js yaml test-scripts/basic/simple-transfer.yaml -n kasplex
-   ```
+### 2. **Comprehensive Testing** 🧪
+```bash
+npm run test:comprehensive      # Full test suite (EVM, DeFi, Load, Finality)
+npm run test:all-networks       # Test all networks in parallel
+```
+**Use for**: Complete validation, production readiness  
+**Tests**: 18 EVM tests + DeFi protocols + Performance + Finality
 
-### For Contributors
+### 3. **Specific Testing** 🎯
+```bash
+npm run test:evm               # EVM compatibility only
+npm run test:defi              # DeFi protocols only
+npm run test:load              # Load testing only
+npm run test:finality          # Finality measurement only
+```
+**Use for**: Targeted validation, debugging specific issues
 
-All future development will happen in the [KYO-L2-Bench repository](https://github.com/Zorglub4242/KYO-L2-Bench).
+📋 **Need detailed deployment instructions?** → See [**DEPLOYMENT.md**](./DEPLOYMENT.md) for complete setup guide.
 
-Please:
-- Submit issues to the new repository
-- Create pull requests against KYO-L2-Bench
-- Update any bookmarks or references
+## 🚀 Quick Start (2 minutes)
+
+### 1. Setup
+```bash
+npm install
+cp .env.example .env
+# Add your PRIVATE_KEY (no 0x prefix)
+```
+
+### 2. Get Testnet Funds
+- **Kasplex L2**: [Zealous Swap Faucet](https://faucet.zealousswap.com/) | [Kaspa Finance](https://app.kaspafinance.io/faucets)
+- **Igra L2**: Contact team for testnet funds
+- **Ethereum Sepolia**: [Sepolia Faucet](https://faucet.sepolia.dev/) | [Alchemy Faucet](https://sepoliafaucet.com/)
+
+### 3. Run Tests
+```bash
+# Quick start - all tests
+npm run test:quick
+
+# Comprehensive testing
+npm run test:comprehensive
+
+# Network-specific testing
+npm run test:kasplex
+npm run test:igra
+npm run test:sepolia
+
+# Interactive mode
+npm start
+```
+
+## 🧪 Testing Arsenal
+
+### Core Test Types
+```bash
+npm run test:evm          # EVM Compatibility (18 tests)
+npm run test:defi         # DeFi Protocols (ERC20, DEX, Lending, NFT)
+npm run test:load         # Load Testing (Simple, Stress, Burst, Max TPS)
+npm run test:finality     # Finality Measurement & MEV Analysis
+```
+
+### Network-Specific Testing
+```bash
+npm run test:kasplex      # Kasplex L2 (Chain ID: 167012)
+npm run test:igra         # Igra L2 (Chain ID: 19416)
+npm run test:sepolia      # Ethereum Sepolia (Chain ID: 11155111)
+npm run test:all-networks # All networks in parallel
+```
+
+### Deployment Commands
+```bash
+npm run deploy:all        # Deploy to all networks
+npm run deploy:kasplex    # Deploy to Kasplex only
+npm run deploy:igra       # Deploy to Igra only
+npm run deploy:sepolia    # Deploy to Sepolia only
+```
+
+### Advanced Testing
+```bash
+npm run test:stress       # Stress testing on Kasplex
+npm run test:create2      # CREATE2 deployment tests
+TEST_LABEL=custom npx hardhat run scripts/... # Custom labeled tests
+```
+
+## 🛠️ Available Commands
+
+### Test Execution
+```bash
+npm start                     # Interactive CLI mode
+npm run test:quick            # Quick parallel tests
+npm run test:comprehensive    # Full test suite
+npm run test:stress          # Stress testing
+npm run test:evm             # EVM compatibility
+npm run test:defi            # DeFi protocols
+npm run test:load            # Load testing
+npm run test:finality        # Finality measurement
+```
+
+### Network-Specific
+```bash
+npm run test:kasplex         # Kasplex L2 tests
+npm run test:igra            # Igra L2 tests
+npm run test:sepolia         # Ethereum Sepolia tests
+npm run test:all-networks    # All networks parallel
+```
+
+### Deployment
+```bash
+npm run deploy:all           # Deploy to all networks
+npm run deploy:kasplex       # Deploy to Kasplex
+npm run deploy:igra          # Deploy to Igra
+npm run deploy:sepolia       # Deploy to Sepolia
+```
+
+### Database Management
+```bash
+npm run db:stats             # Database statistics
+npm run db:purge             # Purge all test results
+npm run db:optimize          # Optimize database
+npm run db:backup            # Create backup
+```
+
+### Analytics & Monitoring
+```bash
+npm run status:full          # Detailed CLI status
+npm run results              # View test results via CLI
+npm run analytics            # Launch Metabase analytics (Docker)
+npm run metabase:jar         # Launch Metabase (Java JAR)
+npm run api                  # Start export API server
+```
+
+### Utilities
+```bash
+npm run setup                # Setup tool
+npm run clean                # Clean cache/artifacts
+npm run clean:all            # Clean everything
+```
+
+### Network Management
+```bash
+npm run network:list         # List all configured networks
+npm run network:show <id>    # Show network details
+npm run network:stats        # Network configuration statistics
+npm run network:export       # Export network configurations
+npm run network:add <file>   # Add new network from JSON file
+npm run network:validate     # Validate network configuration
+
+npm run gas:prices [network] # Get current gas prices
+npm run gas:cost <net> <gas> # Calculate transaction cost
+```
+
+## 💡 Key Features
+
+### ✅ **Production-Ready Testing**
+- **Diagnostic Analysis**: Identify root causes of failures
+- **100% Success Testing**: Guaranteed success with retry mechanisms
+- **Multi-Network Comparison**: Professional reporting across networks
+- **Real-time Cost Analysis**: USD cost tracking with live prices
+
+### ✅ **EVM Compatibility Validation**
+- **Complete Precompile Testing**: All Ethereum precompile functions
+- **Assembly Operations**: Full Solidity assembly language support
+- **CREATE2 Deployment**: Deterministic contract deployment
+- **Gas Optimization**: Advanced gas usage patterns
+
+### ✅ **DeFi Protocol Testing**
+- **Token Operations**: ERC20 transfers, approvals, batch operations
+- **DEX Trading**: Token swaps, liquidity management, slippage analysis
+- **NFT Collections**: ERC721 minting, transfers, marketplace operations
+- **Multi-signature**: Wallet operations and governance
+
+### ✅ **Advanced Analytics**
+- **Metabase Integration**: Professional BI dashboards and analytics
+- **Session Isolation**: Separate data storage for test campaigns
+- **JSON Export**: Analytics integration with BI tools
+- **Performance Metrics**: Comprehensive transaction analysis
+- **Data Management**: Automated cleanup and archiving
+
+## 🆕 New Features
+
+### Database-Driven Contract Management
+- **Centralized Storage**: All deployed contracts stored in SQLite database
+- **Health Checks**: Automatic contract health monitoring before tests
+- **CLI Management**: Full contract lifecycle management via CLI commands
+- **No More .env Files**: Database replaces environment variables for contract addresses
+
+### Enhanced Test Optimization
+- **Selective Retry**: Only failed tests are retried (not entire suite)
+- **Parallel Execution**: Optimized for multi-network concurrent testing
+- **Smart Gas Management**: Dynamic gas pricing with network-specific fallbacks
+- **Memory Efficient**: Resource pooling prevents memory leaks
+
+### Professional Analytics Platform
+- **Metabase Integration**: Enterprise-grade business intelligence and analytics
+- **Pre-built Dashboards**: EVM compatibility, DeFi protocols, performance monitoring
+- **SQL Query Templates**: Ready-to-use queries for blockchain test analysis
+- **Interactive Visualizations**: Charts, tables, and KPI cards for comprehensive insights
+- **Multi-deployment Options**: Docker containerization and Java JAR deployment
+
+#### Launch Metabase Analytics
+```bash
+npm run analytics         # Docker deployment (recommended)
+npm run metabase:jar      # Java JAR deployment
+```
+Access Metabase at http://localhost:3000 to explore dashboards and create custom analytics.
+
+### Contract Management CLI
+```bash
+npm run contracts            # Interactive contract manager
+npm run contracts:list       # List all deployed contracts
+npm run contracts:health     # Check contract health
+npm run contracts:verify     # Verify contract deployments
+```
+
+## 🔧 Configuration
+
+### 🌐 External Network Configuration (NEW)
+
+The tool now supports **external network configuration**, allowing you to add any EVM-compatible network without modifying code!
+
+#### Quick Example: Add a New Network
+```bash
+# 1. Create your network config file (e.g., my-network.json)
+{
+  "id": "my-network",
+  "name": "My Custom Network",
+  "chainId": 12345,
+  "symbol": "MYN",
+  "type": "testnet",
+  "rpc": {
+    "public": ["https://rpc.mynetwork.com"]
+  },
+  "gasConfig": {
+    "strategy": "dynamic",
+    "fallback": "20"
+  }
+}
+
+# 2. Add it to the tool
+npm run network:add my-network.json
+
+# 3. Use it for testing
+npm run test:evm -- --network my-network
+```
+
+#### Pre-configured Networks
+The tool comes with 7+ networks pre-configured:
+- **Ethereum Sepolia** - Primary Ethereum testnet
+- **Kasplex L2** - Kaspa Layer 2 solution
+- **Igra L2** - Alternative Kaspa L2
+- **Avalanche Fuji** - Avalanche C-Chain testnet
+- **Fantom Testnet** - High-speed EVM chain
+- **Gnosis Chiado** - Stable payments chain
+- **Neon DevNet** - Solana EVM compatibility
+
+#### Managing Networks
+```bash
+# View all available networks
+npm run network:list
+
+# Get detailed info about a network
+npm run network:show avalanche-fuji
+
+# Check current gas prices
+npm run gas:prices ethereum
+
+# Calculate transaction costs
+npm run gas:cost kasplex-l2 1000000 --compare
+```
+
+#### Network Configuration Files
+All network configs are stored in `config/networks/` as JSON files. Each config includes:
+- RPC endpoints (with environment variable support)
+- Gas pricing strategies
+- Block explorer URLs
+- Faucet information
+- MetaMask settings
+- Feature support flags
+
+See `config/networks/schema.json` for the complete configuration structure.
+
+### Network Settings (Optimized)
+**Kasplex L2**:
+- Testnet Gas Price: ~2001 Gwei (dynamic with fallbacks)
+- Mainnet Gas Price: 50 Gwei (estimated)
+- Chain ID: 167012
+- RPC: https://rpc.kasplextest.xyz
+- Explorer: https://explorer.testnet.kasplextest.xyz
+
+**Igra L2** (Recommended):
+- Testnet Gas Price: Exactly 2000 Gwei (required)
+- Mainnet Gas Price: 50 Gwei (estimated)
+- Chain ID: 19416
+- RPC: https://rpc.testnet.igra.network
+- Explorer: https://explorer.caravel.igralabs.com/
+
+**Ethereum Sepolia**:
+- Testnet Gas Price: ~5 Gwei (dynamic)
+- Mainnet Gas Price: 40 Gwei (current average)
+- Chain ID: 11155111
+- RPC: Multiple providers supported
+- Explorer: https://sepolia.etherscan.io
+
+**Ethereum Mainnet**:
+- Gas Price: 40 Gwei (average)
+- Chain ID: 1
+- RPC: Multiple providers supported
+- Explorer: https://etherscan.io
+
+### Environment Variables
+```bash
+# Required
+PRIVATE_KEY=your_private_key_here
+
+# Network-specific (auto-updated by deployment scripts)
+# Kasplex
+KASPLEX_PRECOMPILE_TEST=0x...
+KASPLEX_CREATE2_FACTORY=0x...
+KASPLEX_ASSEMBLY_TEST=0x...
+
+# Igra  
+IGRA_PRECOMPILE_TEST=0x...
+IGRA_CREATE2_FACTORY=0x...
+IGRA_ASSEMBLY_TEST=0x...
+
+# Sepolia
+SEPOLIA_PRECOMPILE_TEST=0x...
+SEPOLIA_CREATE2_FACTORY=0x...
+SEPOLIA_ASSEMBLY_TEST=0x...
+
+# Optional - RPC Providers
+ALCHEMY_API_KEY=your_api_key
+INFURA_API_KEY=your_infura_key
+
+# Optional - Gas Price APIs (for real-time pricing)
+ETHERSCAN_API_KEY=your_etherscan_key
+BLOCKNATIVE_API_KEY=your_blocknative_key
+FTMSCAN_API_KEY=your_ftmscan_key
+SNOWTRACE_API_KEY=your_snowtrace_key
+
+# Optional - Testing
+TEST_LABEL=custom_test_name  # For labeled test runs
+```
+
+## 🚨 Common Issues & Solutions
+
+### Issue: "Database locked or connection issues"
+**Solution**: 
+```bash
+npm run db:optimize  # Optimize database
+npm run db:backup    # Create backup if needed
+```
+
+### Issue: "Tests fail to start"
+**Solution**: Check system status first:
+```bash
+npm run status:full  # Full system status check
+npm start            # Use interactive mode
+```
+
+### Issue: "Contract deployment fails"
+**Solution**: Use deployment commands:
+```bash
+npm run deploy:all   # Deploy to all networks
+npm run deploy:igra  # Deploy to specific network
+```
+
+## 📁 Project Structure
+
+```
+network-test-tool/
+├── contracts/              # Smart contracts (EVM, DeFi, CREATE2)
+├── scripts/                # Test & deployment scripts
+├── lib/                    # Core libraries (database, utils, runners)
+├── data/                   # SQLite database (auto-created)
+│   └── test-results.db     # All test data with integer foreign keys
+├── exports/                # Exported data & reports
+├── cli.js                  # Main CLI interface
+├── simple-status.js        # Quick network status
+├── hardhat.config.js       # Multi-network configuration
+├── migrate-to-integer-foreign-keys.js  # Database migration
+└── README.md              # This file
+```
+
+## 🔗 Resources
+
+### Network Explorers
+- **Kasplex L2**: https://explorer.testnet.kasplextest.xyz
+- **Igra L2**: https://explorer.caravel.igralabs.com/
+- **Ethereum Sepolia**: https://sepolia.etherscan.io
+
+### Documentation
+- **CLI Commands**: All npm scripts listed in package.json
+- **Database Schema**: SQLite with optimized foreign keys
+- **Test Scripts**: Complete inventory in CLAUDE.md
+- **Kasplex L2**: https://docs-kasplex.gitbook.io/l2-network
+- **Igra L2**: https://docs.igra.network
+- **Ethereum**: https://ethereum.org/developers/
+
+## 🎯 Production Use Cases
+
+### ✅ **DApp Load Testing**
+Validate your application's transaction patterns and performance requirements.
+
+### ✅ **Network Selection**
+Compare blockchain networks with professional metrics to choose the best fit.
+
+### ✅ **EVM Compatibility Verification**
+Ensure your contracts work perfectly across different EVM networks.
+
+### ✅ **DeFi Protocol Validation**
+Test realistic DeFi operations including tokens, DEX trading, and liquidity management.
+
+### ✅ **SLA Verification**
+Guarantee 100% transaction success rates for critical operations.
+
+### ✅ **Capacity Planning**
+Discover maximum sustainable TPS and plan infrastructure accordingly.
 
 ---
 
-## Legacy Support
+## 🎯 Complete End-to-End Testing Scenario
 
-This repository will remain available for reference but will not receive updates.
+**Want to test full EVM & DeFi suites on Igra, Kasplex and Ethereum? Here's how:**
 
-For the latest features and improvements, please use [KYO-L2-Bench](https://github.com/Zorglub4242/KYO-L2-Bench).
+### 📋 Complete Multi-Network Validation
+```bash
+# 1. Setup (2 minutes)
+npm install
+cp .env.example .env
+# Add your PRIVATE_KEY to .env
 
----
+# 2. Deploy contracts to all networks (5 minutes)
+npm run deploy:all
 
-## Contact
+# 3. Run complete test suite on all networks (15 minutes)
+npm run test:comprehensive
 
-For questions about the migration, please open an issue in the new repository.
+# 4. View comprehensive results
+npm run db:stats
+npm run analytics
+```
 
-**Thank you for your support!** 🙏
+### 🔬 Detailed Step-by-Step Testing
 
----
+#### Phase 1: Environment Setup
+```bash
+# Install and configure
+npm install
+cp .env.example .env
+echo "PRIVATE_KEY=your_private_key_here" >> .env
 
-*Last updated: September 19, 2025*
+# Check system status
+npm run status:full
+```
+
+#### Phase 2: Contract Deployment
+```bash
+# Deploy to all networks (parallel)
+npm run deploy:all
+
+# Or deploy individually
+npm run deploy:igra      # Igra L2 (fastest)
+npm run deploy:kasplex   # Kasplex L2 
+npm run deploy:sepolia   # Ethereum Sepolia
+```
+
+#### Phase 3: Complete Testing Suite
+```bash
+# Option A: Full comprehensive testing (recommended)
+npm run test:comprehensive    # All tests on all networks
+
+# Option B: Network-specific comprehensive testing
+npm run test:igra            # Complete suite on Igra only
+npm run test:kasplex         # Complete suite on Kasplex only  
+npm run test:sepolia         # Complete suite on Sepolia only
+
+# Option C: Test type specific across networks
+npm run test:evm             # EVM compatibility on all networks
+npm run test:defi            # DeFi protocols on all networks
+```
+
+#### Phase 4: Detailed Analysis
+```bash
+# Database analysis
+npm run db:stats            # Test execution statistics
+
+# Performance analytics
+npm run analytics           # Launch Metabase for comprehensive analysis
+npm run db:stats           # View database statistics
+
+# Network comparison
+npm run test:all-networks   # Parallel comparison testing
+```
+
+### 📊 What You'll Test
+
+**EVM Compatibility Suite (18 tests per network)**:
+- ✅ Precompile functions (ecrecover, sha256, ripemd160, modexp, identity)
+- ✅ Assembly operations (inline assembly, opcodes)  
+- ✅ CREATE2 deterministic deployment
+- ✅ Complex smart contract interactions
+
+**DeFi Protocol Suite (50+ operations per network)**:
+- ✅ ERC20 token operations (mint, transfer, approve, batch)
+- ✅ DEX trading (swap, liquidity, slippage analysis)
+- ✅ Lending protocols (deposit, borrow, repay)
+- ✅ Yield farming (stake, harvest, compound)
+- ✅ NFT collections (mint, transfer, marketplace)
+- ✅ MultiSig wallets (proposal, execution, governance)
+
+**Performance Metrics**:
+- ⚡ Transaction speed and throughput
+- 💰 Gas costs and optimization
+- 🎯 Success rates and reliability
+- 📈 Network finality measurements
+
+### 🏆 Expected Results
+
+**Igra L2** (Recommended):
+- 🥇 **EVM Compatibility**: 18/18 tests pass (100%)
+- 🥇 **DeFi Protocol**: 50+ operations successful
+- 🥇 **Performance**: ~1.98s avg, $0.0002 cost
+- 🥇 **Gas Price**: Exactly 2000 gwei (predictable)
+
+**Kasplex L2**:
+- 🥈 **EVM Compatibility**: 18/18 tests pass (100%)  
+- 🥈 **DeFi Protocol**: 50+ operations successful
+- 🥈 **Performance**: ~2.45s avg, $0.0003 cost
+- 🥈 **Gas Price**: ~2001 gwei (dynamic)
+
+**Ethereum Sepolia**:
+- 🥉 **EVM Compatibility**: 17-18/18 tests pass (95-100%)
+- 🥉 **DeFi Protocol**: 45-50 operations successful  
+- 🥉 **Performance**: ~12.34s avg, $0.0045 cost
+- 🥉 **Gas Price**: ~0.5 gwei (variable)
+
+### 🔧 Advanced Testing Options
+
+**Stress Testing**:
+```bash
+# High-volume testing
+npm run test:stress          # Stress test on Kasplex
+npm run test:load           # Load testing across networks
+```
+
+### 📊 Interpreting Results
+
+**Database Statistics**:
+```bash
+npm run db:stats
+# Shows: test_runs, test_results, performance_metrics
+```
+
+**Test Success Indicators**:
+- **100% Success Rate**: All transactions confirmed
+- **Low Gas Costs**: Efficient execution
+- **Fast Execution**: Network responsiveness
+- **High Throughput**: Sustained performance
+
+## 🚀 Ready to Start?
+
+1. **Quick Start**: `npm install && npm start` (Interactive mode)
+2. **Fast Testing**: `npm run test:quick` (2 minutes to results)
+3. **Full Analysis**: `npm run test:comprehensive` (Complete validation)
+4. **Check Status**: `npm run status` (Network health check)
+5. **View Results**: `npm run db:stats` (Database statistics) & `npm run status:full` (System status)
+
+### Test Flow
+```bash
+npm install              # Install dependencies
+cp .env.example .env     # Add your PRIVATE_KEY
+npm run test:quick       # Quick validation
+npm run db:stats         # Check database results
+npm run analytics        # Launch Metabase analytics
+```
+
+**⭐ Star this repo if it helped optimize your blockchain testing!**

@@ -30,9 +30,6 @@ class CostDashboardServer {
         this.app.get('/api/runs', this.getRuns.bind(this));
         this.app.get('/api/comparison', this.getComparison.bind(this));
         this.app.get('/api/comparison/run/:runId', this.getRunComparison.bind(this));
-        this.app.get('/api/run/:runId/transactions', this.getRunTransactions.bind(this));
-        this.app.get('/api/run/:runId/contracts', this.getRunContracts.bind(this));
-        this.app.get('/api/yaml-script/:filename', this.getYamlScript.bind(this));
         this.app.get('/api/prices', this.getPrices.bind(this));
         this.app.get('/api/export/csv', this.exportCSV.bind(this));
         this.app.get('/api/export/pdf', this.exportPDF.bind(this));
@@ -45,16 +42,6 @@ class CostDashboardServer {
         // Serve comparison page
         this.app.get('/comparison', (req, res) => {
             res.sendFile(path.join(__dirname, 'public', 'comparison.html'));
-        });
-
-        // Serve transactions page
-        this.app.get('/transactions', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'transactions.html'));
-        });
-
-        // Serve YAML script viewer page
-        this.app.get('/yaml-viewer', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'yaml-viewer.html'));
         });
     }
 
@@ -254,6 +241,11 @@ class CostDashboardServer {
                     }
                 }
 
+                // Special handling for Kasplex and Igra - use 50 gwei for comparison
+                if (network.id === 'kasplex' || network.id === 'igra') {
+                    gasPrice = 50;
+                }
+
                 // Get mainnet gas price from config or use testnet price for networks already on mainnet
                 let mainnetGasPrice = gasPrice; // Default to testnet gas price
                 if (network.gasConfig && network.gasConfig.mainnetGasPrice) {
@@ -334,6 +326,11 @@ class CostDashboardServer {
                         // Use a default base price for estimation
                         gasPrice = 30 * (1 + (network.gasConfig.percentage || 10) / 100);
                     }
+                }
+
+                // Special handling for Kasplex and Igra as per PRD
+                if (network.id === 'kasplex' || network.id === 'igra') {
+                    gasPrice = 50; // 50 GWEI as specified
                 }
 
                 // Get mainnet gas price from config or use testnet price for networks already on mainnet
@@ -549,315 +546,6 @@ class CostDashboardServer {
 
         } catch (error) {
             console.error(chalk.red('Error exporting PDF:'), error);
-            res.status(500).json({ success: false, error: error.message });
-        }
-    }
-
-    // Helper function to get test operation descriptions
-    getTestOperationDescription(testType, testName) {
-        const descriptions = {
-            'deployment': {
-                'MockERC20': 'Deploy ERC20 token contract',
-                'MockERC20_TokenA': 'Deploy Token A for DEX trading',
-                'MockERC20_TokenB': 'Deploy Token B for DEX trading',
-                'MockERC20_Reward': 'Deploy reward token for yield farming',
-                'MockDEX': 'Deploy decentralized exchange contract',
-                'MockLendingProtocol': 'Deploy lending protocol contract',
-                'MockYieldFarm': 'Deploy yield farming contract',
-                'MockERC721Collection': 'Deploy NFT collection contract',
-                'MockMultiSigWallet': 'Deploy multi-signature wallet',
-                'SimpleStorage': 'Deploy simple storage contract',
-                'PrecompileTest': 'Deploy precompile test contract',
-                'AssemblyTest': 'Deploy assembly test contract',
-                'CREATE2Factory': 'Deploy CREATE2 factory contract'
-            },
-            'defi': {
-                'ERC20 Token Operations - Token Transfer': 'Transfer ERC20 tokens between accounts',
-                'ERC20 Token Operations - Token Approval': 'Approve token spending allowance',
-                'ERC20 Token Operations - Transfer From': 'Transfer tokens on behalf of another account',
-                'DEX Trading - Add Liquidity': 'Add liquidity to trading pool',
-                'DEX Trading - Token Swap': 'Swap between different tokens',
-                'DEX Trading - Remove Liquidity': 'Remove liquidity from trading pool',
-                'Lending Protocol - Deposit Collateral': 'Deposit assets as collateral',
-                'Lending Protocol - Borrow Assets': 'Borrow assets against collateral',
-                'Lending Protocol - Repay Loan': 'Repay borrowed assets'
-            },
-            'EVM-Compatibility': {
-                'ecrecover': 'Test ECDSA signature recovery precompile',
-                'sha256': 'Test SHA256 hash precompile',
-                'ripemd160': 'Test RIPEMD-160 hash precompile',
-                'modexp': 'Test modular exponentiation precompile',
-                'identity': 'Test identity precompile (data copy)',
-                'basic-ops': 'Test basic EVM operations',
-                'memory-ops': 'Test memory operations',
-                'storage-ops': 'Test storage operations',
-                'call-ops': 'Test contract call operations',
-                'create2-deploy': 'Test CREATE2 deployment'
-            }
-        };
-
-        // Get description from mapping or generate default
-        const categoryDescriptions = descriptions[testType] || {};
-        const description = categoryDescriptions[testName];
-
-        if (description) {
-            return description;
-        }
-
-        // Default descriptions for common operations
-        if (testName === 'transfer') {
-            return 'Simple ETH/native token transfer';
-        }
-
-        // Return the test name if no description found
-        return testName;
-    }
-
-    // Get transactions for a specific run
-    async getRunTransactions(req, res) {
-        try {
-            const runId = req.params.runId;
-
-            // Get transactions from test_results table including YAML tracking fields
-            const transactions = this.database.db.prepare(`
-                SELECT
-                    test_type,
-                    test_name,
-                    success,
-                    gas_used,
-                    gas_price,
-                    transaction_hash,
-                    block_number,
-                    duration as execution_time,
-                    error_message,
-                    created_at as timestamp,
-                    yaml_script_path,
-                    yaml_instruction_line,
-                    yaml_instruction_text,
-                    yaml_step_index
-                FROM test_results
-                WHERE run_id = ?
-                AND transaction_hash IS NOT NULL
-                ORDER BY created_at ASC
-            `).all(runId);
-
-            // Get network info for the run
-            const runInfo = this.database.db.prepare(`
-                SELECT DISTINCT tr.network_name, nr.network_chain_id as chain_id
-                FROM test_results tr
-                LEFT JOIN network_results nr ON tr.run_id = nr.run_id
-                WHERE tr.run_id = ?
-                LIMIT 1
-            `).get(runId);
-
-            // Get network config for explorer URL
-            const networkConfig = this.networks.get(runInfo?.network_name?.toLowerCase()) ||
-                                   Array.from(this.networks.values()).find(n =>
-                                       n.name === runInfo?.network_name || n.id === runInfo?.network_name?.toLowerCase());
-            const explorerUrl = networkConfig?.explorer?.url;
-
-            // Get token symbol and price for USD calculation
-            const tokenSymbol = networkConfig?.symbol || 'ETH';
-            let tokenPrice = 0;
-            try {
-                tokenPrice = await this.priceFetcher.fetchPrice(tokenSymbol);
-            } catch (error) {
-                console.warn(`Failed to fetch ${tokenSymbol} price:`, error.message);
-                // For testnets with custom tokens, try to use a fallback or set to 0
-                if (tokenSymbol === 'IKAS' || tokenSymbol === 'KAS') {
-                    // These are test tokens, we'll use KAS mainnet price as approximation
-                    try {
-                        tokenPrice = await this.priceFetcher.fetchPrice('KAS');
-                    } catch (e) {
-                        console.warn('Failed to fetch KAS price as fallback');
-                    }
-                }
-            }
-
-            // Calculate costs for each transaction
-            const enhancedTransactions = transactions.map(tx => {
-                // Calculate cost in native token (ETH/KAS/IGRA etc)
-                const costInNative = tx.gas_used && tx.gas_price ?
-                    (tx.gas_used * tx.gas_price / 1e18) : 0;
-
-                // Calculate USD cost
-                const costInUSD = tokenPrice > 0 ? (costInNative * tokenPrice) : 0;
-
-                return {
-                    test_type: tx.test_type,
-                    ...tx,
-                    operation_description: this.getTestOperationDescription(tx.test_type, tx.test_name),
-                    status: tx.success ? 'success' : 'failure',
-                    explorerLink: explorerUrl && tx.transaction_hash ?
-                        `${explorerUrl}/tx/${tx.transaction_hash}` : null,
-                    gasUsed: tx.gas_used || 0,
-                    gasPrice: tx.gas_price || 0,
-                    totalCost: `${costInNative.toFixed(6)} ${tokenSymbol}`,
-                    totalCostNative: costInNative.toFixed(6),
-                    totalCostUSD: costInUSD.toFixed(4),
-                    tokenSymbol: tokenSymbol,
-                    tokenPrice: tokenPrice,
-                    executionTimeMs: tx.execution_time || 0,
-                    // YAML script tracking fields
-                    yamlScript: tx.yaml_script_path || null,
-                    yamlInstructionLine: tx.yaml_instruction_line || null,
-                    yamlInstructionText: tx.yaml_instruction_text || null,
-                    yamlStepIndex: tx.yaml_step_index || null
-                };
-            });
-
-            res.json({
-                success: true,
-                runId: runId,
-                network: runInfo?.network_name,
-                chainId: runInfo?.chain_id,
-                explorerUrl: explorerUrl,
-                transactions: enhancedTransactions,
-                summary: {
-                    total: transactions.length,
-                    successful: transactions.filter(t => t.success).length,
-                    failed: transactions.filter(t => !t.success).length,
-                    totalGasUsed: transactions.reduce((sum, t) => sum + (t.gas_used || 0), 0),
-                    avgExecutionTime: transactions.reduce((sum, t) => sum + (t.execution_time || 0), 0) / transactions.length
-                }
-            });
-
-        } catch (error) {
-            console.error(chalk.red('Error fetching run transactions:'), error);
-            res.status(500).json({ success: false, error: error.message });
-        }
-    }
-
-    // Get deployed contracts for a specific run
-    async getRunContracts(req, res) {
-        try {
-            const runId = req.params.runId;
-
-            // Note: contract_deployments table doesn't have run_id column
-            // We need to match by network and timestamp
-            // First get the run info
-            const runInfo = this.database.db.prepare(`
-                SELECT DISTINCT tr.network_name, nr.network_chain_id as chain_id,
-                       MIN(tr.created_at) as start_time, MAX(tr.created_at) as end_time
-                FROM test_results tr
-                LEFT JOIN network_results nr ON tr.run_id = nr.run_id
-                WHERE tr.run_id = ?
-                GROUP BY tr.network_name, nr.network_chain_id
-                LIMIT 1
-            `).get(runId);
-
-            if (!runInfo) {
-                return res.json({
-                    success: true,
-                    runId: runId,
-                    network: null,
-                    chainId: null,
-                    contracts: [],
-                    summary: {
-                        total: 0,
-                        successful: 0,
-                        failed: 0,
-                        totalGasUsed: 0,
-                        totalDeploymentCost: '0'
-                    }
-                });
-            }
-
-            // Get contracts deployed around the same time for this network
-            const contracts = this.database.db.prepare(`
-                SELECT
-                    contract_name,
-                    contract_address,
-                    transaction_hash as deployment_tx,
-                    deployed_at,
-                    gas_used,
-                    gas_price,
-                    health_status as status
-                FROM contract_deployments
-                WHERE chain_id = ?
-                AND datetime(deployed_at) BETWEEN datetime(?, '-5 minutes') AND datetime(?, '+5 minutes')
-                ORDER BY deployed_at ASC
-            `).all(runInfo.chain_id, runInfo.start_time, runInfo.end_time);
-
-            // Get network config for explorer URL
-            const networkConfig = this.networks.get(runInfo?.network_name?.toLowerCase()) ||
-                                   Array.from(this.networks.values()).find(n =>
-                                       n.name === runInfo?.network_name || n.id === runInfo?.network_name?.toLowerCase());
-            const explorerUrl = networkConfig?.explorer?.url;
-
-            // Enhance contracts with explorer links
-            const enhancedContracts = contracts.map(contract => ({
-                ...contract,
-                addressLink: explorerUrl && contract.contract_address ?
-                    `${explorerUrl}/address/${contract.contract_address}` : null,
-                txLink: explorerUrl && contract.deployment_tx ?
-                    `${explorerUrl}/tx/${contract.deployment_tx}` : null,
-                gasUsed: contract.gas_used || 0,
-                deploymentCost: contract.gas_used && contract.gas_price ?
-                    (contract.gas_used * parseInt(contract.gas_price) / 1e9).toFixed(6) : '0'
-            }));
-
-            res.json({
-                success: true,
-                runId: runId,
-                network: runInfo?.network_name,
-                chainId: runInfo?.chain_id,
-                explorerUrl: explorerUrl,
-                contracts: enhancedContracts,
-                summary: {
-                    total: contracts.length,
-                    successful: contracts.filter(c => c.status === 'healthy').length,
-                    failed: contracts.filter(c => c.status !== 'healthy').length,
-                    totalGasUsed: contracts.reduce((sum, c) => sum + (c.gas_used || 0), 0),
-                    totalDeploymentCost: enhancedContracts.reduce((sum, c) =>
-                        sum + parseFloat(c.deploymentCost || 0), 0).toFixed(6)
-                }
-            });
-
-        } catch (error) {
-            console.error(chalk.red('Error fetching run contracts:'), error);
-            res.status(500).json({ success: false, error: error.message });
-        }
-    }
-
-    // Get YAML script content by filename
-    async getYamlScript(req, res) {
-        try {
-            const { filename } = req.params;
-            const fs = require('fs');
-            const path = require('path');
-
-            // Security check: ensure filename doesn't contain path traversal attempts
-            if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
-                return res.status(400).json({
-                    success: false,
-                    error: 'Invalid filename'
-                });
-            }
-
-            // Look for the YAML file in the tests/yaml directory
-            const yamlPath = path.join(__dirname, 'tests', 'yaml', filename);
-
-            // Check if file exists
-            if (!fs.existsSync(yamlPath)) {
-                return res.status(404).json({
-                    success: false,
-                    error: 'Script not found'
-                });
-            }
-
-            // Read the YAML file
-            const content = fs.readFileSync(yamlPath, 'utf8');
-
-            res.json({
-                success: true,
-                filename: filename,
-                content: content,
-                path: `tests/yaml/${filename}`
-            });
-
-        } catch (error) {
-            console.error(chalk.red('Error fetching YAML script:'), error);
             res.status(500).json({ success: false, error: error.message });
         }
     }

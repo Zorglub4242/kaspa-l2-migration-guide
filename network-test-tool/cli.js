@@ -45,46 +45,6 @@ program
     await runInteractiveMode();
   });
 
-// YAML test command
-program
-  .command('yaml <file>')
-  .description('Run YAML-based test files')
-  .option('-n, --networks <networks>', 'Override networks (comma-separated)')
-  .option('-d, --data <file>', 'Data file for data-driven testing')
-  .option('-o, --output <file>', 'Output file for results')
-  .option('--parallel', 'Run networks in parallel')
-  .option('-v, --verbose', 'Verbose output')
-  .option('--continue-on-error', 'Continue testing even if some tests fail')
-  .action(async (file, options) => {
-    const { runYAMLTest } = require('./lib/yaml-runner');
-    try {
-      await runYAMLTest(file, options);
-      process.exit(0);
-    } catch (error) {
-      console.error(chalk.red(`YAML test failed: ${error.message}`));
-      process.exit(1);
-    }
-  });
-
-// YAML test discovery command
-program
-  .command('yaml-discover [directory]')
-  .description('Discover and run all YAML tests in a directory')
-  .option('-n, --networks <networks>', 'Override networks (comma-separated)')
-  .option('--parallel', 'Run tests in parallel')
-  .option('-v, --verbose', 'Verbose output')
-  .action(async (directory = './test-yaml', options) => {
-    const { YAMLTestRunner } = require('./lib/yaml-runner');
-    const runner = new YAMLTestRunner(options);
-    try {
-      await runner.runDirectory(directory, options);
-      process.exit(0);
-    } catch (error) {
-      console.error(chalk.red(`YAML test discovery failed: ${error.message}`));
-      process.exit(1);
-    }
-  });
-
 // Main menu shortcut
 program
   .command('menu')

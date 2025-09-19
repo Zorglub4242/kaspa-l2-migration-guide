@@ -43,7 +43,6 @@ function loadNetworksSync() {
                 strategy: config.gasConfig.strategy,
                 base: ethers.utils.parseUnits(config.gasConfig.fallback || '20', 'gwei'),
                 fallback: ethers.utils.parseUnits(config.gasConfig.fallback || '20', 'gwei'),
-                fixed: config.gasConfig.fixed ? ethers.utils.parseUnits(config.gasConfig.fixed, 'gwei') : null,
                 maxGasPrice: ethers.utils.parseUnits(config.gasConfig.maxFeePerGas || '100', 'gwei'),
                 tolerance: 0.1
               },

@@ -41,7 +41,6 @@ class TestDatabase {
       this.db.pragma('cache_size = 1000');
       
       this.createTables();
-      this.runMigrations();
       this.isInitialized = true;
       
       console.log(chalk.green(`✅ Database initialized: ${this.dbPath}`));
@@ -274,41 +273,6 @@ class TestDatabase {
     });
   }
 
-  runMigrations() {
-    // Migration 1: Add YAML tracking columns to test_results table
-    try {
-      // Check if yaml_script_path column exists
-      const columns = this.db.pragma('table_info(test_results)');
-      const hasYamlColumns = columns.some(col => col.name === 'yaml_script_path');
-
-      if (!hasYamlColumns) {
-        console.log(chalk.cyan('🔄 Running database migration: Adding YAML tracking columns...'));
-
-        this.db.exec(`
-          ALTER TABLE test_results ADD COLUMN yaml_script_path TEXT;
-        `);
-        this.db.exec(`
-          ALTER TABLE test_results ADD COLUMN yaml_instruction_line INTEGER;
-        `);
-        this.db.exec(`
-          ALTER TABLE test_results ADD COLUMN yaml_instruction_text TEXT;
-        `);
-        this.db.exec(`
-          ALTER TABLE test_results ADD COLUMN yaml_step_index INTEGER;
-        `);
-
-        // Create indexes for the new columns
-        this.db.exec(`
-          CREATE INDEX IF NOT EXISTS idx_test_results_yaml_script ON test_results(yaml_script_path);
-        `);
-
-        console.log(chalk.green('✅ YAML tracking columns added successfully'));
-      }
-    } catch (error) {
-      console.warn(chalk.yellow(`⚠️  Migration warning: ${error.message}`));
-    }
-  }
-
   // Test run operations
   insertTestRun(runData) {
     if (!this.isInitialized) throw new Error('Database not initialized');
@@ -456,11 +420,10 @@ class TestDatabase {
         run_id, network_name, test_type, test_name, success,
         start_time, end_time, duration, gas_used, gas_price,
         transaction_hash, block_number, error_message, error_category,
-        cost_tokens, cost_usd, metadata,
-        yaml_script_path, yaml_instruction_line, yaml_instruction_text, yaml_step_index
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        cost_tokens, cost_usd, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-
+    
     return stmt.run(
       testRunId,
       testData.networkName,
@@ -478,11 +441,7 @@ class TestDatabase {
       testData.errorCategory,
       testData.costTokens || 0,
       testData.costUSD || 0,
-      JSON.stringify(testData.metadata || {}),
-      testData.yamlScriptPath,
-      testData.yamlInstructionLine,
-      testData.yamlInstructionText,
-      testData.yamlStepIndex
+      JSON.stringify(testData.metadata || {})
     );
   }
 

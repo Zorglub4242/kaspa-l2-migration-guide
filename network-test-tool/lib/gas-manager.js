@@ -33,22 +33,15 @@ class GasManager {
   async _getFixedGasPrice() {
     const { gasConfig } = this.config;
 
-    // Fixed strategy uses the configured fixed price
-    if (gasConfig.fixed) {
-      console.log(`💰 Using fixed gas price for ${this.config.name}: ${ethers.utils.formatUnits(gasConfig.fixed, 'gwei')} gwei`);
-      return gasConfig.fixed;
-    }
-
-    // Alternative: check for required price
+    // Fixed strategy uses the configured required price
     if (gasConfig.required) {
-      console.log(`💰 Using required gas price for ${this.config.name}: ${ethers.utils.formatUnits(gasConfig.required, 'gwei')} gwei`);
+      console.log(`💰 Using fixed gas price for ${this.config.name}: ${ethers.utils.formatUnits(gasConfig.required, 'gwei')} gwei`);
       return gasConfig.required;
     }
 
-    // Fallback to base price if no fixed price is set
-    const fallbackPrice = ethers.utils.parseUnits(gasConfig.fallback, 'gwei');
-    console.warn(`⚠️ No fixed price set for fixed strategy, using fallback: ${gasConfig.fallback} gwei`);
-    return fallbackPrice;
+    // Fallback to base price if no required price is set
+    console.warn(`⚠️ No required price set for fixed strategy, using base: ${ethers.utils.formatUnits(gasConfig.base || gasConfig.fallback, 'gwei')} gwei`);
+    return gasConfig.base || gasConfig.fallback;
   }
 
   async _getAdaptiveGasPrice() {

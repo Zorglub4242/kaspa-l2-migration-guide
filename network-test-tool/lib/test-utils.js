@@ -19,15 +19,6 @@ class TestResult {
     this.db = null;
     this.timeSeriesTracker = null;
     this.persistToDB = true; // Enable database persistence by default
-
-    // YAML execution context for tracking script origins
-    this.yamlContext = {
-      scriptPath: null,
-      scriptContent: null,
-      currentStepIndex: null,
-      currentInstructionLine: null,
-      currentInstructionText: null
-    };
   }
 
   async initializeDatabase() {
@@ -45,7 +36,7 @@ class TestResult {
           startTime: new Date(this.startTime).toISOString(),
           mode: 'standard',
           parallel: false,
-          networks: [typeof this.network === 'string' ? this.network : (this.network?.name || 'unknown')],
+          networks: [this.network.name || 'unknown'],
           testTypes: [this.testName],
           configuration: {
             network: this.network,
@@ -61,50 +52,6 @@ class TestResult {
         }
       }
     }
-  }
-
-  /**
-   * Set the YAML script context for tracking test origins
-   * @param {string} scriptPath - Path to the YAML test file
-   * @param {string} scriptContent - Full content of the YAML file
-   */
-  setYamlScript(scriptPath, scriptContent) {
-    this.yamlContext.scriptPath = scriptPath;
-    this.yamlContext.scriptContent = scriptContent;
-  }
-
-  /**
-   * Set the current instruction context during YAML execution
-   * @param {number} stepIndex - Index of the current step in scenario
-   * @param {number} instructionLine - Line number in YAML file
-   * @param {string} instructionText - The actual YAML instruction text
-   */
-  setYamlInstruction(stepIndex, instructionLine, instructionText) {
-    this.yamlContext.currentStepIndex = stepIndex;
-    this.yamlContext.currentInstructionLine = instructionLine;
-    this.yamlContext.currentInstructionText = instructionText;
-  }
-
-  /**
-   * Clear the current instruction context (useful between steps)
-   */
-  clearYamlInstruction() {
-    this.yamlContext.currentStepIndex = null;
-    this.yamlContext.currentInstructionLine = null;
-    this.yamlContext.currentInstructionText = null;
-  }
-
-  /**
-   * Get the current YAML context for inclusion in test results
-   * @returns {Object} YAML context object
-   */
-  getYamlContext() {
-    return {
-      scriptPath: this.yamlContext.scriptPath,
-      stepIndex: this.yamlContext.currentStepIndex,
-      instructionLine: this.yamlContext.currentInstructionLine,
-      instructionText: this.yamlContext.currentInstructionText
-    };
   }
 
   generateRunId() {
@@ -155,31 +102,22 @@ class TestResult {
     try {
       await this.initializeDatabase();
       
-      // Get current YAML context
-      const yamlContext = this.getYamlContext();
-
       const testData = {
         runId: this.runId,
-        networkName: typeof this.network === 'string' ? this.network : (this.network?.name || 'unknown'),
+        networkName: this.network.name || 'unknown',
         testType: this.testName,
         testName: result.operation,
         success: result.success,
         startTime: new Date(result.timestamp).toISOString(),
         endTime: result.duration ? new Date(result.timestamp + result.duration).toISOString() : new Date(result.timestamp).toISOString(),
-        duration: result.duration || 0,
-        gasUsed: typeof result.gasUsed === 'object' ? result.gasUsed.toString() : (result.gasUsed || 0),
-        gasPrice: typeof result.gasPrice === 'object' ? result.gasPrice.toString() : (result.gasPrice || 0),
+        duration: result.duration,
+        gasUsed: result.gasUsed,
+        gasPrice: result.gasPrice,
         transactionHash: result.transactionHash,
         blockNumber: result.blockNumber,
         errorMessage: result.error,
         errorCategory: this.categorizeError(result.error),
-        metadata: JSON.stringify(result.metadata || {}),
-
-        // YAML tracking fields
-        yamlScriptPath: yamlContext.scriptPath,
-        yamlInstructionLine: yamlContext.instructionLine,
-        yamlInstructionText: yamlContext.instructionText,
-        yamlStepIndex: yamlContext.stepIndex
+        metadata: result.metadata || {}
       };
       
       this.db.insertTestResult(testData);
@@ -194,7 +132,7 @@ class TestResult {
     
     try {
       const timestamp = new Date().toISOString();
-      const networkName = typeof this.network === 'string' ? this.network : (this.network?.name || 'unknown');
+      const networkName = this.network.name || 'unknown';
       
       // Record basic metrics
       const metrics = {
@@ -229,8 +167,8 @@ class TestResult {
 
   categorizeError(error) {
     if (!error) return null;
-
-    const errorMessage = (typeof error === 'string' ? error : String(error)).toLowerCase();
+    
+    const errorMessage = error.toLowerCase();
     
     if (errorMessage.includes('gas')) return 'gas_error';
     if (errorMessage.includes('timeout')) return 'timeout_error';
@@ -241,83 +179,17 @@ class TestResult {
     return 'unknown_error';
   }
 
-  addError(operation, error) {
-    this.results.push({
-      operation,
-      success: false,
-      error: error instanceof Error ? error.message : error,
-      timestamp: Date.now()
-    });
-  }
-
-  addSuccess(operation, details = {}) {
-    this.results.push({
-      operation,
-      success: true,
-      ...details,
-      timestamp: Date.now()
-    });
-  }
-
-  addGasUsed(gasUsed) {
-    this.gasUsage.total += parseInt(gasUsed.toString());
-  }
-
-  endTest() {
-    this.endTime = Date.now();
-    this.summary = {
-      passed: this.results.filter(r => r.success).length,
-      failed: this.results.filter(r => !r.success).length,
-      total: this.results.length,
-      duration: this.endTime - this.startTime
-    };
-  }
-
   getSuccessRate() {
     const successful = this.results.filter(r => r.success).length;
-    return this.results.length > 0 ? successful / this.results.length : 0;
+    return successful / this.results.length;
   }
 
   getDuration() {
-    return this.endTime ? this.endTime - this.startTime : Date.now() - this.startTime;
+    return Date.now() - this.startTime;
   }
 
   async save(customPath) {
-    // Get network config from either chainId (for objects) or string name
-    let config;
-    if (typeof this.network === 'object' && this.network.chainId) {
-      config = getNetworkConfig(this.network.chainId);
-      // If not found by chainId, use the network object itself
-      if (!config && this.network.name) {
-        config = this.network;
-      }
-    } else if (typeof this.network === 'string') {
-      config = getNetworkConfig(this.network);
-    }
-
-    // Fallback: create config from network object or minimal config
-    if (!config) {
-      if (typeof this.network === 'object' && this.network.name) {
-        // Use the network object directly
-        config = {
-          name: this.network.name,
-          chainId: this.network.chainId || 0,
-          symbol: this.network.symbol || 'ETH',
-          explorer: this.network.explorer || { base: '', tx: (hash) => `${this.network.explorer?.base || ''}tx/${hash}` },
-          faucet: this.network.faucet || null
-        };
-      } else {
-        // Ultimate fallback
-        config = {
-          name: 'unknown',
-          chainId: 0,
-          symbol: 'ETH',
-          explorer: { base: '', tx: (hash) => `tx/${hash}` },
-          faucet: null
-        };
-      }
-    }
-
+    const config = getNetworkConfig(this.network.chainId);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = customPath || `${this.testName}-${config.chainId}-${timestamp}.json`;
     const filePath = path.join('test-results', filename);
@@ -343,8 +215,8 @@ class TestResult {
       results: this.results,
       timestamp: new Date().toISOString(),
       metadata: {
-        explorer: config.explorer?.base || '',
-        faucet: config.faucet || null
+        explorer: config.explorer.base,
+        faucet: config.faucet
       }
     };
 
@@ -365,30 +237,7 @@ class TestResult {
     try {
       await this.initializeDatabase();
 
-      // Get network config from either chainId (for objects) or string name
-      let config;
-      if (typeof this.network === 'object' && this.network.chainId) {
-        config = getNetworkConfig(this.network.chainId);
-        // If not found by chainId, use the network object itself
-        if (!config && this.network.name) {
-          config = this.network;
-        }
-      } else if (typeof this.network === 'string') {
-        config = getNetworkConfig(this.network);
-      }
-
-      // Fallback: create config from network object or minimal config
-      if (!config) {
-        if (typeof this.network === 'object' && this.network.name) {
-          config = this.network;
-        } else {
-          config = {
-            name: 'unknown',
-            chainId: 0,
-            symbol: 'ETH'
-          };
-        }
-      }
+      const config = getNetworkConfig(this.network.chainId);
       
       // Save test run summary
       const testRunData = {
@@ -459,14 +308,7 @@ class Logger {
   constructor(network, testName) {
     this.network = network;
     this.testName = testName;
-    // Handle both network objects and chainIds
-    if (typeof network === 'object' && network.chainId) {
-      this.config = getNetworkConfig(network.chainId) || network;
-    } else if (typeof network === 'string') {
-      this.config = getNetworkConfig(network) || { name: network };
-    } else {
-      this.config = network; // Use network directly if it's already config
-    }
+    this.config = getNetworkConfig(network.chainId);
   }
 
   info(message) {
@@ -486,7 +328,7 @@ class Logger {
   }
 
   transaction(hash, operation) {
-    const explorerUrl = this.config.explorer?.tx ? this.config.explorer.tx(hash) : `tx/${hash}`;
+    const explorerUrl = this.config.explorer.tx(hash);
     console.log(`🔗 [${this.config.name}] ${operation}: ${explorerUrl}`);
   }
 
