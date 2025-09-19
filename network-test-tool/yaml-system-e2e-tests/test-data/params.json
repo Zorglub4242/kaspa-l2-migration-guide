@@ -1,1 +1,0 @@
-[{"a":10,"b":20,"operation":"add","expected":30},{"a":50,"b":20,"operation":"subtract","expected":30},{"a":5,"b":6,"operation":"multiply","expected":30},{"a":60,"b":2,"operation":"divide","expected":30}]

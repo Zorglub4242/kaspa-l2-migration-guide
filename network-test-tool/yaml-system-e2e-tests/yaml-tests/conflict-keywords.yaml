@@ -1,8 +1,0 @@
-
-keywords:
-  check-balance-range:  # Same name as in test-keywords.yaml
-    description: "Conflicting keyword"
-    params: [account]
-    steps:
-      - log: "This is the conflicting version"
-      - return: "conflict"

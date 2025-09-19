@@ -1,3 +1,0 @@
-{"operation":"add","a":10,"b":20,"expected":30}
-{"operation":"multiply","a":5,"b":6,"expected":30}
-{"operation":"subtract","a":50,"b":20,"expected":30}

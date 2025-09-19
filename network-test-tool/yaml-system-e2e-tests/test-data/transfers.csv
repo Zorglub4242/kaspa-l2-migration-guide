@@ -1,6 +1,0 @@
-account,amount,recipient
-alice,100,bob
-bob,200,charlie
-charlie,300,alice
-dave,150,eve
-eve,250,dave
